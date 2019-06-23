@@ -15,16 +15,24 @@ namespace WindowsFormsApp1
 
     public partial class Transform : Form
     {
-        List<Web> PLgrid = new List<Web>();
+        
         StringBuilder start = new StringBuilder("");
         StringBuilder end = new StringBuilder("");
+        StringBuilder startETRF = new StringBuilder("");
+        StringBuilder endETRF = new StringBuilder("");
         List<Point> Points = new List<Point>();
         List<Point3D> Points3D = new List<Point3D>();
         List<PointBLH> PointsBLH = new List<PointBLH>();
         string[] data;
+        /* Zmienne bool degreeForm i degreeForm odpowiadają za format danych kątowych wejściowych i wyjściowym. true oznacza format kątowy.
+         False oznacza format kąt-min-sec. Nie ma opcji wprowadzania danych w gradach!*/
         bool degreeForm = true; bool resultDegreeForm = true;
+        /*parametr longitude określa wartość południka osiowego, jeśli takowy występuje.*/
         byte longitude=0;
+        // canIStartCounting sprawdza, czy dane wejściowe zostały wprowadzone prawidłowo oraz czy układ wyjściowy został wybrany.
         bool canIStartCounting = false;
+        //TransformateOption określa czy wybrano rozwiązanie teoretyczne czy empiryczne [grid]. True - teoretyczna, false - empiryczna.
+        bool transformateOption = true;
         public void setFalseGroupBoxVisibility(GroupBox first, GroupBox second)
         {
             first.Visible = false;
@@ -288,29 +296,22 @@ namespace WindowsFormsApp1
             if (!filePath.Text.Equals(""))
             {
                 getPointsData();
-                //O MATKO, BĘDZIE TRZEBA ZACZĄĆ TRANSFORMOWAĆ
+                
                 if (this.canIStartCounting)
                 {
-                    //this.PointsBLH.ForEach(x =>
-                    //{
-                    //    x.convertToDegrees();
-                    //});
-                    //List<Point3D> list = BLH2XYZ(this.PointsBLH);
-                    //list.ForEach(x => { 
-                    //x.Display(); });
-                    double precision = 1 / 3600 * 0.0001 * Math.PI / 180;
-                    List<PointBLH> BLH = XYZ2BLH(this.Points3D, precision);
-                    BLH.ForEach(x =>
-                    {
-                        x.Display();
-                    });
+                    double anglePrecision = Convert.ToDouble(this.AnglePrecisionDUD.Text)/3600 * Math.PI / 180;
+                    double lengthPrecision = Convert.ToDouble(this.LengthPrecisionDUD.Text) * Math.PI / 180;
                     this.Points3D.Clear();
+                    this.Points.Clear();
+                    this.PointsBLH.Clear();
                 }
+                
             }
             else
             {
                 MessageBox.Show("Nie wybrano zbioru punktów.");
             }
+            this.longitude = 0;
         }
       
         //WYBÓR UKŁADU WSPÓŁRZĘDNYCH PLIKÓW: WEJŚĆIOWEGO I WYJŚCIOWEGO
@@ -391,21 +392,29 @@ namespace WindowsFormsApp1
         private void ETRF2000_CheckedChanged(object sender, EventArgs e)
         {
             ChoiceOne.Visible = true;
+            this.startETRF.Clear();
+            this.startETRF.Append("ETRF2000");
         }
 
         private void ETRF89_CheckedChanged(object sender, EventArgs e)
         {
             ChoiceOne.Visible = true;
+            this.startETRF.Clear();
+            this.startETRF.Append("ETRF89");
         }
 
         private void ResETRF2000_CheckedChanged(object sender, EventArgs e)
         {
             ChoiceTwo.Visible = true;
+            this.endETRF.Clear();
+            this.endETRF.Append("ETRF2000");
         }
 
         private void ResETRF89_CheckedChanged(object sender, EventArgs e)
         {
             ChoiceTwo.Visible = true;
+            this.endETRF.Clear();
+            this.endETRF.Append("ETRF89");
         }
 
         //WYBÓR FORMATU BLH PLIKÓW: WEJŚCIOWEGO I WYJŚCIOWEGO
@@ -481,6 +490,7 @@ namespace WindowsFormsApp1
             List<Point3D> result = new List<Point3D>();
             PointsBLH.ForEach(x =>
             {
+                if (!x.Format()) { x.convertToDegrees(); }
                 string name = x.Name();
                 double N = a / Math.Sqrt(1 - e2 * Math.Sin(x.fi()*Math.PI/180) * Math.Sin(x.fi() * Math.PI / 180));
                 double X = (N + x.height()) * Math.Cos(x.fi() * Math.PI / 180) * Math.Cos(x.lambda() * Math.PI / 180);
@@ -531,6 +541,7 @@ namespace WindowsFormsApp1
             double A6 = 35 * Math.Pow(e2,3) / 3072;
             PointsBLH.ForEach(p =>
             {
+                if (!p.Format()) { p.convertToDegrees(); }
                 double fi = p.fi() * Math.PI / 180; double lambda = p.lambda() * Math.PI / 180;
                 double sigma = a * (A0 * fi - A2 * Math.Sin(2 * fi) + A4 * Math.Sin(4 * fi) - A6 * Math.Sin(6 * fi));
                 double l = lambda - longitude0;
@@ -590,6 +601,7 @@ namespace WindowsFormsApp1
             double A6 = 35 * Math.Pow(e2, 3) / 3072;
             PointsBLH.ForEach(p =>
             {
+                if (!p.Format()) { p.convertToDegrees(); }
                 double fi = p.fi() * Math.PI / 180; double lambda = p.lambda() * Math.PI / 180;
                 double l = lambda - longitude0;
                 double t = Math.Tan(fi);
@@ -657,7 +669,7 @@ namespace WindowsFormsApp1
             });
             return result;
         }
-        //SCENARIUSZE TRANSFORMACYJNE: 
+        //SCENARIUSZE TRANSFORMACYJNE: POPRAWIĆ I DODAĆ UTM!!!
         public List<Point> U2000To1992(byte longitude, double precision, List<Point> Points)
         {
             List<Point> result = GKToU1992(BLH2XYGK(XYGK2BLH(U2000ToGK(Points,longitude),longitude,precision), longitude));
@@ -668,7 +680,7 @@ namespace WindowsFormsApp1
             List<Point> result = GKToU2000(BLH2XYGK(XYGK2BLH(U1992ToGK(Points), longitude, precision), longitude), longitude);
                 return result;
         }
-        //wszystkie wartości longitude powyżej odnoszą się do południka osiowego układu 2000.
+        //wszystkie wartości longitude odnoszą się do południka osiowego układu 2000.
         public List<Point3D> U2000ToXYZ(byte longitude, double precision, List<Point> Points)
         {
             List<Point3D> result = BLH2XYZ(XYGK2BLH(U2000ToGK(Points, longitude), longitude, precision));
@@ -713,6 +725,20 @@ namespace WindowsFormsApp1
         private void TabPage1_Click(object sender, EventArgs e)
         {
             
+        }
+        //USTALENIE MOŻLIWEJ DOKŁADNOŚCI KĄTOWEJ I LINIOWEJ
+        private void Transform_Load(object sender, EventArgs e)
+        {
+            DomainUpDown.DomainUpDownItemCollection collection = this.AnglePrecisionDUD.Items;
+            collection.Add("0.001");
+            collection.Add("0.0001");
+            collection.Add("0.00001");
+            this.AnglePrecisionDUD.Text = "0.0001";
+            DomainUpDown.DomainUpDownItemCollection collection2 = this.LengthPrecisionDUD.Items;
+            collection2.Add("0.001");
+            collection2.Add("0.0001");
+            collection2.Add("0.00001");
+            this.LengthPrecisionDUD.Text = "0.0001";
         }
     }
 
@@ -793,6 +819,7 @@ namespace WindowsFormsApp1
         string name;
         double B = -1, Bmin = -1, Bsec = -1, L = -1, Lmin = -1, Lsec = -1;
         double H;
+        //format: true - ułamki kątowe; false - kąt,min,sec;
         bool format;
         public PointBLH(string name, double B, double L, double H)
         {
@@ -818,6 +845,10 @@ namespace WindowsFormsApp1
         public double height()
         {
             return this.H;
+        }
+        public bool Format()
+        {
+            return this.format;
         }
         public void convertToDegrees()
         {
@@ -861,7 +892,7 @@ namespace WindowsFormsApp1
             }
             if (!this.format)
             {
-                //SPRAWDZA CZY WARTOŚCIE STOPNIOWE SĄ LICZBAMI CAŁKOWITYMI
+                //SPRAWDZA CZY WARTOŚCI STOPNIOWE SĄ LICZBAMI CAŁKOWITYMI
                 bool isIntegerB = Math.Floor(this.B).Equals(this.B);
                 bool isIntegerL = Math.Floor(this.L).Equals(this.L);
                 if (isIntegerB && isIntegerL)
@@ -910,13 +941,6 @@ namespace WindowsFormsApp1
         }
     
     }
-    public partial class Web
-    {
-        double B, L;
-        int indexX, indexY;
-        public Web(double B, double L, int x, int y)
-        {
-            this.B = B; this.L = L; this.indexX = x; this.indexY = y;
-        }
-    }
+    
+   
 }

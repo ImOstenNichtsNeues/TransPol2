@@ -674,7 +674,9 @@
             // 
             this.LengthPrecisionDUD.Location = new System.Drawing.Point(157, 37);
             this.LengthPrecisionDUD.Name = "LengthPrecisionDUD";
+            this.LengthPrecisionDUD.ReadOnly = true;
             this.LengthPrecisionDUD.Size = new System.Drawing.Size(60, 20);
+            this.LengthPrecisionDUD.Sorted = true;
             this.LengthPrecisionDUD.TabIndex = 22;
             this.LengthPrecisionDUD.Text = "0.0001";
             // 
@@ -682,7 +684,9 @@
             // 
             this.AnglePrecisionDUD.Location = new System.Drawing.Point(157, 10);
             this.AnglePrecisionDUD.Name = "AnglePrecisionDUD";
-            this.AnglePrecisionDUD.Size = new System.Drawing.Size(61, 20);
+            this.AnglePrecisionDUD.ReadOnly = true;
+            this.AnglePrecisionDUD.Size = new System.Drawing.Size(60, 20);
+            this.AnglePrecisionDUD.Sorted = true;
             this.AnglePrecisionDUD.TabIndex = 21;
             this.AnglePrecisionDUD.Text = "0.0001";
             // 
@@ -815,6 +819,7 @@
             this.Controls.Add(this.tabControl1);
             this.Name = "Transform";
             this.Text = "TransPol w.2.06";
+            this.Load += new System.EventHandler(this.Transform_Load);
             this.ChoiceOne.ResumeLayout(false);
             this.ChoiceOne.PerformLayout();
             this.ChoiceTwo.ResumeLayout(false);
