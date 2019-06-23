@@ -78,8 +78,8 @@
             this.LengthInfo = new System.Windows.Forms.Label();
             this.AngleInfo = new System.Windows.Forms.Label();
             this.TransOption = new System.Windows.Forms.GroupBox();
-            this.radioButton1 = new System.Windows.Forms.RadioButton();
-            this.radioButton2 = new System.Windows.Forms.RadioButton();
+            this.GridOptionRB = new System.Windows.Forms.RadioButton();
+            this.TeoreticOptionRB = new System.Windows.Forms.RadioButton();
             this.richTextBox1 = new System.Windows.Forms.RichTextBox();
             this.FormatBLH = new System.Windows.Forms.GroupBox();
             this.degMinSecBLH = new System.Windows.Forms.RadioButton();
@@ -710,8 +710,8 @@
             // 
             // TransOption
             // 
-            this.TransOption.Controls.Add(this.radioButton1);
-            this.TransOption.Controls.Add(this.radioButton2);
+            this.TransOption.Controls.Add(this.GridOptionRB);
+            this.TransOption.Controls.Add(this.TeoreticOptionRB);
             this.TransOption.Location = new System.Drawing.Point(259, 323);
             this.TransOption.Name = "TransOption";
             this.TransOption.Size = new System.Drawing.Size(250, 33);
@@ -719,29 +719,31 @@
             this.TransOption.TabStop = false;
             this.TransOption.Text = "Opcja Transformacji";
             // 
-            // radioButton1
+            // GridOptionRB
             // 
-            this.radioButton1.AutoSize = true;
-            this.radioButton1.ForeColor = System.Drawing.Color.Maroon;
-            this.radioButton1.Location = new System.Drawing.Point(145, 13);
-            this.radioButton1.Name = "radioButton1";
-            this.radioButton1.Size = new System.Drawing.Size(79, 17);
-            this.radioButton1.TabIndex = 5;
-            this.radioButton1.Text = "Empiryczna";
-            this.radioButton1.UseVisualStyleBackColor = true;
+            this.GridOptionRB.AutoSize = true;
+            this.GridOptionRB.ForeColor = System.Drawing.Color.Maroon;
+            this.GridOptionRB.Location = new System.Drawing.Point(145, 13);
+            this.GridOptionRB.Name = "GridOptionRB";
+            this.GridOptionRB.Size = new System.Drawing.Size(79, 17);
+            this.GridOptionRB.TabIndex = 5;
+            this.GridOptionRB.Text = "Empiryczna";
+            this.GridOptionRB.UseVisualStyleBackColor = true;
+            this.GridOptionRB.CheckedChanged += new System.EventHandler(this.GridOptionRB_CheckedChanged);
             // 
-            // radioButton2
+            // TeoreticOptionRB
             // 
-            this.radioButton2.AutoSize = true;
-            this.radioButton2.Checked = true;
-            this.radioButton2.ForeColor = System.Drawing.Color.Maroon;
-            this.radioButton2.Location = new System.Drawing.Point(7, 13);
-            this.radioButton2.Name = "radioButton2";
-            this.radioButton2.Size = new System.Drawing.Size(84, 17);
-            this.radioButton2.TabIndex = 4;
-            this.radioButton2.TabStop = true;
-            this.radioButton2.Text = "Teoretyczna";
-            this.radioButton2.UseVisualStyleBackColor = true;
+            this.TeoreticOptionRB.AutoSize = true;
+            this.TeoreticOptionRB.Checked = true;
+            this.TeoreticOptionRB.ForeColor = System.Drawing.Color.Maroon;
+            this.TeoreticOptionRB.Location = new System.Drawing.Point(7, 13);
+            this.TeoreticOptionRB.Name = "TeoreticOptionRB";
+            this.TeoreticOptionRB.Size = new System.Drawing.Size(84, 17);
+            this.TeoreticOptionRB.TabIndex = 4;
+            this.TeoreticOptionRB.TabStop = true;
+            this.TeoreticOptionRB.Text = "Teoretyczna";
+            this.TeoreticOptionRB.UseVisualStyleBackColor = true;
+            this.TeoreticOptionRB.CheckedChanged += new System.EventHandler(this.TeoreticOptionRB_CheckedChanged);
             // 
             // richTextBox1
             // 
@@ -904,8 +906,8 @@
         private System.Windows.Forms.RadioButton degreesBLH;
         private System.Windows.Forms.RichTextBox richTextBox1;
         private System.Windows.Forms.GroupBox TransOption;
-        private System.Windows.Forms.RadioButton radioButton1;
-        private System.Windows.Forms.RadioButton radioButton2;
+        private System.Windows.Forms.RadioButton GridOptionRB;
+        private System.Windows.Forms.RadioButton TeoreticOptionRB;
         private System.Windows.Forms.Label AngleInfo;
         private System.Windows.Forms.GroupBox PrecisionGB;
         private System.Windows.Forms.Label LengthInfo;

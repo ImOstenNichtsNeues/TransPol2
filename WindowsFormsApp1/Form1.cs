@@ -672,7 +672,24 @@ namespace WindowsFormsApp1
         //SCENARIUSZE TRANSFORMACYJNE: POPRAWIĆ I DODAĆ UTM!!!
         public List<Point> U2000To1992(byte longitude, double precision, List<Point> Points)
         {
-            List<Point> result = GKToU1992(BLH2XYGK(XYGK2BLH(U2000ToGK(Points,longitude),longitude,precision), longitude));
+            List<Point> result = new List<Point>();
+            List<PointBLH> bottom = XYGK2BLH(U2000ToGK(Points, longitude), longitude, precision);
+            if (this.startETRF.Equals(this.endETRF))
+            {
+                List<Point> result2 = GKToU1992(BLH2XYGK(bottom, longitude));
+            }
+            else if (this.startETRF.Equals("ETRF89") && this.endETRF.Equals(ETRF2000))
+            {
+                if (this.transformateOption)
+                {
+                    List<Point3D> helper = BLH2XYZ(bottom);
+                    helper.ForEach(p => {
+                        p.ETRF89TO2000();
+                    });
+
+                }
+            }
+            ////List<Point> result = GKToU1992(BLH2XYGK(XYGK2BLH(U2000ToGK(Points, longitude), longitude, precision), longitude));
             return result;
         }
         public List<Point> U1992To2000(byte longitude, double precision, List<Point> Points)
@@ -739,6 +756,16 @@ namespace WindowsFormsApp1
             collection2.Add("0.0001");
             collection2.Add("0.00001");
             this.LengthPrecisionDUD.Text = "0.0001";
+        }
+
+        private void TeoreticOptionRB_CheckedChanged(object sender, EventArgs e)
+        {
+            this.transformateOption = true;
+        }
+
+        private void GridOptionRB_CheckedChanged(object sender, EventArgs e)
+        {
+            this.transformateOption = false;
         }
     }
 
