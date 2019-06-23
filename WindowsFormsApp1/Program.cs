@@ -14,7 +14,7 @@ namespace WindowsFormsApp1
     static class Program
     {
         /// <summary>
-        /// Główny punkt wejścia dla aplikacji. ggggggggg
+        /// Główny punkt wejścia dla aplikacji.  
         /// </summary>
         [STAThread]
         static void Main()
