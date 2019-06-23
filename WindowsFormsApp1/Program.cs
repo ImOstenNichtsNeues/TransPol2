@@ -6,6 +6,11 @@ using System.Windows.Forms;
 
 namespace WindowsFormsApp1
 {
+
+///<summary>
+/// kom
+/// </summary>
+
     static class Program
     {
         /// <summary>
