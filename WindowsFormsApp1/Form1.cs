@@ -291,7 +291,7 @@ namespace WindowsFormsApp1
         }
         private void CountUp_Click(object sender, EventArgs e)
         {
-            
+            //List<WebGrid> greedy = webGrids();
             //MessageBox.Show(this.degreeForm + " " + this.resultDegreeForm);
             if (!filePath.Text.Equals(""))
             {
@@ -313,7 +313,29 @@ namespace WindowsFormsApp1
             }
             this.longitude = 0;
         }
-      
+        //WCZYTANIE SIATKI GRID DO METODY EMPIRYCZNEJ oraz INTERPOLACJA DWULINIOWA
+        private List<WebGrid> webGrids()
+        {
+            List<WebGrid> result = new List<WebGrid>();
+            string [] text = File.ReadAllLines("gridETRF.txt");
+            foreach(string line in text)
+            {
+                string[] point = Regex.Split(line.Trim(), @"\s+");
+                result.Add(new WebGrid(Convert.ToDouble(point[0]), Convert.ToDouble(point[1]), Convert.ToDouble(point[2]), Convert.ToDouble(point[3]), Convert.ToDouble(point[4])));
+            }     
+            return result;
+        }
+        private List<PointBLH> BilinearInterpolation(List<PointBLH> points)
+        {
+            List<WebGrid> grid = webGrids();
+            List<PointBLH> result = new List<PointBLH>();
+            points.ForEach(p =>
+            {
+                double B = p.fi(); double L = p.lambda();
+
+            });
+            return result;
+        }
         //WYBÓR UKŁADU WSPÓŁRZĘDNYCH PLIKÓW: WEJŚĆIOWEGO I WYJŚCIOWEGO
         private void XY2000_CheckedChanged(object sender, EventArgs e)
         {
@@ -743,7 +765,7 @@ namespace WindowsFormsApp1
         {
             
         }
-        //USTALENIE MOŻLIWEJ DOKŁADNOŚCI KĄTOWEJ I LINIOWEJ
+        //USTALENIE MOŻLIWEJ DOKŁADNOŚCI KĄTOWEJ I LINIOWEJ oraz WYBÓR METODY OBLICZENIOWEJ
         private void Transform_Load(object sender, EventArgs e)
         {
             DomainUpDown.DomainUpDownItemCollection collection = this.AnglePrecisionDUD.Items;
@@ -969,5 +991,33 @@ namespace WindowsFormsApp1
     
     }
     
+    public partial class WebGrid
+    {
+        double B, L, dB, dL, dH;
+        public WebGrid(double B, double L, double dB, double dL, double dH)
+        {
+            this.B = B; this.L = L; this.dB = dB; this.dL = dL; this.dH = dH;
+        }
+        public double fi()
+        {
+            return this.B;
+        }
+        public double lambda()
+        {
+            return this.L;
+        }
+        public double deltaFi()
+        {
+            return this.dB;
+        }
+        public double deltaLambda()
+        {
+            return this.dL;
+        }
+        public double deltaH()
+        {
+            return this.dH;
+        }
+    }
    
 }
