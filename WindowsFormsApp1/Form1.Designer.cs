@@ -80,7 +80,7 @@
             this.TransOption = new System.Windows.Forms.GroupBox();
             this.GridOptionRB = new System.Windows.Forms.RadioButton();
             this.TeoreticOptionRB = new System.Windows.Forms.RadioButton();
-            this.richTextBox1 = new System.Windows.Forms.RichTextBox();
+            this.MonitorRichTextBox = new System.Windows.Forms.RichTextBox();
             this.FormatBLH = new System.Windows.Forms.GroupBox();
             this.degMinSecBLH = new System.Windows.Forms.RadioButton();
             this.degreesBLH = new System.Windows.Forms.RadioButton();
@@ -634,7 +634,7 @@
             this.tabPage1.BackColor = System.Drawing.Color.DarkGray;
             this.tabPage1.Controls.Add(this.PrecisionGB);
             this.tabPage1.Controls.Add(this.TransOption);
-            this.tabPage1.Controls.Add(this.richTextBox1);
+            this.tabPage1.Controls.Add(this.MonitorRichTextBox);
             this.tabPage1.Controls.Add(this.resFormatBLH);
             this.tabPage1.Controls.Add(this.FormatBLH);
             this.tabPage1.Controls.Add(this.TextBoxTrans2D3D);
@@ -745,14 +745,15 @@
             this.TeoreticOptionRB.UseVisualStyleBackColor = true;
             this.TeoreticOptionRB.CheckedChanged += new System.EventHandler(this.TeoreticOptionRB_CheckedChanged);
             // 
-            // richTextBox1
+            // MonitorRichTextBox
             // 
-            this.richTextBox1.BackColor = System.Drawing.Color.Aquamarine;
-            this.richTextBox1.Location = new System.Drawing.Point(515, 31);
-            this.richTextBox1.Name = "richTextBox1";
-            this.richTextBox1.Size = new System.Drawing.Size(224, 283);
-            this.richTextBox1.TabIndex = 14;
-            this.richTextBox1.Text = "MONITOR:";
+            this.MonitorRichTextBox.BackColor = System.Drawing.Color.Aquamarine;
+            this.MonitorRichTextBox.Location = new System.Drawing.Point(515, 31);
+            this.MonitorRichTextBox.Name = "MonitorRichTextBox";
+            this.MonitorRichTextBox.ScrollBars = System.Windows.Forms.RichTextBoxScrollBars.Vertical;
+            this.MonitorRichTextBox.Size = new System.Drawing.Size(224, 283);
+            this.MonitorRichTextBox.TabIndex = 14;
+            this.MonitorRichTextBox.Text = "MONITOR:";
             // 
             // FormatBLH
             // 
@@ -904,7 +905,7 @@
         private System.Windows.Forms.GroupBox FormatBLH;
         private System.Windows.Forms.RadioButton degMinSecBLH;
         private System.Windows.Forms.RadioButton degreesBLH;
-        private System.Windows.Forms.RichTextBox richTextBox1;
+        private System.Windows.Forms.RichTextBox MonitorRichTextBox;
         private System.Windows.Forms.GroupBox TransOption;
         private System.Windows.Forms.RadioButton GridOptionRB;
         private System.Windows.Forms.RadioButton TeoreticOptionRB;

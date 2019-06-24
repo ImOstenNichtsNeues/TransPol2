@@ -33,6 +33,7 @@ namespace WindowsFormsApp1
         bool canIStartCounting = false;
         //TransformateOption określa czy wybrano rozwiązanie teoretyczne czy empiryczne [grid]. True - teoretyczna, false - empiryczna.
         bool transformateOption = true;
+        public static RichTextBox box = new RichTextBox();
         public void setFalseGroupBoxVisibility(GroupBox first, GroupBox second)
         {
             first.Visible = false;
@@ -78,19 +79,21 @@ namespace WindowsFormsApp1
                                 if (ex is FormatException || ex is ArgumentException)
                                 {
                                     problems++;
-                                    MessageBox.Show("Punkt " + data[0] + ": Niedopuszczalna wartość parametrów."); break;
+                                    this.MonitorRichTextBox.Text+=("Punkt " + data[0] + ": Niedopuszczalna wartość parametrów.\n");
                                 }
                                 else { MessageBox.Show("Nastąpił błąd wczytania pliku. Sprawdź format danych wejściowych."); problems++; break; }
                             }
                         }
-                        else { MessageBox.Show("Punkt " + data[0] + ": Nieodpowiednia liczba wejściowych parametrów(" + data.Length + ")"); problems++; break; }
+                        else { this.MonitorRichTextBox.Text += ("Punkt " + data[0] + ": Nieodpowiednia liczba wejściowych parametrów(" + data.Length + ").\n"); problems++; }
                     }
-                } 
+                }
             }
-            else { MessageBox.Show("Plik \"" + Path.GetFileName(filePath.Text) + "\" jest pusty."); problems++;  }
-            if (problems == 0) { this.canIStartCounting = true; }
+            else { MessageBox.Show("Plik \"" + Path.GetFileName(filePath.Text) + "\" jest pusty."); problems++; }
             clock.Stop();
-            MessageBox.Show(clock.Elapsed+" ");
+            if (problems == 0) { this.canIStartCounting = true; 
+            this.MonitorRichTextBox.Text += "Czas wczytywania danych startowych: " + Convert.ToString(clock.Elapsed)+ ".\n";
+            }
+            //MessageBox.Show(clock.Elapsed+" ");
         }
         public void loadPoints3D()
         {
@@ -119,23 +122,28 @@ namespace WindowsFormsApp1
                             {
                                 if (ex is FormatException || ex is ArgumentException)
                                 {
-                                    problems = true; ;
-                                    MessageBox.Show("Punkt " + data[0] + ": Niedopuszczalna wartość parametrów."); break;
+                                    problems = true; 
+                                    this.MonitorRichTextBox.Text += ("Punkt " + data[0] + ": Niedopuszczalna wartość parametrów.\n");
                                 }
                                 else { MessageBox.Show("Nastąpił błąd wczytania pliku. Sprawdź format danych wejściowych.");
-                                    problems = true; ; break; }
+                                    problems = true;  break; }
                             }
                         }
-                        else { MessageBox.Show("Punkt " + data[0] + ": Nieodpowiednia liczba wejściowych parametrów(" + data.Length + ")");
-                            problems =true; break; }
+                        else {
+                            this.MonitorRichTextBox.Text += ("Punkt " + data[0] + ": Nieodpowiednia liczba wejściowych parametrów(" + data.Length + ").\n");
+                            problems =true; }
                     }
                 }
             }
             else { MessageBox.Show("Plik \"" + Path.GetFileName(filePath.Text) + "\" jest pusty.");
-                problems = true; }
-            if (!problems) { this.canIStartCounting = true; }
+                problems = true; }  
             clock.Stop();
-            MessageBox.Show(clock.Elapsed + " ");
+            if (!problems)
+            {
+                this.canIStartCounting = true;
+                this.MonitorRichTextBox.Text += "Czas wczytywania danych startowych: " + Convert.ToString(clock.Elapsed)+ ".\n";
+            }
+            //MessageBox.Show(clock.Elapsed + " ");
         }
         public void loadPointsBLH()
         {
@@ -175,14 +183,15 @@ namespace WindowsFormsApp1
                                         if (ex is FormatException || ex is ArgumentException)
                                         {
                                             problems=true;
-                                            MessageBox.Show("Punkt " + data[0] + ": Niedopuszczalna wartość parametrów."); goto gameOver;
+                                            this.MonitorRichTextBox.Text += ("Punkt " + data[0] + ": Niedopuszczalna wartość parametrów."); 
                                         }
                                         else { MessageBox.Show("Nastąpił błąd wczytania pliku. Sprawdź format danych wejściowych.");
                                             problems=true; goto gameOver; }
                                     }
                                 } 
-                                else { MessageBox.Show("Punkt " + data[0] + ": Nieodpowiednia liczba wejściowych parametrów(" + data.Length + ")");
-                                    problems=true; goto gameOver; }
+                                else {
+                                    this.MonitorRichTextBox.Text += ("Punkt " + data[0] + ": Nieodpowiednia liczba wejściowych parametrów(" + data.Length + ")");
+                                    problems=true;  }
                                 break;
                             case 8:
                                 if (data.Length == format)
@@ -202,14 +211,15 @@ namespace WindowsFormsApp1
                                         if (ex is FormatException || ex is ArgumentException)
                                         {
                                             problems=true;
-                                            MessageBox.Show("Punkt " + data[0] + ": Niedopuszczalna wartość parametrów."); goto gameOver;
+                                            this.MonitorRichTextBox.Text += ("Punkt " + data[0] + ": Niedopuszczalna wartość parametrów.");
                                         }
                                         else { MessageBox.Show("Nastąpił błąd wczytania pliku. Sprawdź format danych wejściowych.");
                                             problems =true; goto gameOver; }
                                     }
                                 }
-                                else { MessageBox.Show("Punkt " + data[0] + ": Nieodpowiednia liczba wejściowych parametrów(" + data.Length + ")");
-                                    problems =true; goto gameOver; }
+                                else {
+                                    this.MonitorRichTextBox.Text += ("Punkt " + data[0] + ": Nieodpowiednia liczba wejściowych parametrów(" + data.Length + ")");
+                                    problems =true;  }
                                 break;
                         }
                     }
@@ -217,9 +227,11 @@ namespace WindowsFormsApp1
             }
             else { MessageBox.Show("Plik \"" + Path.GetFileName(filePath.Text) + "\" jest pusty."); problems=true; }
             gameOver:
-            if ((!problems) && anyFalseFormattedPoint) { this.canIStartCounting = true; }
             clock.Stop();
-            MessageBox.Show(clock.Elapsed + " ");
+            if ((!problems) && anyFalseFormattedPoint) { this.canIStartCounting = true;
+                this.MonitorRichTextBox.Text += "\n Czas wczytywania danych startowych: " + Convert.ToString(clock.Elapsed);
+            } 
+            //MessageBox.Show(clock.Elapsed + " ");
         }
         public void getPointsData() 
         {
@@ -291,27 +303,28 @@ namespace WindowsFormsApp1
         }
         private void CountUp_Click(object sender, EventArgs e)
         {
+            this.MonitorRichTextBox.Clear(); this.MonitorRichTextBox.Text = "MONITOR: \n";
             //List<WebGrid> greedy = webGrids();
             //MessageBox.Show(this.degreeForm + " " + this.resultDegreeForm);
             if (!filePath.Text.Equals(""))
             {
-                getPointsData();
-                
+                getPointsData();         
                 if (this.canIStartCounting)
                 {
+                    this.PointsBLH.ForEach(p => p.convertToDegrees());
+                    setGridDeltas(this.PointsBLH);
                     double anglePrecision = Convert.ToDouble(this.AnglePrecisionDUD.Text)/3600 * Math.PI / 180;
                     double lengthPrecision = Convert.ToDouble(this.LengthPrecisionDUD.Text) * Math.PI / 180;
                     this.Points3D.Clear();
                     this.Points.Clear();
                     this.PointsBLH.Clear();
-                }
-                
+                }      
             }
             else
             {
                 MessageBox.Show("Nie wybrano zbioru punktów.");
             }
-            this.longitude = 0;
+            this.longitude = 0; this.canIStartCounting = false;
         }
         //WCZYTANIE SIATKI GRID DO METODY EMPIRYCZNEJ oraz INTERPOLACJA DWULINIOWA
         private List<WebGrid> webGrids()
@@ -322,20 +335,46 @@ namespace WindowsFormsApp1
             {
                 string[] point = Regex.Split(line.Trim(), @"\s+");
                 result.Add(new WebGrid(Convert.ToDouble(point[0]), Convert.ToDouble(point[1]), Convert.ToDouble(point[2]), Convert.ToDouble(point[3]), Convert.ToDouble(point[4])));
-            }     
+            }
             return result;
         }
-        private List<PointBLH> BilinearInterpolation(List<PointBLH> points)
+        private List<PointBLH> setGridDeltas(List<PointBLH> points)
         {
+            Stopwatch clock = new Stopwatch(); clock.Start();
             List<WebGrid> grid = webGrids();
+            clock.Stop();
+            this.MonitorRichTextBox.Text += "\n Wczytywanie siatki grid: " + Convert.ToString(clock.Elapsed);
             List<PointBLH> result = new List<PointBLH>();
             points.ForEach(p =>
             {
-                double B = p.fi(); double L = p.lambda();
-
+                double B = p.fi(); double Bdown = Math.Floor(B * 100) / 100; double Bup = Math.Ceiling(B * 100) / 100;
+                double L = p.lambda(); double Ldown = Math.Floor(L * 100) / 100; double Lup = Math.Ceiling(L * 100) / 100;
+                WebGrid grid11 = grid.Find(q => q.fi().Equals(Bdown) && q.lambda().Equals(Ldown));
+                //MessageBox.Show(grid11.fi() + " " + grid11.lambda());
+                WebGrid grid12 = grid.Find(q => q.fi().Equals(Bup) && q.lambda().Equals(Ldown));
+                WebGrid grid21 = grid.Find(q => q.fi().Equals(Bdown) && q.lambda().Equals(Lup));
+                WebGrid grid22 = grid.Find(q => q.fi().Equals(Bup) && q.lambda().Equals(Lup));
+                BilinearInterpolation(B, L, grid11, grid12, grid21, grid22);
             });
             return result;
         }
+        /* KONIECZNIE ŁADOWAĆ PUNKTY SIATKI W ODPOWIEDNIEJ KOLEJNOŚCI!! */
+        private void BilinearInterpolation(double B, double L, WebGrid grid11, WebGrid grid12, WebGrid grid21, WebGrid grid22)
+        {
+            //MessageBox.Show(grid11.lambda() + "");
+            double df1 = (grid21.lambda() - L) / (grid21.lambda() - grid11.lambda()) * grid11.deltaFi() + (L - grid11.lambda()) / (grid21.lambda() - grid11.lambda()) * grid21.deltaFi();
+            double df2 = (grid21.lambda() - L) / (grid21.lambda() - grid11.lambda()) * grid12.deltaFi() + (L - grid11.lambda()) / (grid21.lambda() - grid11.lambda()) * grid22.deltaFi();
+            MessageBox.Show(df2+"");
+            double dfi = (grid21.fi() - B) / (grid21.fi() - grid11.fi()) * df1 + (B - grid11.fi()) / (grid21.fi() - grid11.fi()) * df2;
+            double dl1 = (grid21.lambda() - L) / (grid21.lambda() - grid11.lambda()) * grid11.deltaLambda() + (L - grid11.lambda()) / (grid21.lambda() - grid11.lambda()) * grid21.deltaLambda();
+            double dl2 = (grid21.lambda() - L) / (grid21.lambda() - grid11.lambda()) * grid12.deltaLambda() + (L - grid11.lambda()) / (grid21.lambda() - grid11.lambda()) * grid22.deltaLambda();
+            double dl = (grid21.fi() - B) / (grid21.fi() - grid11.fi()) * dl1 + (B - grid11.fi()) / (grid21.fi() - grid11.fi()) *dl2;
+            double dh1 = (grid21.lambda() - L) / (grid21.lambda() - grid11.lambda()) * grid11.deltaH() + (L - grid11.lambda()) / (grid21.lambda() - grid11.lambda()) * grid21.deltaH();
+            double dh2 = (grid21.lambda() - L) / (grid21.lambda() - grid11.lambda()) * grid12.deltaH() + (L - grid11.lambda()) / (grid21.lambda() - grid11.lambda()) * grid22.deltaH();
+            double dh = (grid21.fi() - B) / (grid21.fi() - grid11.fi()) * dh1 + (B - grid11.fi()) / (grid21.fi() - grid11.fi()) * dh2;
+            MessageBox.Show(dfi+"");
+        }
+
         //WYBÓR UKŁADU WSPÓŁRZĘDNYCH PLIKÓW: WEJŚĆIOWEGO I WYJŚCIOWEGO
         private void XY2000_CheckedChanged(object sender, EventArgs e)
         {
@@ -398,7 +437,7 @@ namespace WindowsFormsApp1
             clearRadioButtonsCheck(resultLongitude15, resultLongitude18, resultLongitude21, resultLongitude24, resultLongitudeUTM15, resultLongitudeUTM21);
             this.end.Clear(); this.end.Append("XYZ GRS80");
         }
-
+        //WCZYTYWANIE PLIKU WEJŚCIOWEGO
         [STAThread]
         private void LoadFile_Click_1(object sender, EventArgs e)
         {
@@ -769,15 +808,16 @@ namespace WindowsFormsApp1
         private void Transform_Load(object sender, EventArgs e)
         {
             DomainUpDown.DomainUpDownItemCollection collection = this.AnglePrecisionDUD.Items;
-            collection.Add("0.001");
-            collection.Add("0.0001");
-            collection.Add("0.00001");
-            this.AnglePrecisionDUD.Text = "0.0001";
+            collection.Add("0,001");
+            collection.Add("0,0001");
+            collection.Add("0,00001");
+            this.AnglePrecisionDUD.Text = "0,0001";
             DomainUpDown.DomainUpDownItemCollection collection2 = this.LengthPrecisionDUD.Items;
-            collection2.Add("0.001");
-            collection2.Add("0.0001");
-            collection2.Add("0.00001");
-            this.LengthPrecisionDUD.Text = "0.0001";
+            collection2.Add("0,001");
+            collection2.Add("0,0001");
+            collection2.Add("0,00001");
+            this.LengthPrecisionDUD.Text = "0,0001";
+            this.MonitorRichTextBox.Clear(); this.MonitorRichTextBox.Text = "MONITOR: \n";
         }
 
         private void TeoreticOptionRB_CheckedChanged(object sender, EventArgs e)
@@ -788,6 +828,11 @@ namespace WindowsFormsApp1
         private void GridOptionRB_CheckedChanged(object sender, EventArgs e)
         {
             this.transformateOption = false;
+        }
+        //NADPISYWANIE RICHTEXTBOXA - FUNCKJA DLA POZOSTAŁYCH KLAS CZĘŚCIOWYCH
+        public static void Display2TextBox( string text)
+        {          
+             box.Text += "\n " + text;
         }
     }
 
@@ -937,7 +982,9 @@ namespace WindowsFormsApp1
             }
             else
             {
-                MessageBox.Show("Punkt \"" + this.name + "\": Nieprawidłowy format zapisu stopni (Wartość B poza [0,90] \\ wartość L poza [0,180)).");
+               
+                Transform.Display2TextBox("Punkt \"" + this.name + "\": Nieprawidłowy format zapisu stopni (Wartość B poza [0,90] \\ wartość L poza [0,180)).");
+                //MessageBox.Show("Punkt \"" + this.name + "\": Nieprawidłowy format zapisu stopni (Wartość B poza [0,90] \\ wartość L poza [0,180)).");
             }
             if (!this.format)
             {
@@ -950,7 +997,8 @@ namespace WindowsFormsApp1
                 }
                 else
                 {
-                    MessageBox.Show("Punkt \"" + this.name + "\": Nieprawidłowy format zapisu stopni (Wymagana wartość całkowita).");
+                    WindowsFormsApp1.Transform.Display2TextBox("Punkt \"" + this.name + "\": Nieprawidłowy format zapisu stopni (Wymagana wartość całkowita).");
+                    //MessageBox.Show("Punkt \"" + this.name + "\": Nieprawidłowy format zapisu stopni (Wymagana wartość całkowita).");
                 }
                 //SPRAWDZA CZY MINUTY KĄTOWE SĄ WARTOŚCIAMI CAŁKOWITYMI
                 bool minutesAreInteger = Math.Floor(this.Bmin).Equals(this.Bmin) && Math.Floor(this.Lmin).Equals(this.Lmin);
@@ -960,7 +1008,8 @@ namespace WindowsFormsApp1
                 }
                 else
                 {
-                    MessageBox.Show("Punkt \"" + this.name + "\": Nieprawidłowy format zapisu minut kątowych(Wymagana wartość całkowita).");
+                    WindowsFormsApp1.Transform.Display2TextBox("Punkt \"" + this.name + "\": Nieprawidłowy format zapisu minut kątowych(Wymagana wartość całkowita).");
+                    //MessageBox.Show("Punkt \"" + this.name + "\": Nieprawidłowy format zapisu minut kątowych(Wymagana wartość całkowita).");
                 }
                 // SPRAWDZA CZY MINUTY KĄTOWE NALEŻĄ DO PRZEDZIAŁU [0,60)
                 bool isbetweenB = (this.Bmin >= 0 && this.Bmin < 60);
@@ -971,7 +1020,7 @@ namespace WindowsFormsApp1
                 }
                 else
                 {
-                    MessageBox.Show("Punkt \"" + this.name + "\": Nieprawidłowy format zapisu minut kątowych. Wartość poza [0,60)");
+                    WindowsFormsApp1.Transform.Display2TextBox("Punkt \"" + this.name + "\": Nieprawidłowy format zapisu minut kątowych. Wartość poza [0,60)");
                 }
                 //SPRAWDZA CZY SEKUNDY KĄTOWE NALEŻĄ DO PRZEDZIAŁU [0,60)
                 if ((this.Bsec >= 0 && this.Bsec < 60) && (this.Lsec >= 0 && this.Lsec < 60))
@@ -980,7 +1029,7 @@ namespace WindowsFormsApp1
                 }
                 else
                 {
-                    MessageBox.Show("Punkt \"" + this.name + "\": Nieprawidłowy format zapisu sekund kątowych. Wartość poza [0,60)");
+                    WindowsFormsApp1.Transform.Display2TextBox("Punkt \"" + this.name + "\": Nieprawidłowy format zapisu sekund kątowych. Wartość poza [0,60)");
                 }
                 return Btrue = problems == 0 ? true : false;
             }
