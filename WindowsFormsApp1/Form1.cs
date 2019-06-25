@@ -173,7 +173,7 @@ namespace WindowsFormsApp1
                                         this.PointsBLH.Add(new PointBLH(data[0], Convert.ToDouble(data[1]), Convert.ToDouble(data[2]), Convert.ToDouble(data[3])));
                                         if (!PointsBLH.Last().isCorrectlyFormated())
                                         {
-                                            PointsBLH.Last().isCorrectlyFormated();
+                                            isCorrectlyFormated(PointsBLH.Last());
                                             anyFalseFormattedPoint = false;
                                         }
                                         //MessageBox.Show(data[1] + " " + data[2]);
@@ -183,14 +183,14 @@ namespace WindowsFormsApp1
                                         if (ex is FormatException || ex is ArgumentException)
                                         {
                                             problems=true;
-                                            this.MonitorRichTextBox.Text += ("Punkt " + data[0] + ": Niedopuszczalna wartość parametrów."); 
+                                            this.MonitorRichTextBox.Text += ("Punkt " + data[0] + ": Niedopuszczalna wartość parametrów.\n"); 
                                         }
                                         else { MessageBox.Show("Nastąpił błąd wczytania pliku. Sprawdź format danych wejściowych.");
                                             problems=true; goto gameOver; }
                                     }
                                 } 
                                 else {
-                                    this.MonitorRichTextBox.Text += ("Punkt " + data[0] + ": Nieodpowiednia liczba wejściowych parametrów(" + data.Length + ")");
+                                    this.MonitorRichTextBox.Text += ("Punkt " + data[0] + ": Nieodpowiednia liczba wejściowych parametrów(" + data.Length + ").\n");
                                     problems=true;  }
                                 break;
                             case 8:
@@ -201,7 +201,7 @@ namespace WindowsFormsApp1
                                         this.PointsBLH.Add(new PointBLH(data[0], Convert.ToDouble(data[1]), Convert.ToDouble(data[2]), Convert.ToDouble(data[3]), Convert.ToDouble(data[4]), Convert.ToDouble(data[5]), Convert.ToDouble(data[6]), Convert.ToDouble(data[7])));  
                                         if (!PointsBLH.Last().isCorrectlyFormated())
                                         {
-                                            PointsBLH.Last().isCorrectlyFormated();
+                                            isCorrectlyFormated(PointsBLH.Last());
                                             anyFalseFormattedPoint = false;
                                         }
                                         //MessageBox.Show(data[1] + " " + data[4]);
@@ -211,14 +211,14 @@ namespace WindowsFormsApp1
                                         if (ex is FormatException || ex is ArgumentException)
                                         {
                                             problems=true;
-                                            this.MonitorRichTextBox.Text += ("Punkt " + data[0] + ": Niedopuszczalna wartość parametrów.");
+                                            this.MonitorRichTextBox.Text += ("Punkt " + data[0] + ": Niedopuszczalna wartość parametrów.\n");
                                         }
                                         else { MessageBox.Show("Nastąpił błąd wczytania pliku. Sprawdź format danych wejściowych.");
                                             problems =true; goto gameOver; }
                                     }
                                 }
                                 else {
-                                    this.MonitorRichTextBox.Text += ("Punkt " + data[0] + ": Nieodpowiednia liczba wejściowych parametrów(" + data.Length + ")");
+                                    this.MonitorRichTextBox.Text += ("Punkt " + data[0] + ": Nieodpowiednia liczba wejściowych parametrów(" + data.Length + ").\n");
                                     problems =true;  }
                                 break;
                         }
@@ -456,21 +456,18 @@ namespace WindowsFormsApp1
             this.startETRF.Clear();
             this.startETRF.Append("ETRF2000");
         }
-
         private void ETRF89_CheckedChanged(object sender, EventArgs e)
         {
             ChoiceOne.Visible = true;
             this.startETRF.Clear();
             this.startETRF.Append("ETRF89");
         }
-
         private void ResETRF2000_CheckedChanged(object sender, EventArgs e)
         {
             ChoiceTwo.Visible = true;
             this.endETRF.Clear();
             this.endETRF.Append("ETRF2000");
         }
-
         private void ResETRF89_CheckedChanged(object sender, EventArgs e)
         {
             ChoiceTwo.Visible = true;
@@ -483,17 +480,14 @@ namespace WindowsFormsApp1
         {
             this.degreeForm = true;
         }
-
         private void DegMinSecBLH_CheckedChanged(object sender, EventArgs e)
         {
             this.degreeForm = false;
         }
-
         private void ResDegreesBLH_CheckedChanged(object sender, EventArgs e)
         {
             this.resultDegreeForm = true;
         }
-
         private void ResDegMinSecBLH_CheckedChanged(object sender, EventArgs e)
         {
             this.resultDegreeForm = false;
@@ -829,10 +823,72 @@ namespace WindowsFormsApp1
         {
             this.transformateOption = false;
         }
-        //NADPISYWANIE RICHTEXTBOXA - FUNCKJA DLA POZOSTAŁYCH KLAS CZĘŚCIOWYCH
-        public static void Display2TextBox( string text)
-        {          
-             box.Text += "\n " + text;
+        //PRÓBA NAGRANIA SPRAWDZANIA FORMATU BLH
+        public bool isCorrectlyFormated(PointBLH p)
+        {
+            bool Btrue = false; byte problems = 5; bool problemsVol2 = false;
+            //SPRAWDZA CZY STOPNIE NALEŻĄ DO WARTOŚCI [0,90] I [0,180]
+            if ((p.fi() >= 0 && p.fi() <= 90) && (p.lambda() >= 0 && p.lambda() <= 180))
+            {
+                problems--; problemsVol2 = true;
+            }
+            else
+            {
+
+                this.MonitorRichTextBox.Text+=("Punkt \"" + p.Name() + "\": Nieprawidłowy format zapisu stopni (Wartość B poza [0,90] \\ wartość L poza [0,180)). \n");
+                //MessageBox.Show("Punkt \"" + this.name + "\": Nieprawidłowy format zapisu stopni (Wartość B poza [0,90] \\ wartość L poza [0,180)).");
+            }
+            if (!p.Format())
+            {
+                //SPRAWDZA CZY WARTOŚCI STOPNIOWE SĄ LICZBAMI CAŁKOWITYMI
+                bool isIntegerB = Math.Floor(p.fi()).Equals(p.fi());
+                bool isIntegerL = Math.Floor(p.lambda()).Equals(p.lambda());
+                if (isIntegerB && isIntegerL)
+                {
+                    problems--;
+                }
+                else
+                {
+                    this.MonitorRichTextBox.Text += ("Punkt \"" + p.Name() + "\": Nieprawidłowy format zapisu stopni (Wymagana wartość całkowita).\n");
+                    //MessageBox.Show("Punkt \"" + this.name + "\": Nieprawidłowy format zapisu stopni (Wymagana wartość całkowita).");
+                }
+                //SPRAWDZA CZY MINUTY KĄTOWE SĄ WARTOŚCIAMI CAŁKOWITYMI
+                bool minutesAreInteger = Math.Floor(p.bmin()).Equals(p.bmin()) && Math.Floor(p.lmin()).Equals(p.lmin());
+                if (minutesAreInteger)
+                {
+                    problems--;
+                }
+                else
+                {
+                    this.MonitorRichTextBox.Text += ("Punkt \"" + p.Name() + "\": Nieprawidłowy format zapisu minut kątowych(Wymagana wartość całkowita).\n");
+                    //MessageBox.Show("Punkt \"" + this.name + "\": Nieprawidłowy format zapisu minut kątowych(Wymagana wartość całkowita).");
+                }
+                // SPRAWDZA CZY MINUTY KĄTOWE NALEŻĄ DO PRZEDZIAŁU [0,60)
+                bool isbetweenB = (p.bmin() >= 0 && p.bmin() < 60);
+                bool isBetweenL = (p.lmin() >= 0 && p.lmin() < 60);
+                if (isbetweenB && isBetweenL)
+                {
+                    problems--;
+                }
+                else
+                {
+                    this.MonitorRichTextBox.Text += ("Punkt \"" + p.Name() + "\": Nieprawidłowy format zapisu minut kątowych. Wartość poza [0,60).\n");
+                }
+                //SPRAWDZA CZY SEKUNDY KĄTOWE NALEŻĄ DO PRZEDZIAŁU [0,60)
+                if ((p.bsec() >= 0 && p.bsec() < 60) && (p.lsec() >= 0 && p.lsec() < 60))
+                {
+                    problems--;
+                }
+                else
+                {
+                    this.MonitorRichTextBox.Text += ("Punkt \"" + p.Name() + "\": Nieprawidłowy format zapisu sekund kątowych. Wartość poza [0,60).\n");
+                }
+                return Btrue = problems == 0 ? true : false;
+            }
+            else
+            {
+                return problemsVol2;
+            }
         }
     }
 
@@ -944,6 +1000,22 @@ namespace WindowsFormsApp1
         {
             return this.format;
         }
+        public double bmin()
+        {
+            return this.Bmin;
+        }
+        public double bsec()
+        {
+            return this.Bsec;
+        }
+        public double lmin()
+        {
+            return this.Lmin;
+        }
+        public double lsec()
+        {
+            return this.Lsec;
+        }
         public void convertToDegrees()
         {
             this.B = this.B + this.Bmin / 60 + this.Bsec / 3600;
@@ -982,9 +1054,7 @@ namespace WindowsFormsApp1
             }
             else
             {
-               
-                Transform.Display2TextBox("Punkt \"" + this.name + "\": Nieprawidłowy format zapisu stopni (Wartość B poza [0,90] \\ wartość L poza [0,180)).");
-                //MessageBox.Show("Punkt \"" + this.name + "\": Nieprawidłowy format zapisu stopni (Wartość B poza [0,90] \\ wartość L poza [0,180)).");
+                MessageBox.Show("Punkt \"" + this.name + "\": Nieprawidłowy format zapisu stopni (Wartość B poza [0,90] \\ wartość L poza [0,180)).");
             }
             if (!this.format)
             {
@@ -997,8 +1067,7 @@ namespace WindowsFormsApp1
                 }
                 else
                 {
-                    WindowsFormsApp1.Transform.Display2TextBox("Punkt \"" + this.name + "\": Nieprawidłowy format zapisu stopni (Wymagana wartość całkowita).");
-                    //MessageBox.Show("Punkt \"" + this.name + "\": Nieprawidłowy format zapisu stopni (Wymagana wartość całkowita).");
+                    MessageBox.Show("Punkt \"" + this.name + "\": Nieprawidłowy format zapisu stopni (Wymagana wartość całkowita).");
                 }
                 //SPRAWDZA CZY MINUTY KĄTOWE SĄ WARTOŚCIAMI CAŁKOWITYMI
                 bool minutesAreInteger = Math.Floor(this.Bmin).Equals(this.Bmin) && Math.Floor(this.Lmin).Equals(this.Lmin);
@@ -1008,8 +1077,7 @@ namespace WindowsFormsApp1
                 }
                 else
                 {
-                    WindowsFormsApp1.Transform.Display2TextBox("Punkt \"" + this.name + "\": Nieprawidłowy format zapisu minut kątowych(Wymagana wartość całkowita).");
-                    //MessageBox.Show("Punkt \"" + this.name + "\": Nieprawidłowy format zapisu minut kątowych(Wymagana wartość całkowita).");
+                    MessageBox.Show("Punkt \"" + this.name + "\": Nieprawidłowy format zapisu minut kątowych(Wymagana wartość całkowita).");
                 }
                 // SPRAWDZA CZY MINUTY KĄTOWE NALEŻĄ DO PRZEDZIAŁU [0,60)
                 bool isbetweenB = (this.Bmin >= 0 && this.Bmin < 60);
@@ -1020,7 +1088,7 @@ namespace WindowsFormsApp1
                 }
                 else
                 {
-                    WindowsFormsApp1.Transform.Display2TextBox("Punkt \"" + this.name + "\": Nieprawidłowy format zapisu minut kątowych. Wartość poza [0,60)");
+                    MessageBox.Show("Punkt \"" + this.name + "\": Nieprawidłowy format zapisu minut kątowych. Wartość poza [0,60)");
                 }
                 //SPRAWDZA CZY SEKUNDY KĄTOWE NALEŻĄ DO PRZEDZIAŁU [0,60)
                 if ((this.Bsec >= 0 && this.Bsec < 60) && (this.Lsec >= 0 && this.Lsec < 60))
@@ -1029,7 +1097,7 @@ namespace WindowsFormsApp1
                 }
                 else
                 {
-                    WindowsFormsApp1.Transform.Display2TextBox("Punkt \"" + this.name + "\": Nieprawidłowy format zapisu sekund kątowych. Wartość poza [0,60)");
+                    MessageBox.Show("Punkt \"" + this.name + "\": Nieprawidłowy format zapisu sekund kątowych. Wartość poza [0,60)");
                 }
                 return Btrue = problems == 0 ? true : false;
             }
