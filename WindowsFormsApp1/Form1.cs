@@ -839,6 +839,78 @@ namespace WindowsFormsApp1
                 if (this.transformateOption)
                 {
                     List<Point3D> helper = ETRF2000TO89(BLH2XYZ(bottom));
+                    result = helper;
+                }
+                else if (!this.transformateOption)
+                {
+                    List<PointBLH> helper = setGridDeltasNchangeETRF(bottom, true);
+                    result = BLH2XYZ(helper);
+                }
+            }
+            return result;
+        }
+        public List<Point3D> U1992ToXYZ(double precision, List<Point> Points)
+        {
+            List<Point3D> result = new List<Point3D>();
+            List<PointBLH> bottom = XYGK2BLH(U1992ToGK(Points),19,precision);
+            if (this.startETRF.Equals(this.endETRF))
+            {
+                result = BLH2XYZ(bottom);
+            }
+            else if (this.startETRF.Equals("ETRF89") && this.endETRF.Equals("ETRF2000"))
+            {
+                if (this.transformateOption)
+                {
+                    List<Point3D> helper = ETRF89TOETRF2000(BLH2XYZ(bottom));
+                    result = helper;
+                }
+                else if (!this.transformateOption)
+                {
+                    List<PointBLH> helper = setGridDeltasNchangeETRF(bottom, false);
+                    result = BLH2XYZ(helper);
+                }
+            }
+            else if (this.startETRF.Equals("ETRF2000") && this.endETRF.Equals("ETRF89"))
+            {
+                if (this.transformateOption)
+                {
+                    List<Point3D> helper = ETRF2000TO89(BLH2XYZ(bottom));
+                    result = helper;
+                }
+                else if (!this.transformateOption)
+                {
+                    List<PointBLH> helper = setGridDeltasNchangeETRF(bottom, true);
+                    result = BLH2XYZ(helper);
+                }
+            }
+            return result;
+        }
+        public List<Point> XYZ2U2000(byte longitude, double precision, List<Point3D> Points)
+        {
+            List<Point> result = new List<Point>();
+            List<PointBLH> bottom = XYZ2BLH(Points,precision);
+            if (this.startETRF.Equals(this.endETRF))
+            {
+                result =GKToU2000(BLH2XYGK(bottom,longitude),longitude);
+            }
+            else if (this.startETRF.Equals("ETRF89") && this.endETRF.Equals("ETRF2000"))
+            {
+                if (this.transformateOption)
+                {
+                    List<Point3D> helper = ETRF89TOETRF2000(Points);
+                    result = GKToU2000(BLH2XYGK(XYZ2BLH(helper,precision),longitude),longitude);
+                }
+                else if (!this.transformateOption)
+                {
+                    List<PointBLH> helper = setGridDeltasNchangeETRF(bottom, false);
+                    result = GKToU2000(BLH2XYGK(helper,longitude),longitude);
+                }
+            }
+            else if (this.startETRF.Equals("ETRF2000") && this.endETRF.Equals("ETRF89"))
+            {
+                if (this.transformateOption)
+                {
+                    List<Point3D> helper = ETRF2000TO89(Points);
                     result = GKToU2000(BLH2XYGK(XYZ2BLH(helper, precision), longitude), longitude);
                 }
                 else if (!this.transformateOption)
@@ -847,21 +919,44 @@ namespace WindowsFormsApp1
                     result = GKToU2000(BLH2XYGK(helper, longitude), longitude);
                 }
             }
+            
             return result;
         }
-        public List<Point3D> U1992ToXYZ(byte longitude, double precision, List<Point> Points)
+        public List<Point> XYZ2U1992( double precision, List<Point3D> Points)
         {
-            List<Point3D> result = BLH2XYZ(XYGK2BLH(U1992ToGK(Points), longitude, precision));
-            return result;
-        }
-        public List<Point> XYZ2U2000(byte longitude, double precision, List<Point3D> Points)
-        {
-            List<Point> result = GKToU2000(BLH2XYGK(XYZ2BLH(Points,precision),longitude), longitude);
-            return result;
-        }
-        public List<Point> XYZ2U1992(byte longitude, double precision, List<Point3D> Points)
-        {
-            List<Point> result = GKToU1992(BLH2XYGK(XYZ2BLH(Points, precision), longitude));
+            List<Point> result = new List<Point>();
+            List<PointBLH> bottom = XYZ2BLH(Points, precision);
+            if (this.startETRF.Equals(this.endETRF))
+            {
+                result = GKToU1992(BLH2XYGK(bottom,19));
+            }
+            else if (this.startETRF.Equals("ETRF89") && this.endETRF.Equals("ETRF2000"))
+            {
+                if (this.transformateOption)
+                {
+                    List<Point3D> helper = ETRF89TOETRF2000(Points);
+                    result = GKToU1992(BLH2XYGK(XYZ2BLH(helper, precision), 19));
+                }
+                else if (!this.transformateOption)
+                {
+                    List<PointBLH> helper = setGridDeltasNchangeETRF(bottom, false);
+                    result = GKToU1992(BLH2XYGK(helper, 19));
+                }
+            }
+            else if (this.startETRF.Equals("ETRF2000") && this.endETRF.Equals("ETRF89"))
+            {
+                if (this.transformateOption)
+                {
+                    List<Point3D> helper = ETRF2000TO89(Points);
+                    result = GKToU1992(BLH2XYGK(XYZ2BLH(helper, precision), 19));
+                }
+                else if (!this.transformateOption)
+                {
+                    List<PointBLH> helper = setGridDeltasNchangeETRF(bottom, true);
+                    result = GKToU1992(BLH2XYGK(helper, 19));
+                }
+            }
+
             return result;
         }
         public List<PointBLH> U2000ToBLH(byte longitude, double precision, List<Point> Points)
