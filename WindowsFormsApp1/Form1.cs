@@ -1054,7 +1054,7 @@ namespace WindowsFormsApp1
             }
             else
             {
-                MessageBox.Show("Punkt \"" + this.name + "\": Nieprawidłowy format zapisu stopni (Wartość B poza [0,90] \\ wartość L poza [0,180)).");
+                //MessageBox.Show("Punkt \"" + this.name + "\": Nieprawidłowy format zapisu stopni (Wartość B poza [0,90] \\ wartość L poza [0,180)).");
             }
             if (!this.format)
             {
@@ -1067,7 +1067,7 @@ namespace WindowsFormsApp1
                 }
                 else
                 {
-                    MessageBox.Show("Punkt \"" + this.name + "\": Nieprawidłowy format zapisu stopni (Wymagana wartość całkowita).");
+                    //MessageBox.Show("Punkt \"" + this.name + "\": Nieprawidłowy format zapisu stopni (Wymagana wartość całkowita).");
                 }
                 //SPRAWDZA CZY MINUTY KĄTOWE SĄ WARTOŚCIAMI CAŁKOWITYMI
                 bool minutesAreInteger = Math.Floor(this.Bmin).Equals(this.Bmin) && Math.Floor(this.Lmin).Equals(this.Lmin);
@@ -1077,7 +1077,7 @@ namespace WindowsFormsApp1
                 }
                 else
                 {
-                    MessageBox.Show("Punkt \"" + this.name + "\": Nieprawidłowy format zapisu minut kątowych(Wymagana wartość całkowita).");
+                    //MessageBox.Show("Punkt \"" + this.name + "\": Nieprawidłowy format zapisu minut kątowych(Wymagana wartość całkowita).");
                 }
                 // SPRAWDZA CZY MINUTY KĄTOWE NALEŻĄ DO PRZEDZIAŁU [0,60)
                 bool isbetweenB = (this.Bmin >= 0 && this.Bmin < 60);
@@ -1088,7 +1088,7 @@ namespace WindowsFormsApp1
                 }
                 else
                 {
-                    MessageBox.Show("Punkt \"" + this.name + "\": Nieprawidłowy format zapisu minut kątowych. Wartość poza [0,60)");
+                    //MessageBox.Show("Punkt \"" + this.name + "\": Nieprawidłowy format zapisu minut kątowych. Wartość poza [0,60)");
                 }
                 //SPRAWDZA CZY SEKUNDY KĄTOWE NALEŻĄ DO PRZEDZIAŁU [0,60)
                 if ((this.Bsec >= 0 && this.Bsec < 60) && (this.Lsec >= 0 && this.Lsec < 60))
@@ -1097,7 +1097,7 @@ namespace WindowsFormsApp1
                 }
                 else
                 {
-                    MessageBox.Show("Punkt \"" + this.name + "\": Nieprawidłowy format zapisu sekund kątowych. Wartość poza [0,60)");
+                    //MessageBox.Show("Punkt \"" + this.name + "\": Nieprawidłowy format zapisu sekund kątowych. Wartość poza [0,60)");
                 }
                 return Btrue = problems == 0 ? true : false;
             }
