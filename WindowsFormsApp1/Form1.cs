@@ -229,7 +229,7 @@ namespace WindowsFormsApp1
             gameOver:
             clock.Stop();
             if ((!problems) && anyFalseFormattedPoint) { this.canIStartCounting = true;
-                this.MonitorRichTextBox.Text += "\n Czas wczytywania danych startowych: " + Convert.ToString(clock.Elapsed);
+                this.MonitorRichTextBox.Text += "Czas wczytywania danych startowych: " + Convert.ToString(clock.Elapsed)+ ".\n";
             } 
             //MessageBox.Show(clock.Elapsed + " ");
         }
@@ -312,7 +312,7 @@ namespace WindowsFormsApp1
                 if (this.canIStartCounting)
                 {
                     this.PointsBLH.ForEach(p => p.convertToDegrees());
-                    setGridDeltas(this.PointsBLH);
+                    //setGridDeltas(this.PointsBLH);
                     double anglePrecision = Convert.ToDouble(this.AnglePrecisionDUD.Text)/3600 * Math.PI / 180;
                     double lengthPrecision = Convert.ToDouble(this.LengthPrecisionDUD.Text) * Math.PI / 180;
                     this.Points3D.Clear();
@@ -338,12 +338,12 @@ namespace WindowsFormsApp1
             }
             return result;
         }
-        private List<PointBLH> setGridDeltas(List<PointBLH> points)
+        private List<PointBLH> setGridDeltasNchangeETRF(List<PointBLH> points, bool ETRF2000change89)
         {
             Stopwatch clock = new Stopwatch(); clock.Start();
             List<WebGrid> grid = webGrids();
             clock.Stop();
-            this.MonitorRichTextBox.Text += "\n Wczytywanie siatki grid: " + Convert.ToString(clock.Elapsed);
+            this.MonitorRichTextBox.Text += "Wczytywanie siatki grid: " + Convert.ToString(clock.Elapsed)+ ".\n";
             List<PointBLH> result = new List<PointBLH>();
             points.ForEach(p =>
             {
@@ -354,25 +354,36 @@ namespace WindowsFormsApp1
                 WebGrid grid12 = grid.Find(q => q.fi().Equals(Bup) && q.lambda().Equals(Ldown));
                 WebGrid grid21 = grid.Find(q => q.fi().Equals(Bdown) && q.lambda().Equals(Lup));
                 WebGrid grid22 = grid.Find(q => q.fi().Equals(Bup) && q.lambda().Equals(Lup));
-                BilinearInterpolation(B, L, grid11, grid12, grid21, grid22);
+                WebGrid deltas = BilinearInterpolation(B, L, grid11, grid12, grid21, grid22);
+                if (ETRF2000change89)
+                {
+                    result.Add(new PointBLH(p.Name(), B + deltas.deltaFi(), L + deltas.deltaLambda(), p.height() + deltas.deltaH()));
+                }
+                else if (!ETRF2000change89)
+                {
+                    result.Add(new PointBLH(p.Name(), B - deltas.deltaFi(), L - deltas.deltaLambda(), p.height() - deltas.deltaH()));
+                }
             });
             return result;
         }
+
         /* KONIECZNIE ŁADOWAĆ PUNKTY SIATKI W ODPOWIEDNIEJ KOLEJNOŚCI!! */
-        private void BilinearInterpolation(double B, double L, WebGrid grid11, WebGrid grid12, WebGrid grid21, WebGrid grid22)
+        private WebGrid BilinearInterpolation(double B, double L, WebGrid grid11, WebGrid grid12, WebGrid grid21, WebGrid grid22)
         {
+            
             //MessageBox.Show(grid11.lambda() + "");
             double df1 = (grid21.lambda() - L) / (grid21.lambda() - grid11.lambda()) * grid11.deltaFi() + (L - grid11.lambda()) / (grid21.lambda() - grid11.lambda()) * grid21.deltaFi();
             double df2 = (grid21.lambda() - L) / (grid21.lambda() - grid11.lambda()) * grid12.deltaFi() + (L - grid11.lambda()) / (grid21.lambda() - grid11.lambda()) * grid22.deltaFi();
-            MessageBox.Show(df2+"");
-            double dfi = (grid21.fi() - B) / (grid21.fi() - grid11.fi()) * df1 + (B - grid11.fi()) / (grid21.fi() - grid11.fi()) * df2;
+            double dfi = (grid12.fi() - B) / (grid12.fi() - grid11.fi()) * df1 + (B - grid11.fi()) / (grid12.fi() - grid11.fi()) * df2;
             double dl1 = (grid21.lambda() - L) / (grid21.lambda() - grid11.lambda()) * grid11.deltaLambda() + (L - grid11.lambda()) / (grid21.lambda() - grid11.lambda()) * grid21.deltaLambda();
             double dl2 = (grid21.lambda() - L) / (grid21.lambda() - grid11.lambda()) * grid12.deltaLambda() + (L - grid11.lambda()) / (grid21.lambda() - grid11.lambda()) * grid22.deltaLambda();
-            double dl = (grid21.fi() - B) / (grid21.fi() - grid11.fi()) * dl1 + (B - grid11.fi()) / (grid21.fi() - grid11.fi()) *dl2;
+            double dl = (grid12.fi() - B) / (grid12.fi() - grid11.fi()) * dl1 + (B - grid11.fi()) / (grid12.fi() - grid11.fi()) *dl2;
             double dh1 = (grid21.lambda() - L) / (grid21.lambda() - grid11.lambda()) * grid11.deltaH() + (L - grid11.lambda()) / (grid21.lambda() - grid11.lambda()) * grid21.deltaH();
             double dh2 = (grid21.lambda() - L) / (grid21.lambda() - grid11.lambda()) * grid12.deltaH() + (L - grid11.lambda()) / (grid21.lambda() - grid11.lambda()) * grid22.deltaH();
-            double dh = (grid21.fi() - B) / (grid21.fi() - grid11.fi()) * dh1 + (B - grid11.fi()) / (grid21.fi() - grid11.fi()) * dh2;
-            MessageBox.Show(dfi+"");
+            double dh = (grid12.fi() - B) / (grid12.fi() - grid11.fi()) * dh1 + (B - grid11.fi()) / (grid12.fi() - grid11.fi()) * dh2;
+            //MessageBox.Show(dfi+" "+dl+" "+dh);
+            WebGrid result = new WebGrid(B,L,dfi,dl,dh);
+            return result;
         }
 
         //WYBÓR UKŁADU WSPÓŁRZĘDNYCH PLIKÓW: WEJŚĆIOWEGO I WYJŚCIOWEGO
@@ -724,24 +735,42 @@ namespace WindowsFormsApp1
             });
             return result;
         }
-        //SCENARIUSZE TRANSFORMACYJNE: POPRAWIĆ I DODAĆ UTM!!!
-        public List<Point> U2000To1992(byte longitude, double precision, List<Point> Points)
+        //SCENARIUSZE TRANSFORMACYJNE: POPRAWIĆ I DODAĆ UTM!!! 
+        //PRECISION ZAWSZE ODNOSI SIĘ DO DOKŁADNOŚCI KĄTOWEJ. DOKŁADNOŚĆ LINIOWA DOTYCZY WYŁĄCZNIE KOŃCOWYCH WYNIKÓW.
+        public List<Point> U2000To1992(byte longitude, double precision, List<Point> Points) 
+            /*logitude to południk osiowy układu 2000 */
         {
             List<Point> result = new List<Point>();
+            //JAK POZYSKAĆ FAKTYCZNĄ WARTOŚĆ WYSOKOŚCI???
             List<PointBLH> bottom = XYGK2BLH(U2000ToGK(Points, longitude), longitude, precision);
             if (this.startETRF.Equals(this.endETRF))
             {
-                List<Point> result2 = GKToU1992(BLH2XYGK(bottom, longitude));
+                result = GKToU1992(BLH2XYGK(bottom, 19));
             }
-            else if (this.startETRF.Equals("ETRF89") && this.endETRF.Equals(ETRF2000))
+            else if (this.startETRF.Equals("ETRF89") && this.endETRF.Equals("ETRF2000"))
             {
                 if (this.transformateOption)
                 {
-                    List<Point3D> helper = BLH2XYZ(bottom);
-                    helper.ForEach(p => {
-                        p.ETRF89TO2000();
-                    });
-
+                    List<Point3D> helper = ETRF89TOETRF2000(BLH2XYZ(bottom));
+                    result = GKToU1992(BLH2XYGK(XYZ2BLH(helper,precision), 19));
+                }
+                else if (!this.transformateOption)
+                {
+                    List<PointBLH> helper = setGridDeltasNchangeETRF(bottom, false);
+                    result = GKToU1992(BLH2XYGK(helper, 19));
+                }
+            }
+            else if (this.startETRF.Equals("ETRF2000") && this.endETRF.Equals("ETRF89"))
+            {
+                if (this.transformateOption)
+                {
+                    List<Point3D> helper = ETRF2000TO89(BLH2XYZ(bottom));
+                    result = GKToU1992(BLH2XYGK(XYZ2BLH(helper, precision),19 ));
+                }
+                else if (!this.transformateOption)
+                {
+                    List<PointBLH> helper = setGridDeltasNchangeETRF(bottom, true);
+                    result = GKToU1992(BLH2XYGK(helper, 19));
                 }
             }
             ////List<Point> result = GKToU1992(BLH2XYGK(XYGK2BLH(U2000ToGK(Points, longitude), longitude, precision), longitude));
@@ -749,13 +778,75 @@ namespace WindowsFormsApp1
         }
         public List<Point> U1992To2000(byte longitude, double precision, List<Point> Points)
         {
-            List<Point> result = GKToU2000(BLH2XYGK(XYGK2BLH(U1992ToGK(Points), longitude, precision), longitude), longitude);
-                return result;
+            List<Point> result = new List<Point>();
+            List<PointBLH> bottom = XYGK2BLH(U1992ToGK(Points), 19, precision);
+            if (this.startETRF.Equals(this.endETRF))
+            {
+                result = GKToU2000(BLH2XYGK(bottom, longitude),longitude);
+            }
+            else if (this.startETRF.Equals("ETRF89") && this.endETRF.Equals("ETRF2000"))
+            {
+                if (this.transformateOption)
+                {
+                    List<Point3D> helper = ETRF89TOETRF2000(BLH2XYZ(bottom));
+                    result = GKToU2000(BLH2XYGK(XYZ2BLH(helper, precision), longitude),longitude);
+                }
+                else if (!this.transformateOption)
+                {
+                    List<PointBLH> helper = setGridDeltasNchangeETRF(bottom, false);
+                    result = GKToU2000(BLH2XYGK(helper, longitude),longitude);
+                }
+            }
+            else if (this.startETRF.Equals("ETRF2000") && this.endETRF.Equals("ETRF89"))
+            {
+                if (this.transformateOption)
+                {
+                    List<Point3D> helper = ETRF2000TO89(BLH2XYZ(bottom));
+                    result = GKToU2000(BLH2XYGK(XYZ2BLH(helper, precision), longitude),longitude);
+                }
+                else if (!this.transformateOption)
+                {
+                    List<PointBLH> helper = setGridDeltasNchangeETRF(bottom, true);
+                    result = GKToU2000(BLH2XYGK(helper, longitude),longitude);
+                }
+            }
+            return result;
         }
         //wszystkie wartości longitude odnoszą się do południka osiowego układu 2000.
         public List<Point3D> U2000ToXYZ(byte longitude, double precision, List<Point> Points)
         {
-            List<Point3D> result = BLH2XYZ(XYGK2BLH(U2000ToGK(Points, longitude), longitude, precision));
+            List<Point3D> result = new List<Point3D>();
+            List<PointBLH> bottom = XYGK2BLH(U2000ToGK(Points, longitude), longitude, precision);
+            if (this.startETRF.Equals(this.endETRF))
+            {
+                result = BLH2XYZ(bottom);
+            }
+            else if (this.startETRF.Equals("ETRF89") && this.endETRF.Equals("ETRF2000"))
+            {
+                if (this.transformateOption)
+                {
+                    List<Point3D> helper = ETRF89TOETRF2000(BLH2XYZ(bottom));
+                    result = helper;
+                }
+                else if (!this.transformateOption)
+                {
+                    List<PointBLH> helper = setGridDeltasNchangeETRF(bottom, false);
+                    result = BLH2XYZ(helper);
+                }
+            }
+            else if (this.startETRF.Equals("ETRF2000") && this.endETRF.Equals("ETRF89"))
+            {
+                if (this.transformateOption)
+                {
+                    List<Point3D> helper = ETRF2000TO89(BLH2XYZ(bottom));
+                    result = GKToU2000(BLH2XYGK(XYZ2BLH(helper, precision), longitude), longitude);
+                }
+                else if (!this.transformateOption)
+                {
+                    List<PointBLH> helper = setGridDeltasNchangeETRF(bottom, true);
+                    result = GKToU2000(BLH2XYGK(helper, longitude), longitude);
+                }
+            }
             return result;
         }
         public List<Point3D> U1992ToXYZ(byte longitude, double precision, List<Point> Points)
@@ -811,7 +902,7 @@ namespace WindowsFormsApp1
             collection2.Add("0,0001");
             collection2.Add("0,00001");
             this.LengthPrecisionDUD.Text = "0,0001";
-            this.MonitorRichTextBox.Clear(); this.MonitorRichTextBox.Text = "MONITOR: \n";
+            this.MonitorRichTextBox.Clear(); this.MonitorRichTextBox.Text = "MONITOR: ";
         }
 
         private void TeoreticOptionRB_CheckedChanged(object sender, EventArgs e)
@@ -889,6 +980,35 @@ namespace WindowsFormsApp1
             {
                 return problemsVol2;
             }
+        }
+        //TRANSFORMACJA KONFOREMNA 7-STOPNIOWA HELMERTA DLA XYZ MIĘDZY UKŁADAMI ETRF89-ETRF2000
+        public List<Point3D> ETRF89TOETRF2000(List<Point3D> points)
+        {
+            List<Point3D> result = new List<Point3D>();
+            points.ForEach(p =>
+            {
+                double Xs = 3696570.6591; double Ys = 1297521.5905; double Zs = 5011111.1273;
+                double dX = p.x() - Xs; double dY = p.y() - Ys; double dZ = p.z() - Zs;
+                double Xfin = p.x() + (-0.0322) + (-0.00000005102) * dX + (-0.00000000746) * dY + (0.00000004804) * dZ;
+                double Yfin = p.y() + (-0.0347) + (0.00000000746) * dX + (-0.00000005102) * dY + (0.00000006152) * dZ;
+                double Zfin = p.z() + (-0.0507) + (-0.00000004804) * dX + (-0.00000006152) * dY + (-0.00000005102) * dZ;
+                result.Add(new Point3D(p.Name(), Xfin, Yfin, Zfin));
+            });
+            return result;
+        }
+        public List<Point3D> ETRF2000TO89(List<Point3D> points)
+        {
+            List<Point3D> result = new List<Point3D>();
+            points.ForEach(p =>
+            {
+                double Xs = 3696570.6268; double Ys = 1297521.5559; double Zs = 5011111.0767;
+                double dX = p.x() - Xs; double dY = p.y() - Ys; double dZ = p.z() - Zs;
+                double Xfin = p.x() + (0.0322) + (0.00000005102) * dX + (0.00000000746) * dY + (-0.00000004804) * dZ;
+                double Yfin = p.y() + (0.0347) + (-0.00000000746) * dX + (0.00000005102) * dY + (-0.00000006152) * dZ;
+                double Zfin = p.z() + (0.0507) + (0.00000004804) * dX + (0.00000006152) * dY + (0.00000005102) * dZ;
+                result.Add(new Point3D(p.Name(), Xfin, Yfin, Zfin));
+            });
+            return result; 
         }
     }
 

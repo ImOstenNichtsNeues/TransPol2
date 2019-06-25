@@ -820,6 +820,8 @@
             this.BackColor = System.Drawing.SystemColors.ButtonShadow;
             this.ClientSize = new System.Drawing.Size(777, 438);
             this.Controls.Add(this.tabControl1);
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
+            this.MaximizeBox = false;
             this.Name = "Transform";
             this.Text = "TransPol w.2.06";
             this.Load += new System.EventHandler(this.Transform_Load);
