@@ -311,10 +311,15 @@ namespace WindowsFormsApp1
                 getPointsData();         
                 if (this.canIStartCounting)
                 {
-                    this.PointsBLH.ForEach(p => p.convertToDegrees());
-                    //setGridDeltas(this.PointsBLH);
                     double anglePrecision = Convert.ToDouble(this.AnglePrecisionDUD.Text)/3600 * Math.PI / 180;
                     double lengthPrecision = Convert.ToDouble(this.LengthPrecisionDUD.Text) * Math.PI / 180;
+
+
+
+
+
+
+
                     this.Points3D.Clear();
                     this.Points.Clear();
                     this.PointsBLH.Clear();
