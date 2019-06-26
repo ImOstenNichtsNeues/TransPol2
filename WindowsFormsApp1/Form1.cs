@@ -28,9 +28,9 @@ namespace WindowsFormsApp1
          False oznacza format kąt-min-sec. Nie ma opcji wprowadzania danych w gradach!*/
         bool degreeForm = true; bool resultDegreeForm = true;
         /*parametr longitude określa wartość południka osiowego, jeśli takowy występuje.*/
-        byte longitude=0;
+        byte longitude=0; byte resLongitude = 0;
         // canIStartCounting sprawdza, czy dane wejściowe zostały wprowadzone prawidłowo oraz czy układ wyjściowy został wybrany.
-        bool canIStartCounting = false;
+        bool canIStartCounting = false; bool isEndingChoiceset = false;
         //TransformateOption określa czy wybrano rozwiązanie teoretyczne czy empiryczne [grid]. True - teoretyczna, false - empiryczna.
         bool transformateOption = true;
         public static RichTextBox box = new RichTextBox();
@@ -242,7 +242,7 @@ namespace WindowsFormsApp1
                     this.longitude = setLongitude(longitude15, longitude18, longitude21, longitude24);
                     if (this.longitude != 0)
                     {
-                        loadPoints2D();
+                        loadPoints2D(); this.Points3D.Clear(); this.PointsBLH.Clear();
                     }
                     else
                     {
@@ -252,15 +252,15 @@ namespace WindowsFormsApp1
                 else if (this.start.ToString().Equals("Układ 1992"))
                 {
                     this.longitude = 19;
-                    loadPoints2D();
+                    loadPoints2D(); this.Points3D.Clear(); this.PointsBLH.Clear();
                 }
                 else if (this.start.ToString().Equals("UTM"))
                 {
                         this.longitude = setLongitude(longitudeUTM15, longitudeUTM21);
                         if (this.longitude != 0)
                         {
-                            loadPoints2D();
-                        }
+                            loadPoints2D(); this.Points3D.Clear(); this.PointsBLH.Clear();
+                    }
                         else
                         {
                             MessageBox.Show("Nie określono południka osiowego.");
@@ -268,11 +268,11 @@ namespace WindowsFormsApp1
                     }
                 else if (this.start.ToString().Equals("XYZ GRS80"))
                 {
-                    loadPoints3D();
+                    loadPoints3D(); this.Points.Clear(); this.PointsBLH.Clear();
                 }
                 else if (this.start.ToString().Equals("BLH GRS80"))
                 {
-                    loadPointsBLH();
+                    loadPointsBLH(); this.Points3D.Clear(); this.Points.Clear();
                 }
                 else
                 {
@@ -284,6 +284,7 @@ namespace WindowsFormsApp1
                 MessageBox.Show("Nie wybrano zbioru punktów.");
             }
         }
+        
         public Transform()
         {
             InitializeComponent();
@@ -313,7 +314,17 @@ namespace WindowsFormsApp1
                 {
                     double anglePrecision = Convert.ToDouble(this.AnglePrecisionDUD.Text)/3600 * Math.PI / 180;
                     double lengthPrecision = Convert.ToDouble(this.LengthPrecisionDUD.Text) * Math.PI / 180;
+                    if (!end.Equals(""))
+                    {
+                        if(start.Equals("Układ 2000"))
+                        {
+                            if(end.Equals("Układ 2000"))
+                            {
+                                this.resLongitude = setLongitude(resultLongitude15, resultLongitude18, resultLongitude21, resultLongitude24);
 
+                            }
+                        }
+                    }
 
 
 
@@ -1792,6 +1803,10 @@ namespace WindowsFormsApp1
                 result.Add(new Point3D(p.Name(), Xfin, Yfin, Zfin));
             });
             return result; 
+        }
+        public void saveTextFile()
+        {
+
         }
     }
 
