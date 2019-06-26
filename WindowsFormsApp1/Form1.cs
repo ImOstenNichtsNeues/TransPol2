@@ -735,8 +735,10 @@ namespace WindowsFormsApp1
             });
             return result;
         }
-        //SCENARIUSZE TRANSFORMACYJNE: POPRAWIĆ I DODAĆ UTM!!! 
+        //SCENARIUSZE TRANSFORMACYJNE: 20 GŁÓWNYCH PERMUTACJI
         //PRECISION ZAWSZE ODNOSI SIĘ DO DOKŁADNOŚCI KĄTOWEJ. DOKŁADNOŚĆ LINIOWA DOTYCZY WYŁĄCZNIE KOŃCOWYCH WYNIKÓW.
+        //Wszystkie wartości longitude odnoszą się do południka osiowego układu 2000 lub południka osiowego UTM.
+        //20 permutacji daje łącznie 280/395 scenariuszy.
         public List<Point> U2000To1992(byte longitude, double precision, List<Point> Points) 
             /*logitude to południk osiowy układu 2000 */
         {
@@ -812,7 +814,6 @@ namespace WindowsFormsApp1
             }
             return result;
         }
-        //wszystkie wartości longitude odnoszą się do południka osiowego układu 2000.
         public List<Point3D> U2000ToXYZ(byte longitude, double precision, List<Point> Points)
         {
             List<Point3D> result = new List<Point3D>();
@@ -961,25 +962,707 @@ namespace WindowsFormsApp1
         }
         public List<PointBLH> U2000ToBLH(byte longitude, double precision, List<Point> Points)
         {
-            List<PointBLH> result = XYGK2BLH(U2000ToGK(Points, longitude), longitude, precision);
-                return result;
+            List<PointBLH> result = new List<PointBLH>();
+            List<PointBLH> bottom = XYGK2BLH(U2000ToGK(Points, longitude), longitude, precision);
+            if (this.startETRF.Equals(this.endETRF))
+            {
+                result = bottom;
+            }
+            else if (this.startETRF.Equals("ETRF89") && this.endETRF.Equals("ETRF2000"))
+            {
+                if (this.transformateOption)
+                {
+                    List<Point3D> helper = ETRF89TOETRF2000(BLH2XYZ(bottom));
+                    result = XYZ2BLH(helper,precision);
+                }
+                else if (!this.transformateOption)
+                {
+                    List<PointBLH> helper = setGridDeltasNchangeETRF(bottom, false);
+                    result = helper;
+                }
+            }
+            else if (this.startETRF.Equals("ETRF2000") && this.endETRF.Equals("ETRF89"))
+            {
+                if (this.transformateOption)
+                {
+                    List<Point3D> helper = ETRF2000TO89(BLH2XYZ(bottom));
+                    result = XYZ2BLH(helper, precision);
+                }
+                else if (!this.transformateOption)
+                {
+                    List<PointBLH> helper = setGridDeltasNchangeETRF(bottom, true);
+                    result = helper;
+                }
+            }
+            return result;
         }
-        public List<PointBLH> U1992ToBLH(byte longitude, double precision, List<Point> Points)
+        public List<PointBLH> U1992ToBLH(double precision, List<Point> Points)
         {
-            List<PointBLH> result = XYGK2BLH(U1992ToGK(Points), longitude, precision);
+            List<PointBLH> result = new List<PointBLH>();
+            List<PointBLH> bottom = XYGK2BLH(U1992ToGK(Points), 19, precision);
+            if (this.startETRF.Equals(this.endETRF))
+            {
+                result = bottom;
+            }
+            else if (this.startETRF.Equals("ETRF89") && this.endETRF.Equals("ETRF2000"))
+            {
+                if (this.transformateOption)
+                {
+                    List<Point3D> helper = ETRF89TOETRF2000(BLH2XYZ(bottom));
+                    result = XYZ2BLH(helper, precision);
+                }
+                else if (!this.transformateOption)
+                {
+                    List<PointBLH> helper = setGridDeltasNchangeETRF(bottom, false);
+                    result = helper;
+                }
+            }
+            else if (this.startETRF.Equals("ETRF2000") && this.endETRF.Equals("ETRF89"))
+            {
+                if (this.transformateOption)
+                {
+                    List<Point3D> helper = ETRF2000TO89(BLH2XYZ(bottom));
+                    result = XYZ2BLH(helper, precision);
+                }
+                else if (!this.transformateOption)
+                {
+                    List<PointBLH> helper = setGridDeltasNchangeETRF(bottom, true);
+                    result = helper;
+                }
+            }
             return result;
         }
         public List<Point> BLH2U2000(byte longitude, double precision, List<PointBLH> Points)
         {
-            List<Point> result = GKToU2000(BLH2XYGK(Points,longitude), longitude);
+            List<Point> result = new List<Point>();
+            if (this.startETRF.Equals(this.endETRF))
+            {
+                result = GKToU2000(BLH2XYGK(Points, longitude), longitude);
+            }
+            else if (this.startETRF.Equals("ETRF89") && this.endETRF.Equals("ETRF2000"))
+            {
+                if (this.transformateOption)
+                {
+                    List<Point3D> helper = ETRF89TOETRF2000(BLH2XYZ(Points));
+                    result = GKToU2000(BLH2XYGK(XYZ2BLH(helper, precision),longitude),longitude);
+                }
+                else if (!this.transformateOption)
+                {
+                    List<PointBLH> helper = setGridDeltasNchangeETRF(Points, false);
+                    result = GKToU2000(BLH2XYGK(helper, longitude), longitude);
+                }
+            }
+            else if (this.startETRF.Equals("ETRF2000") && this.endETRF.Equals("ETRF89"))
+            {
+                if (this.transformateOption)
+                {
+                    List<Point3D> helper = ETRF2000TO89(BLH2XYZ(Points));
+                    result = GKToU2000(BLH2XYGK(XYZ2BLH(helper, precision), longitude), longitude);
+                }
+                else if (!this.transformateOption)
+                {
+                    List<PointBLH> helper = setGridDeltasNchangeETRF(Points, true);
+                    result = GKToU2000(BLH2XYGK(helper, longitude), longitude);
+                }
+            }
             return result;
         }
-        public List<Point> BLH2U1992(byte longitude, double precision, List<PointBLH> Points)
+        public List<Point> BLH2U1992( double precision, List<PointBLH> Points)
         {
-            List<Point> result = GKToU1992(BLH2XYGK(Points, longitude));
+            List<Point> result = new List<Point>();
+            if (this.startETRF.Equals(this.endETRF))
+            {
+                result = GKToU1992(BLH2XYGK(Points, 19));
+            }
+            else if (this.startETRF.Equals("ETRF89") && this.endETRF.Equals("ETRF2000"))
+            {
+                if (this.transformateOption)
+                {
+                    List<Point3D> helper = ETRF89TOETRF2000(BLH2XYZ(Points));
+                    result = GKToU1992(BLH2XYGK(XYZ2BLH(helper, precision), 19));
+                }
+                else if (!this.transformateOption)
+                {
+                    List<PointBLH> helper = setGridDeltasNchangeETRF(Points, false);
+                    result = GKToU1992(BLH2XYGK(helper, 19));
+                }
+            }
+            else if (this.startETRF.Equals("ETRF2000") && this.endETRF.Equals("ETRF89"))
+            {
+                if (this.transformateOption)
+                {
+                    List<Point3D> helper = ETRF2000TO89(BLH2XYZ(Points));
+                    result = GKToU1992(BLH2XYGK(XYZ2BLH(helper, precision), 19));
+                }
+                else if (!this.transformateOption)
+                {
+                    List<PointBLH> helper = setGridDeltasNchangeETRF(Points, true);
+                    result = GKToU1992(BLH2XYGK(helper, 19));
+                }
+            }
             return result;
         }
+        public List<Point> UTM2U1992(byte longitude, double precision, List<Point> Points)
+        {
+            /*logitude to południk osiowy układu UTM */  
+               List<Point> result = new List<Point>();
+                //JAK POZYSKAĆ FAKTYCZNĄ WARTOŚĆ WYSOKOŚCI???
+                List<PointBLH> bottom = UTM2BLH(Points, longitude, precision);
+                if (this.startETRF.Equals(this.endETRF))
+                {
+                    result = GKToU1992(BLH2XYGK(bottom, 19));
+                }
+                else if (this.startETRF.Equals("ETRF89") && this.endETRF.Equals("ETRF2000"))
+                {
+                    if (this.transformateOption)
+                    {
+                        List<Point3D> helper = ETRF89TOETRF2000(BLH2XYZ(bottom));
+                        result = GKToU1992(BLH2XYGK(XYZ2BLH(helper, precision), 19));
+                    }
+                    else if (!this.transformateOption)
+                    {
+                        List<PointBLH> helper = setGridDeltasNchangeETRF(bottom, false);
+                        result = GKToU1992(BLH2XYGK(helper, 19));
+                    }
+                }
+                else if (this.startETRF.Equals("ETRF2000") && this.endETRF.Equals("ETRF89"))
+                {
+                    if (this.transformateOption)
+                    {
+                        List<Point3D> helper = ETRF2000TO89(BLH2XYZ(bottom));
+                        result = GKToU1992(BLH2XYGK(XYZ2BLH(helper, precision), 19));
+                    }
+                    else if (!this.transformateOption)
+                    {
+                        List<PointBLH> helper = setGridDeltasNchangeETRF(bottom, true);
+                        result = GKToU1992(BLH2XYGK(helper, 19));
+                    }
+                }
+                return result;       
+        }
+        public List<Point> UTM2U2000(byte longitudeUTM, byte longitude2000, double precision, List<Point> Points)
+        {
+            /*logitude to południk osiowy układu UTM */
+            List<Point> result = new List<Point>();
+            //JAK POZYSKAĆ FAKTYCZNĄ WARTOŚĆ WYSOKOŚCI???
+            List<PointBLH> bottom = UTM2BLH(Points, longitudeUTM, precision);
+            if (this.startETRF.Equals(this.endETRF))
+            {
+                result = GKToU2000(BLH2XYGK(bottom, longitude2000),longitude2000);
+            }
+            else if (this.startETRF.Equals("ETRF89") && this.endETRF.Equals("ETRF2000"))
+            {
+                if (this.transformateOption)
+                {
+                    List<Point3D> helper = ETRF89TOETRF2000(BLH2XYZ(bottom));
+                    result = GKToU2000(BLH2XYGK(XYZ2BLH(helper, precision), longitude2000),longitude2000);
+                }
+                else if (!this.transformateOption)
+                {
+                    List<PointBLH> helper = setGridDeltasNchangeETRF(bottom, false);
+                    result = GKToU2000(BLH2XYGK(helper, longitude2000),longitude2000);
+                }
+            }
+            else if (this.startETRF.Equals("ETRF2000") && this.endETRF.Equals("ETRF89"))
+            {
+                if (this.transformateOption)
+                {
+                    List<Point3D> helper = ETRF2000TO89(BLH2XYZ(bottom));
+                    result = GKToU2000(BLH2XYGK(XYZ2BLH(helper, precision), longitude2000), longitude2000);
+                }
+                else if (!this.transformateOption)
+                {
+                    List<PointBLH> helper = setGridDeltasNchangeETRF(bottom, true);
+                    result = GKToU2000(BLH2XYGK(helper, longitude2000), longitude2000);
+                }
+            }
+            return result;
+        }
+        public List<Point> U1992ToUTM(byte longitude, double precision, List<Point> Points)
+        {
+            List<Point> result = new List<Point>();
+            List<PointBLH> bottom = XYGK2BLH(U1992ToGK(Points), 19, precision);
+            if (this.startETRF.Equals(this.endETRF))
+            {
+                result = BLH2UTM(bottom, longitude);
+            }
+            else if (this.startETRF.Equals("ETRF89") && this.endETRF.Equals("ETRF2000"))
+            {
+                if (this.transformateOption)
+                {
+                    List<Point3D> helper = ETRF89TOETRF2000(BLH2XYZ(bottom));
+                    result = BLH2UTM(XYZ2BLH(helper, precision), longitude);
+                }
+                else if (!this.transformateOption)
+                {
+                    List<PointBLH> helper = setGridDeltasNchangeETRF(bottom, false);
+                    result = BLH2UTM(helper, longitude);
+                }
+            }
+            else if (this.startETRF.Equals("ETRF2000") && this.endETRF.Equals("ETRF89"))
+            {
+                if (this.transformateOption)
+                {
+                    List<Point3D> helper = ETRF2000TO89(BLH2XYZ(bottom));
+                    result = BLH2UTM(XYZ2BLH(helper, precision), longitude);
+                }
+                else if (!this.transformateOption)
+                {
+                    List<PointBLH> helper = setGridDeltasNchangeETRF(bottom, true);
+                    result = BLH2UTM(helper, longitude);
+                }
+            }
+            return result;
+        }
+        public List<Point> U2000ToUTM(byte longitudeUTM, byte longitude2000, double precision, List<Point> Points)
+        {
+            List<Point> result = new List<Point>();
+            List<PointBLH> bottom = XYGK2BLH(U2000ToGK(Points,longitude2000), longitude2000, precision);
+            if (this.startETRF.Equals(this.endETRF))
+            {
+                result = BLH2UTM(bottom, longitudeUTM);
+            }
+            else if (this.startETRF.Equals("ETRF89") && this.endETRF.Equals("ETRF2000"))
+            {
+                if (this.transformateOption)
+                {
+                    List<Point3D> helper = ETRF89TOETRF2000(BLH2XYZ(bottom));
+                    result = BLH2UTM(XYZ2BLH(helper, precision), longitudeUTM);
+                }
+                else if (!this.transformateOption)
+                {
+                    List<PointBLH> helper = setGridDeltasNchangeETRF(bottom, false);
+                    result = BLH2UTM(helper, longitudeUTM);
+                }
+            }
+            else if (this.startETRF.Equals("ETRF2000") && this.endETRF.Equals("ETRF89"))
+            {
+                if (this.transformateOption)
+                {
+                    List<Point3D> helper = ETRF2000TO89(BLH2XYZ(bottom));
+                    result = BLH2UTM(XYZ2BLH(helper, precision), longitudeUTM);
+                }
+                else if (!this.transformateOption)
+                {
+                    List<PointBLH> helper = setGridDeltasNchangeETRF(bottom, true);
+                    result = BLH2UTM(helper, longitudeUTM);
+                }
+            }
+            return result;
+        }
+        public List<Point> XYZ2UTM(byte longitude, double precision, List<Point3D> Points)
+        {
+            List<Point> result = new List<Point>();
+            List<PointBLH> bottom = XYZ2BLH(Points, precision);
+            if (this.startETRF.Equals(this.endETRF))
+            {
+                result = BLH2UTM(bottom, longitude);
+            }
+            else if (this.startETRF.Equals("ETRF89") && this.endETRF.Equals("ETRF2000"))
+            {
+                if (this.transformateOption)
+                {
+                    List<Point3D> helper = ETRF89TOETRF2000(Points);
+                    result = BLH2UTM(XYZ2BLH(helper, precision), longitude);
+                }
+                else if (!this.transformateOption)
+                {
+                    List<PointBLH> helper = setGridDeltasNchangeETRF(bottom, false);
+                    result = BLH2UTM(helper, longitude);
+                }
+            }
+            else if (this.startETRF.Equals("ETRF2000") && this.endETRF.Equals("ETRF89"))
+            {
+                if (this.transformateOption)
+                {
+                    List<Point3D> helper = ETRF2000TO89(Points);
+                    result = BLH2UTM(XYZ2BLH(helper, precision), longitude);
+                }
+                else if (!this.transformateOption)
+                {
+                    List<PointBLH> helper = setGridDeltasNchangeETRF(bottom, true);
+                    result = BLH2UTM(helper, longitude);
+                }
+            }
 
+            return result;
+        }
+        public List<Point> BLH2UTM(byte longitude, double precision, List<PointBLH> Points)
+        {
+            List<Point> result = new List<Point>();
+            if (this.startETRF.Equals(this.endETRF))
+            {
+                result = BLH2UTM(Points, longitude);
+            }
+            else if (this.startETRF.Equals("ETRF89") && this.endETRF.Equals("ETRF2000"))
+            {
+                if (this.transformateOption)
+                {
+                    List<Point3D> helper = ETRF89TOETRF2000(BLH2XYZ(Points));
+                    result = BLH2UTM(XYZ2BLH(helper, precision), longitude);
+                }
+                else if (!this.transformateOption)
+                {
+                    List<PointBLH> helper = setGridDeltasNchangeETRF(Points, false);
+                    result = BLH2UTM(helper, longitude);
+                }
+            }
+            else if (this.startETRF.Equals("ETRF2000") && this.endETRF.Equals("ETRF89"))
+            {
+                if (this.transformateOption)
+                {
+                    List<Point3D> helper = ETRF2000TO89(BLH2XYZ(Points));
+                    result = BLH2UTM(XYZ2BLH(helper, precision), longitude);
+                }
+                else if (!this.transformateOption)
+                {
+                    List<PointBLH> helper = setGridDeltasNchangeETRF(Points, true);
+                    result = BLH2UTM(helper, longitude);
+                }
+            }
+            return result;
+        }
+        public List<PointBLH> UTMtoBLH(byte longitude, double precision, List<Point> Points)
+        {
+            List<PointBLH> result = new List<PointBLH>();
+            List<PointBLH> bottom = UTM2BLH(Points, longitude, precision);
+            if (this.startETRF.Equals(this.endETRF))
+            {
+                result = bottom;
+            }
+            else if (this.startETRF.Equals("ETRF89") && this.endETRF.Equals("ETRF2000"))
+            {
+                if (this.transformateOption)
+                {
+                    List<Point3D> helper = ETRF89TOETRF2000(BLH2XYZ(bottom));
+                    result = XYZ2BLH(helper, precision);
+                }
+                else if (!this.transformateOption)
+                {
+                    List<PointBLH> helper = setGridDeltasNchangeETRF(bottom, false);
+                    result = helper;
+                }
+            }
+            else if (this.startETRF.Equals("ETRF2000") && this.endETRF.Equals("ETRF89"))
+            {
+                if (this.transformateOption)
+                {
+                    List<Point3D> helper = ETRF2000TO89(BLH2XYZ(bottom));
+                    result = XYZ2BLH(helper, precision);
+                }
+                else if (!this.transformateOption)
+                {
+                    List<PointBLH> helper = setGridDeltasNchangeETRF(bottom, true);
+                    result = helper;
+                }
+            }
+            return result;
+        }
+        public List<Point3D> UTMtoXYZ(byte longitude, double precision, List<Point> Points)
+        {
+            List<Point3D> result = new List<Point3D>();
+            List<PointBLH> bottom = UTM2BLH(Points, longitude, precision);
+            if (this.startETRF.Equals(this.endETRF))
+            {
+                result = BLH2XYZ(bottom);
+            }
+            else if (this.startETRF.Equals("ETRF89") && this.endETRF.Equals("ETRF2000"))
+            {
+                if (this.transformateOption)
+                {
+                    List<Point3D> helper = ETRF89TOETRF2000(BLH2XYZ(bottom));
+                    result = helper;
+                }
+                else if (!this.transformateOption)
+                {
+                    List<PointBLH> helper = setGridDeltasNchangeETRF(bottom, false);
+                    result = BLH2XYZ(helper);
+                }
+            }
+            else if (this.startETRF.Equals("ETRF2000") && this.endETRF.Equals("ETRF89"))
+            {
+                if (this.transformateOption)
+                {
+                    List<Point3D> helper = ETRF2000TO89(BLH2XYZ(bottom));
+                    result = helper;
+                }
+                else if (!this.transformateOption)
+                {
+                    List<PointBLH> helper = setGridDeltasNchangeETRF(bottom, true);
+                    result = BLH2XYZ(helper);
+                }
+            }
+            return result;
+        }
+        public List<PointBLH> XYZ2BLHFull(List<Point3D> Points3D, double precision)
+        {
+            List<PointBLH> result = new List<PointBLH>();
+            List<PointBLH> bottom = XYZ2BLH(Points3D,precision);
+            if (this.startETRF.Equals(this.endETRF))
+            {
+                result = bottom;
+            }
+            else if (this.startETRF.Equals("ETRF89") && this.endETRF.Equals("ETRF2000"))
+            {
+                if (this.transformateOption)
+                {
+                    List<Point3D> helper = ETRF89TOETRF2000(Points3D);
+                    result = XYZ2BLH(helper, precision);
+                }
+                else if (!this.transformateOption)
+                {
+                    List<PointBLH> helper = setGridDeltasNchangeETRF(bottom, false);
+                    result = helper;
+                }
+            }
+            else if (this.startETRF.Equals("ETRF2000") && this.endETRF.Equals("ETRF89"))
+            {
+                if (this.transformateOption)
+                {
+                    List<Point3D> helper = ETRF2000TO89(Points3D);
+                    result = XYZ2BLH(helper, precision);
+                }
+                else if (!this.transformateOption)
+                {
+                    List<PointBLH> helper = setGridDeltasNchangeETRF(bottom, true);
+                    result = helper;
+                }
+            }
+            return result;
+        }
+        public List<Point3D> BLH2XYZFull(List<PointBLH> Points)
+        {
+            List<Point3D> result = new List<Point3D>();
+            
+            if (this.startETRF.Equals(this.endETRF))
+            {
+                result = BLH2XYZ(Points);
+            }
+            else if (this.startETRF.Equals("ETRF89") && this.endETRF.Equals("ETRF2000"))
+            {
+                if (this.transformateOption)
+                {
+                    List<Point3D> helper = ETRF89TOETRF2000(BLH2XYZ(Points));
+                    result = helper;
+                }
+                else if (!this.transformateOption)
+                {
+                    List<PointBLH> helper = setGridDeltasNchangeETRF(Points, false);
+                    result = BLH2XYZ(helper);
+                }
+            }
+            else if (this.startETRF.Equals("ETRF2000") && this.endETRF.Equals("ETRF89"))
+            {
+                if (this.transformateOption)
+                {
+                    List<Point3D> helper = ETRF2000TO89(BLH2XYZ(Points));
+                    result = helper;
+                }
+                else if (!this.transformateOption)
+                {
+                    List<PointBLH> helper = setGridDeltasNchangeETRF(Points, true);
+                    result = BLH2XYZ(helper);
+                }
+            }
+            return result;
+        }
+        //SCENARIUSZE TRANSFORMUJĄCE DO TEGO SAMEGO UKŁADU WSPÓŁRZĘDNYCH:
+        public List<Point> U2000ToU2000(byte longitudeS, byte longitudeE, double precision, List<Point> Points)
+        {
+            List<Point> result = new List<Point>();
+            List<PointBLH> bottom = XYGK2BLH(U2000ToGK(Points,longitudeS), longitudeS, precision);
+            if (this.startETRF.Equals(this.endETRF))
+            {
+                if (longitudeE.Equals(longitudeS))
+                {
+                    result = Points;
+                }
+                else
+                {
+                    result = GKToU2000(BLH2XYGK(bottom, longitudeE), longitudeE);
+                }
+            }
+            else if (this.startETRF.Equals("ETRF89") && this.endETRF.Equals("ETRF2000"))
+            {
+                if (this.transformateOption)
+                {
+                    List<Point3D> helper = ETRF89TOETRF2000(BLH2XYZ(bottom));
+                    result = GKToU2000(BLH2XYGK(XYZ2BLH(helper, precision), longitudeE), longitudeE);
+                }
+                else if (!this.transformateOption)
+                {
+                    List<PointBLH> helper = setGridDeltasNchangeETRF(bottom, false);
+                    result = GKToU2000(BLH2XYGK(helper, longitudeE), longitudeE);
+                }
+            }
+            else if (this.startETRF.Equals("ETRF2000") && this.endETRF.Equals("ETRF89"))
+            {
+                if (this.transformateOption)
+                {
+                    List<Point3D> helper = ETRF2000TO89(BLH2XYZ(bottom));
+                    result = GKToU2000(BLH2XYGK(XYZ2BLH(helper, precision), longitudeE), longitudeE);
+                }
+                else if (!this.transformateOption)
+                {
+                    List<PointBLH> helper = setGridDeltasNchangeETRF(bottom, true);
+                    result = GKToU2000(BLH2XYGK(helper, longitudeE), longitudeE);
+                }
+            }
+            return result;
+        }
+        public List<Point> U1992ToU1992(double precision, List<Point> Points)
+        {
+                List<Point> result = new List<Point>();
+                //JAK POZYSKAĆ FAKTYCZNĄ WARTOŚĆ WYSOKOŚCI???
+                List<PointBLH> bottom = XYGK2BLH(U1992ToGK(Points), 19, precision);
+            if (this.startETRF.Equals(this.endETRF))
+            {
+                result = Points;
+            }
+            else if (this.startETRF.Equals("ETRF89") && this.endETRF.Equals("ETRF2000"))
+            {
+                if (this.transformateOption)
+                {
+                    List<Point3D> helper = ETRF89TOETRF2000(BLH2XYZ(bottom));
+                    result = GKToU1992(BLH2XYGK(XYZ2BLH(helper, precision), 19));
+                }
+                else if (!this.transformateOption)
+                {
+                    List<PointBLH> helper = setGridDeltasNchangeETRF(bottom, false);
+                    result = GKToU1992(BLH2XYGK(helper, 19));
+                }
+            }
+            else if (this.startETRF.Equals("ETRF2000") && this.endETRF.Equals("ETRF89"))
+            {
+                if (this.transformateOption)
+                {
+                    List<Point3D> helper = ETRF2000TO89(BLH2XYZ(bottom));
+                    result = GKToU1992(BLH2XYGK(XYZ2BLH(helper, precision), 19));
+                }
+                else if (!this.transformateOption)
+                {
+                    List<PointBLH> helper = setGridDeltasNchangeETRF(bottom, true);
+                    result = GKToU1992(BLH2XYGK(helper, 19));
+                }
+            }
+                ////List<Point> result = GKToU1992(BLH2XYGK(XYGK2BLH(U2000ToGK(Points, longitude), longitude, precision), longitude));
+                return result;
+            }
+        public List<Point> UTM2UTM(byte longitudeS, byte longitudeE, double precision, List<Point> Points)
+        {
+            List<Point> result = new List<Point>();
+            List<PointBLH> bottom = UTM2BLH(Points, longitudeS, precision);
+            if (this.startETRF.Equals(this.endETRF))
+            {
+                if (longitudeS.Equals(longitudeE))
+                {
+                    result = Points;
+                }
+                else
+                {
+                    result = BLH2UTM(bottom, longitudeE);
+                }
+            }
+            else if (this.startETRF.Equals("ETRF89") && this.endETRF.Equals("ETRF2000"))
+            {
+                if (this.transformateOption)
+                {
+                    List<Point3D> helper = ETRF89TOETRF2000(BLH2XYZ(bottom));
+                    result = BLH2UTM(XYZ2BLH(helper, precision), longitudeE);
+                }
+                else if (!this.transformateOption)
+                {
+                    List<PointBLH> helper = setGridDeltasNchangeETRF(bottom, false);
+                    result = BLH2UTM(helper, longitudeE);
+                }
+            }
+            else if (this.startETRF.Equals("ETRF2000") && this.endETRF.Equals("ETRF89"))
+            {
+                if (this.transformateOption)
+                {
+                    List<Point3D> helper = ETRF2000TO89(BLH2XYZ(bottom));
+                    result = BLH2UTM(XYZ2BLH(helper, precision), longitudeE);
+                }
+                else if (!this.transformateOption)
+                {
+                    List<PointBLH> helper = setGridDeltasNchangeETRF(bottom, true);
+                    result = BLH2UTM(helper, longitudeE);
+                }
+            }
+            return result;
+        }
+        public List<Point3D> XYZ2XYZ(double precision, List<Point3D> Points)
+        {
+            List<Point3D> result = new List<Point3D>();
+            
+            if (this.startETRF.Equals(this.endETRF))
+            {
+                result = Points;
+            }
+            else if (this.startETRF.Equals("ETRF89") && this.endETRF.Equals("ETRF2000"))
+            {
+                if (this.transformateOption)
+                {
+                    List<Point3D> helper = ETRF89TOETRF2000(Points);
+                    result = helper;
+                }
+                else if (!this.transformateOption)
+                {
+                    List<PointBLH> helper = setGridDeltasNchangeETRF(XYZ2BLH(Points,precision), false);
+                    result = BLH2XYZ(helper);
+                }
+            }
+            else if (this.startETRF.Equals("ETRF2000") && this.endETRF.Equals("ETRF89"))
+            {
+                if (this.transformateOption)
+                {
+                    List<Point3D> helper = ETRF2000TO89(Points);
+                    result = helper;
+                }
+                else if (!this.transformateOption)
+                {
+                    List<PointBLH> helper = setGridDeltasNchangeETRF(XYZ2BLH(Points, precision), true);
+                    result = BLH2XYZ(helper);
+                }
+            }
+            return result;
+        }
+        public List<PointBLH> BLH2BLH(double precision, List<PointBLH> Points)
+        {
+            List<PointBLH> result = new List<PointBLH>();
+            List<PointBLH> bottom = Points;
+            if (this.startETRF.Equals(this.endETRF))
+            {
+                result = bottom;
+            }
+            else if (this.startETRF.Equals("ETRF89") && this.endETRF.Equals("ETRF2000"))
+            {
+                if (this.transformateOption)
+                {
+                    List<Point3D> helper = ETRF89TOETRF2000(BLH2XYZ(bottom));
+                    result = XYZ2BLH(helper, precision);
+                }
+                else if (!this.transformateOption)
+                {
+                    List<PointBLH> helper = setGridDeltasNchangeETRF(bottom, false);
+                    result = helper;
+                }
+            }
+            else if (this.startETRF.Equals("ETRF2000") && this.endETRF.Equals("ETRF89"))
+            {
+                if (this.transformateOption)
+                {
+                    List<Point3D> helper = ETRF2000TO89(BLH2XYZ(bottom));
+                    result = XYZ2BLH(helper, precision);
+                }
+                else if (!this.transformateOption)
+                {
+                    List<PointBLH> helper = setGridDeltasNchangeETRF(bottom, true);
+                    result = helper;
+                }
+            }
+            return result;
+        }
         private void TabPage1_Click(object sender, EventArgs e)
         {
             
