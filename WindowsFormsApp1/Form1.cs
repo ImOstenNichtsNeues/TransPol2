@@ -313,7 +313,8 @@ namespace WindowsFormsApp1
                 if (this.canIStartCounting)
                 {
                     double anglePrecision = Convert.ToDouble(this.AnglePrecisionDUD.Text)/3600 * Math.PI / 180;
-                    double lengthPrecision = Convert.ToDouble(this.LengthPrecisionDUD.Text) * Math.PI / 180;
+                    double lengthPrecision = Convert.ToDouble(this.LengthPrecisionDUD.Text);
+                    int precision = this.LengthPrecisionDUD.Text.Length - 2;
                     if (!end.Equals(""))
                     {
                         if(start.Equals("Układ 2000"))
@@ -1804,10 +1805,7 @@ namespace WindowsFormsApp1
             });
             return result; 
         }
-        public void saveTextFile()
-        {
 
-        }
     }
 
 
@@ -1831,7 +1829,16 @@ namespace WindowsFormsApp1
         {
             return this.name;
         }
-
+        public void PrintFile(List<Point> Points, string filename, int precision, string transformType)
+        {
+            StreamWriter file = new StreamWriter(filename);
+            Points.ForEach(p =>
+            {
+                p.X = Math.Round(p.x(), precision); p.Y = Math.Round(p.y(), precision);
+                file.WriteLine(p.name.ToString() + " " + p.X.ToString() + " " + p.Y.ToString() + " "+ transformType);
+            });
+            file.Close();
+        }
     }
     public partial class Point3D
     {
@@ -1880,6 +1887,16 @@ namespace WindowsFormsApp1
         public void Display()
         {
             MessageBox.Show(this.X + " " + this.Y + " " + this.Z);
+        }
+        public void PrintFile(List<Point3D> Points, string filename, int precision, string transformType)
+        {
+            StreamWriter file = new StreamWriter(filename);
+            Points.ForEach(p =>
+            {
+                p.X = Math.Round(p.x(), precision); p.Y = Math.Round(p.y(), precision); p.Z = Math.Round(p.z(), precision);
+                file.WriteLine(p.name.ToString() + " " + p.X.ToString() + " " + p.Y.ToString() + " " +p.Z+" "+ transformType);
+            });
+            file.Close();
         }
     }
     public partial class PointBLH
@@ -1933,6 +1950,25 @@ namespace WindowsFormsApp1
         public double lsec()
         {
             return this.Lsec;
+        }
+        public void PrintFile(List<PointBLH> Points, string name, bool degreeForm, string transformType)
+        {
+            /*W trakcie obliczeń wszystkie punkty są transformowane do formatu kątowego, stąd też potencjalna konwersja
+              punktu przy użyciu funkcji .convertToDegrees() jest zbędna.*/
+            StreamWriter file = new StreamWriter(name);
+            Points.ForEach(p =>
+            {
+                if (degreeForm)
+                {
+       file.WriteLine(p.name.ToString() + " " + p.B.ToString() + " " + p.L.ToString() + " " +p.H.ToString()+" "+ transformType);
+                }
+                else if(!degreeForm)
+                {
+                    p.convertToDegreesMinsNSecs();
+   file.WriteLine(p.name.ToString() + " " + p.B.ToString() + " " + p.Bmin.ToString() + " " + p.Bsec.ToString() + " " + p.L.ToString() + " " + p.Lmin.ToString() + " " + p.Lsec.ToString()+" "+p.H.ToString() + transformType);
+                }
+            });
+            file.Close();
         }
         public void convertToDegrees()
         {
