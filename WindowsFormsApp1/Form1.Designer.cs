@@ -72,6 +72,7 @@
             this.TextBoxTrans2D3D = new System.Windows.Forms.TextBox();
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.tabPage1 = new System.Windows.Forms.TabPage();
+            this.FileOpenerButton = new System.Windows.Forms.Button();
             this.PrecisionGB = new System.Windows.Forms.GroupBox();
             this.LengthPrecisionDUD = new System.Windows.Forms.DomainUpDown();
             this.AnglePrecisionDUD = new System.Windows.Forms.DomainUpDown();
@@ -632,6 +633,7 @@
             // tabPage1
             // 
             this.tabPage1.BackColor = System.Drawing.Color.DarkGray;
+            this.tabPage1.Controls.Add(this.FileOpenerButton);
             this.tabPage1.Controls.Add(this.PrecisionGB);
             this.tabPage1.Controls.Add(this.TransOption);
             this.tabPage1.Controls.Add(this.MonitorRichTextBox);
@@ -657,6 +659,16 @@
             this.tabPage1.TabIndex = 0;
             this.tabPage1.Text = "TRANS 2D/3D";
             this.tabPage1.Click += new System.EventHandler(this.TabPage1_Click);
+            // 
+            // FileOpenerButton
+            // 
+            this.FileOpenerButton.Location = new System.Drawing.Point(123, 333);
+            this.FileOpenerButton.Name = "FileOpenerButton";
+            this.FileOpenerButton.Size = new System.Drawing.Size(110, 23);
+            this.FileOpenerButton.TabIndex = 19;
+            this.FileOpenerButton.UseVisualStyleBackColor = true;
+            this.FileOpenerButton.Visible = false;
+            this.FileOpenerButton.Click += new System.EventHandler(this.FileOpenerButton_Click);
             // 
             // PrecisionGB
             // 
@@ -916,6 +928,7 @@
         private System.Windows.Forms.Label LengthInfo;
         private System.Windows.Forms.DomainUpDown LengthPrecisionDUD;
         private System.Windows.Forms.DomainUpDown AnglePrecisionDUD;
+        private System.Windows.Forms.Button FileOpenerButton;
     }
 }
 

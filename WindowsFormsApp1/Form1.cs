@@ -15,7 +15,7 @@ namespace WindowsFormsApp1
 
     public partial class Transform : Form
     {
-        
+        StringBuilder FileName =new StringBuilder("");
         StringBuilder start = new StringBuilder("");
         StringBuilder end = new StringBuilder("");
         StringBuilder startETRF = new StringBuilder("");
@@ -30,7 +30,7 @@ namespace WindowsFormsApp1
         /*parametr longitude określa wartość południka osiowego, jeśli takowy występuje.*/
         byte longitude=0; byte resLongitude = 0;
         // canIStartCounting sprawdza, czy dane wejściowe zostały wprowadzone prawidłowo oraz czy układ wyjściowy został wybrany.
-        bool canIStartCounting = false; bool isEndingChoiceset = false;
+        bool canIStartCounting = false;
         //TransformateOption określa czy wybrano rozwiązanie teoretyczne czy empiryczne [grid]. True - teoretyczna, false - empiryczna.
         bool transformateOption = true;
         public static RichTextBox box = new RichTextBox();
@@ -304,6 +304,11 @@ namespace WindowsFormsApp1
         }
         private void CountUp_Click(object sender, EventArgs e)
         {
+            this.FileName.Clear();
+            this.Points3D.Clear();
+            this.Points.Clear();
+            this.PointsBLH.Clear();
+            this.FileOpenerButton.Visible = false; this.FileOpenerButton.Text = "";
             this.MonitorRichTextBox.Clear(); this.MonitorRichTextBox.Text = "MONITOR: \n";
             //List<WebGrid> greedy = webGrids();
             //MessageBox.Show(this.degreeForm + " " + this.resultDegreeForm);
@@ -313,11 +318,11 @@ namespace WindowsFormsApp1
                 if (this.canIStartCounting)
                 {
                     double anglePrecision = Convert.ToDouble(this.AnglePrecisionDUD.Text)/3600 * Math.PI / 180;
-                    double lengthPrecision = Convert.ToDouble(this.LengthPrecisionDUD.Text);
-                    int precision = this.LengthPrecisionDUD.Text.Length - 2;
+                    int printPrecisionL = this.LengthPrecisionDUD.Text.Length - 2;
+                    int printPrecisionA = this.AnglePrecisionDUD.Text.Length-2;
                     if (!end.Equals(""))
                     {
-                        if(start.Equals("Układ 2000"))
+                        if(start.ToString().Equals("Układ 2000"))
                         {
                             if(end.Equals("Układ 2000"))
                             {
@@ -325,16 +330,25 @@ namespace WindowsFormsApp1
 
                             }
                         }
+                        else if(start.ToString().Equals("BLH GRS80"))
+                        {
+                            if(end.ToString().Equals("BLH GRS80"))
+                            {
+                                List<PointBLH> result = BLH2BLH(anglePrecision, this.PointsBLH);
+                                //result.ForEach(p => { p.Display(); });
+                                FileOpenerButton.Visible = true; FileOpenerButton.Text = "BLH";
+                                this.FileName.Append("BLH.txt");
+                                PrintFile(result, this.FileName.ToString(),printPrecisionA, printPrecisionL, this.resultDegreeForm, "BLH GRS80 do układu BLHGRS80.");
+                            }
+                        }
+                        
+                    }
+                    else
+                    {
+                        MessageBox.Show("Nie wybrano układu wyjściowego.");
                     }
 
-
-
-
-
-
-                    this.Points3D.Clear();
-                    this.Points.Clear();
-                    this.PointsBLH.Clear();
+                    this.canIStartCounting = false;         
                 }      
             }
             else
@@ -364,6 +378,7 @@ namespace WindowsFormsApp1
             List<PointBLH> result = new List<PointBLH>();
             points.ForEach(p =>
             {
+                if (!p.Format()) { p.convertToDegrees(); }
                 double B = p.fi(); double Bdown = Math.Floor(B * 100) / 100; double Bup = Math.Ceiling(B * 100) / 100;
                 double L = p.lambda(); double Ldown = Math.Floor(L * 100) / 100; double Lup = Math.Ceiling(L * 100) / 100;
                 WebGrid grid11 = grid.Find(q => q.fi().Equals(Bdown) && q.lambda().Equals(Ldown));
@@ -766,7 +781,7 @@ namespace WindowsFormsApp1
             {
                 result = GKToU1992(BLH2XYGK(bottom, 19));
             }
-            else if (this.startETRF.Equals("ETRF89") && this.endETRF.Equals("ETRF2000"))
+            else if (this.startETRF.ToString().Equals("ETRF89") && this.endETRF.ToString().Equals("ETRF2000"))
             {
                 if (this.transformateOption)
                 {
@@ -779,7 +794,7 @@ namespace WindowsFormsApp1
                     result = GKToU1992(BLH2XYGK(helper, 19));
                 }
             }
-            else if (this.startETRF.Equals("ETRF2000") && this.endETRF.Equals("ETRF89"))
+            else if (this.startETRF.ToString().Equals("ETRF2000") && this.endETRF.ToString().Equals("ETRF89"))
             {
                 if (this.transformateOption)
                 {
@@ -803,7 +818,7 @@ namespace WindowsFormsApp1
             {
                 result = GKToU2000(BLH2XYGK(bottom, longitude),longitude);
             }
-            else if (this.startETRF.Equals("ETRF89") && this.endETRF.Equals("ETRF2000"))
+            else if (this.startETRF.ToString().Equals("ETRF89") && this.endETRF.ToString().Equals("ETRF2000"))
             {
                 if (this.transformateOption)
                 {
@@ -816,7 +831,7 @@ namespace WindowsFormsApp1
                     result = GKToU2000(BLH2XYGK(helper, longitude),longitude);
                 }
             }
-            else if (this.startETRF.Equals("ETRF2000") && this.endETRF.Equals("ETRF89"))
+            else if (this.startETRF.ToString().Equals("ETRF2000") && this.endETRF.ToString().Equals("ETRF89"))
             {
                 if (this.transformateOption)
                 {
@@ -839,7 +854,7 @@ namespace WindowsFormsApp1
             {
                 result = BLH2XYZ(bottom);
             }
-            else if (this.startETRF.Equals("ETRF89") && this.endETRF.Equals("ETRF2000"))
+            else if (this.startETRF.ToString().Equals("ETRF89") && this.endETRF.ToString().Equals("ETRF2000"))
             {
                 if (this.transformateOption)
                 {
@@ -852,7 +867,7 @@ namespace WindowsFormsApp1
                     result = BLH2XYZ(helper);
                 }
             }
-            else if (this.startETRF.Equals("ETRF2000") && this.endETRF.Equals("ETRF89"))
+            else if (this.startETRF.ToString().Equals("ETRF2000") && this.endETRF.ToString().Equals("ETRF89"))
             {
                 if (this.transformateOption)
                 {
@@ -875,7 +890,7 @@ namespace WindowsFormsApp1
             {
                 result = BLH2XYZ(bottom);
             }
-            else if (this.startETRF.Equals("ETRF89") && this.endETRF.Equals("ETRF2000"))
+            else if (this.startETRF.ToString().Equals("ETRF89") && this.endETRF.ToString().Equals("ETRF2000"))
             {
                 if (this.transformateOption)
                 {
@@ -888,7 +903,7 @@ namespace WindowsFormsApp1
                     result = BLH2XYZ(helper);
                 }
             }
-            else if (this.startETRF.Equals("ETRF2000") && this.endETRF.Equals("ETRF89"))
+            else if (this.startETRF.ToString().Equals("ETRF2000") && this.endETRF.ToString().Equals("ETRF89"))
             {
                 if (this.transformateOption)
                 {
@@ -911,7 +926,7 @@ namespace WindowsFormsApp1
             {
                 result =GKToU2000(BLH2XYGK(bottom,longitude),longitude);
             }
-            else if (this.startETRF.Equals("ETRF89") && this.endETRF.Equals("ETRF2000"))
+            else if (this.startETRF.ToString().Equals("ETRF89") && this.endETRF.ToString().Equals("ETRF2000"))
             {
                 if (this.transformateOption)
                 {
@@ -924,7 +939,7 @@ namespace WindowsFormsApp1
                     result = GKToU2000(BLH2XYGK(helper,longitude),longitude);
                 }
             }
-            else if (this.startETRF.Equals("ETRF2000") && this.endETRF.Equals("ETRF89"))
+            else if (this.startETRF.ToString().Equals("ETRF2000") && this.endETRF.ToString().Equals("ETRF89"))
             {
                 if (this.transformateOption)
                 {
@@ -948,7 +963,7 @@ namespace WindowsFormsApp1
             {
                 result = GKToU1992(BLH2XYGK(bottom,19));
             }
-            else if (this.startETRF.Equals("ETRF89") && this.endETRF.Equals("ETRF2000"))
+            else if (this.startETRF.ToString().Equals("ETRF89") && this.endETRF.ToString().Equals("ETRF2000"))
             {
                 if (this.transformateOption)
                 {
@@ -961,7 +976,7 @@ namespace WindowsFormsApp1
                     result = GKToU1992(BLH2XYGK(helper, 19));
                 }
             }
-            else if (this.startETRF.Equals("ETRF2000") && this.endETRF.Equals("ETRF89"))
+            else if (this.startETRF.ToString().Equals("ETRF2000") && this.endETRF.ToString().Equals("ETRF89"))
             {
                 if (this.transformateOption)
                 {
@@ -985,7 +1000,7 @@ namespace WindowsFormsApp1
             {
                 result = bottom;
             }
-            else if (this.startETRF.Equals("ETRF89") && this.endETRF.Equals("ETRF2000"))
+            else if (this.startETRF.ToString().Equals("ETRF89") && this.endETRF.ToString().Equals("ETRF2000"))
             {
                 if (this.transformateOption)
                 {
@@ -998,7 +1013,7 @@ namespace WindowsFormsApp1
                     result = helper;
                 }
             }
-            else if (this.startETRF.Equals("ETRF2000") && this.endETRF.Equals("ETRF89"))
+            else if (this.startETRF.ToString().Equals("ETRF2000") && this.endETRF.ToString().Equals("ETRF89"))
             {
                 if (this.transformateOption)
                 {
@@ -1021,7 +1036,7 @@ namespace WindowsFormsApp1
             {
                 result = bottom;
             }
-            else if (this.startETRF.Equals("ETRF89") && this.endETRF.Equals("ETRF2000"))
+            else if (this.startETRF.ToString().Equals("ETRF89") && this.endETRF.ToString().Equals("ETRF2000"))
             {
                 if (this.transformateOption)
                 {
@@ -1034,7 +1049,7 @@ namespace WindowsFormsApp1
                     result = helper;
                 }
             }
-            else if (this.startETRF.Equals("ETRF2000") && this.endETRF.Equals("ETRF89"))
+            else if (this.startETRF.ToString().Equals("ETRF2000") && this.endETRF.ToString().Equals("ETRF89"))
             {
                 if (this.transformateOption)
                 {
@@ -1056,7 +1071,7 @@ namespace WindowsFormsApp1
             {
                 result = GKToU2000(BLH2XYGK(Points, longitude), longitude);
             }
-            else if (this.startETRF.Equals("ETRF89") && this.endETRF.Equals("ETRF2000"))
+            else if (this.startETRF.ToString().Equals("ETRF89") && this.endETRF.ToString().Equals("ETRF2000"))
             {
                 if (this.transformateOption)
                 {
@@ -1069,7 +1084,7 @@ namespace WindowsFormsApp1
                     result = GKToU2000(BLH2XYGK(helper, longitude), longitude);
                 }
             }
-            else if (this.startETRF.Equals("ETRF2000") && this.endETRF.Equals("ETRF89"))
+            else if (this.startETRF.ToString().Equals("ETRF2000") && this.endETRF.ToString().Equals("ETRF89"))
             {
                 if (this.transformateOption)
                 {
@@ -1091,7 +1106,7 @@ namespace WindowsFormsApp1
             {
                 result = GKToU1992(BLH2XYGK(Points, 19));
             }
-            else if (this.startETRF.Equals("ETRF89") && this.endETRF.Equals("ETRF2000"))
+            else if (this.startETRF.ToString().Equals("ETRF89") && this.endETRF.ToString().Equals("ETRF2000"))
             {
                 if (this.transformateOption)
                 {
@@ -1104,7 +1119,7 @@ namespace WindowsFormsApp1
                     result = GKToU1992(BLH2XYGK(helper, 19));
                 }
             }
-            else if (this.startETRF.Equals("ETRF2000") && this.endETRF.Equals("ETRF89"))
+            else if (this.startETRF.ToString().Equals("ETRF2000") && this.endETRF.ToString().Equals("ETRF89"))
             {
                 if (this.transformateOption)
                 {
@@ -1129,7 +1144,7 @@ namespace WindowsFormsApp1
                 {
                     result = GKToU1992(BLH2XYGK(bottom, 19));
                 }
-                else if (this.startETRF.Equals("ETRF89") && this.endETRF.Equals("ETRF2000"))
+                else if (this.startETRF.ToString().Equals("ETRF89") && this.endETRF.ToString().Equals("ETRF2000"))
                 {
                     if (this.transformateOption)
                     {
@@ -1142,7 +1157,7 @@ namespace WindowsFormsApp1
                         result = GKToU1992(BLH2XYGK(helper, 19));
                     }
                 }
-                else if (this.startETRF.Equals("ETRF2000") && this.endETRF.Equals("ETRF89"))
+                else if (this.startETRF.ToString().Equals("ETRF2000") && this.endETRF.ToString().Equals("ETRF89"))
                 {
                     if (this.transformateOption)
                     {
@@ -1167,7 +1182,7 @@ namespace WindowsFormsApp1
             {
                 result = GKToU2000(BLH2XYGK(bottom, longitude2000),longitude2000);
             }
-            else if (this.startETRF.Equals("ETRF89") && this.endETRF.Equals("ETRF2000"))
+            else if (this.startETRF.ToString().Equals("ETRF89") && this.endETRF.ToString().Equals("ETRF2000"))
             {
                 if (this.transformateOption)
                 {
@@ -1180,7 +1195,7 @@ namespace WindowsFormsApp1
                     result = GKToU2000(BLH2XYGK(helper, longitude2000),longitude2000);
                 }
             }
-            else if (this.startETRF.Equals("ETRF2000") && this.endETRF.Equals("ETRF89"))
+            else if (this.startETRF.ToString().Equals("ETRF2000") && this.endETRF.ToString().Equals("ETRF89"))
             {
                 if (this.transformateOption)
                 {
@@ -1203,7 +1218,7 @@ namespace WindowsFormsApp1
             {
                 result = BLH2UTM(bottom, longitude);
             }
-            else if (this.startETRF.Equals("ETRF89") && this.endETRF.Equals("ETRF2000"))
+            else if (this.startETRF.ToString().Equals("ETRF89") && this.endETRF.ToString().Equals("ETRF2000"))
             {
                 if (this.transformateOption)
                 {
@@ -1216,7 +1231,7 @@ namespace WindowsFormsApp1
                     result = BLH2UTM(helper, longitude);
                 }
             }
-            else if (this.startETRF.Equals("ETRF2000") && this.endETRF.Equals("ETRF89"))
+            else if (this.startETRF.ToString().Equals("ETRF2000") && this.endETRF.ToString().Equals("ETRF89"))
             {
                 if (this.transformateOption)
                 {
@@ -1239,7 +1254,7 @@ namespace WindowsFormsApp1
             {
                 result = BLH2UTM(bottom, longitudeUTM);
             }
-            else if (this.startETRF.Equals("ETRF89") && this.endETRF.Equals("ETRF2000"))
+            else if (this.startETRF.ToString().Equals("ETRF89") && this.endETRF.ToString().Equals("ETRF2000"))
             {
                 if (this.transformateOption)
                 {
@@ -1252,7 +1267,7 @@ namespace WindowsFormsApp1
                     result = BLH2UTM(helper, longitudeUTM);
                 }
             }
-            else if (this.startETRF.Equals("ETRF2000") && this.endETRF.Equals("ETRF89"))
+            else if (this.startETRF.ToString().Equals("ETRF2000") && this.endETRF.ToString().Equals("ETRF89"))
             {
                 if (this.transformateOption)
                 {
@@ -1275,7 +1290,7 @@ namespace WindowsFormsApp1
             {
                 result = BLH2UTM(bottom, longitude);
             }
-            else if (this.startETRF.Equals("ETRF89") && this.endETRF.Equals("ETRF2000"))
+            else if (this.startETRF.ToString().Equals("ETRF89") && this.endETRF.ToString().Equals("ETRF2000"))
             {
                 if (this.transformateOption)
                 {
@@ -1288,7 +1303,7 @@ namespace WindowsFormsApp1
                     result = BLH2UTM(helper, longitude);
                 }
             }
-            else if (this.startETRF.Equals("ETRF2000") && this.endETRF.Equals("ETRF89"))
+            else if (this.startETRF.ToString().Equals("ETRF2000") && this.endETRF.ToString().Equals("ETRF89"))
             {
                 if (this.transformateOption)
                 {
@@ -1311,7 +1326,7 @@ namespace WindowsFormsApp1
             {
                 result = BLH2UTM(Points, longitude);
             }
-            else if (this.startETRF.Equals("ETRF89") && this.endETRF.Equals("ETRF2000"))
+            else if (this.startETRF.ToString().Equals("ETRF89") && this.endETRF.ToString().Equals("ETRF2000"))
             {
                 if (this.transformateOption)
                 {
@@ -1324,7 +1339,7 @@ namespace WindowsFormsApp1
                     result = BLH2UTM(helper, longitude);
                 }
             }
-            else if (this.startETRF.Equals("ETRF2000") && this.endETRF.Equals("ETRF89"))
+            else if (this.startETRF.ToString().Equals("ETRF2000") && this.endETRF.ToString().Equals("ETRF89"))
             {
                 if (this.transformateOption)
                 {
@@ -1347,7 +1362,7 @@ namespace WindowsFormsApp1
             {
                 result = bottom;
             }
-            else if (this.startETRF.Equals("ETRF89") && this.endETRF.Equals("ETRF2000"))
+            else if (this.startETRF.ToString().Equals("ETRF89") && this.endETRF.ToString().Equals("ETRF2000"))
             {
                 if (this.transformateOption)
                 {
@@ -1360,7 +1375,7 @@ namespace WindowsFormsApp1
                     result = helper;
                 }
             }
-            else if (this.startETRF.Equals("ETRF2000") && this.endETRF.Equals("ETRF89"))
+            else if (this.startETRF.ToString().Equals("ETRF2000") && this.endETRF.ToString().Equals("ETRF89"))
             {
                 if (this.transformateOption)
                 {
@@ -1383,7 +1398,7 @@ namespace WindowsFormsApp1
             {
                 result = BLH2XYZ(bottom);
             }
-            else if (this.startETRF.Equals("ETRF89") && this.endETRF.Equals("ETRF2000"))
+            else if (this.startETRF.ToString().Equals("ETRF89") && this.endETRF.ToString().Equals("ETRF2000"))
             {
                 if (this.transformateOption)
                 {
@@ -1396,7 +1411,7 @@ namespace WindowsFormsApp1
                     result = BLH2XYZ(helper);
                 }
             }
-            else if (this.startETRF.Equals("ETRF2000") && this.endETRF.Equals("ETRF89"))
+            else if (this.startETRF.ToString().Equals("ETRF2000") && this.endETRF.ToString().Equals("ETRF89"))
             {
                 if (this.transformateOption)
                 {
@@ -1419,7 +1434,7 @@ namespace WindowsFormsApp1
             {
                 result = bottom;
             }
-            else if (this.startETRF.Equals("ETRF89") && this.endETRF.Equals("ETRF2000"))
+            else if (this.startETRF.ToString().Equals("ETRF89") && this.endETRF.ToString().Equals("ETRF2000"))
             {
                 if (this.transformateOption)
                 {
@@ -1432,7 +1447,7 @@ namespace WindowsFormsApp1
                     result = helper;
                 }
             }
-            else if (this.startETRF.Equals("ETRF2000") && this.endETRF.Equals("ETRF89"))
+            else if (this.startETRF.ToString().Equals("ETRF2000") && this.endETRF.ToString().Equals("ETRF89"))
             {
                 if (this.transformateOption)
                 {
@@ -1455,7 +1470,7 @@ namespace WindowsFormsApp1
             {
                 result = BLH2XYZ(Points);
             }
-            else if (this.startETRF.Equals("ETRF89") && this.endETRF.Equals("ETRF2000"))
+            else if (this.startETRF.ToString().Equals("ETRF89") && this.endETRF.ToString().Equals("ETRF2000"))
             {
                 if (this.transformateOption)
                 {
@@ -1468,7 +1483,7 @@ namespace WindowsFormsApp1
                     result = BLH2XYZ(helper);
                 }
             }
-            else if (this.startETRF.Equals("ETRF2000") && this.endETRF.Equals("ETRF89"))
+            else if (this.startETRF.ToString().Equals("ETRF2000") && this.endETRF.ToString().Equals("ETRF89"))
             {
                 if (this.transformateOption)
                 {
@@ -1499,7 +1514,7 @@ namespace WindowsFormsApp1
                     result = GKToU2000(BLH2XYGK(bottom, longitudeE), longitudeE);
                 }
             }
-            else if (this.startETRF.Equals("ETRF89") && this.endETRF.Equals("ETRF2000"))
+            else if (this.startETRF.ToString().Equals("ETRF89") && this.endETRF.ToString().Equals("ETRF2000"))
             {
                 if (this.transformateOption)
                 {
@@ -1512,7 +1527,7 @@ namespace WindowsFormsApp1
                     result = GKToU2000(BLH2XYGK(helper, longitudeE), longitudeE);
                 }
             }
-            else if (this.startETRF.Equals("ETRF2000") && this.endETRF.Equals("ETRF89"))
+            else if (this.startETRF.ToString().Equals("ETRF2000") && this.endETRF.ToString().Equals("ETRF89"))
             {
                 if (this.transformateOption)
                 {
@@ -1536,7 +1551,7 @@ namespace WindowsFormsApp1
             {
                 result = Points;
             }
-            else if (this.startETRF.Equals("ETRF89") && this.endETRF.Equals("ETRF2000"))
+            else if (this.startETRF.ToString().Equals("ETRF89") && this.endETRF.ToString().Equals("ETRF2000"))
             {
                 if (this.transformateOption)
                 {
@@ -1549,7 +1564,7 @@ namespace WindowsFormsApp1
                     result = GKToU1992(BLH2XYGK(helper, 19));
                 }
             }
-            else if (this.startETRF.Equals("ETRF2000") && this.endETRF.Equals("ETRF89"))
+            else if (this.startETRF.ToString().Equals("ETRF2000") && this.endETRF.ToString().Equals("ETRF89"))
             {
                 if (this.transformateOption)
                 {
@@ -1580,7 +1595,7 @@ namespace WindowsFormsApp1
                     result = BLH2UTM(bottom, longitudeE);
                 }
             }
-            else if (this.startETRF.Equals("ETRF89") && this.endETRF.Equals("ETRF2000"))
+            else if (this.startETRF.ToString().Equals("ETRF89") && this.endETRF.ToString().Equals("ETRF2000"))
             {
                 if (this.transformateOption)
                 {
@@ -1593,7 +1608,7 @@ namespace WindowsFormsApp1
                     result = BLH2UTM(helper, longitudeE);
                 }
             }
-            else if (this.startETRF.Equals("ETRF2000") && this.endETRF.Equals("ETRF89"))
+            else if (this.startETRF.ToString().Equals("ETRF2000") && this.endETRF.ToString().Equals("ETRF89"))
             {
                 if (this.transformateOption)
                 {
@@ -1616,7 +1631,7 @@ namespace WindowsFormsApp1
             {
                 result = Points;
             }
-            else if (this.startETRF.Equals("ETRF89") && this.endETRF.Equals("ETRF2000"))
+            else if (this.startETRF.ToString().Equals("ETRF89") && this.endETRF.ToString().Equals("ETRF2000"))
             {
                 if (this.transformateOption)
                 {
@@ -1629,7 +1644,7 @@ namespace WindowsFormsApp1
                     result = BLH2XYZ(helper);
                 }
             }
-            else if (this.startETRF.Equals("ETRF2000") && this.endETRF.Equals("ETRF89"))
+            else if (this.startETRF.ToString().Equals("ETRF2000") && this.endETRF.ToString().Equals("ETRF89"))
             {
                 if (this.transformateOption)
                 {
@@ -1647,12 +1662,13 @@ namespace WindowsFormsApp1
         public List<PointBLH> BLH2BLH(double precision, List<PointBLH> Points)
         {
             List<PointBLH> result = new List<PointBLH>();
+            Points.ForEach(p => { if (!p.Format()) { p.convertToDegrees(); } });
             List<PointBLH> bottom = Points;
             if (this.startETRF.Equals(this.endETRF))
             {
                 result = bottom;
             }
-            else if (this.startETRF.Equals("ETRF89") && this.endETRF.Equals("ETRF2000"))
+            else if (this.startETRF.ToString().Equals("ETRF89") && this.endETRF.ToString().Equals("ETRF2000"))
             {
                 if (this.transformateOption)
                 {
@@ -1665,7 +1681,7 @@ namespace WindowsFormsApp1
                     result = helper;
                 }
             }
-            else if (this.startETRF.Equals("ETRF2000") && this.endETRF.Equals("ETRF89"))
+            else if (this.startETRF.ToString().Equals("ETRF2000") && this.endETRF.ToString().Equals("ETRF89"))
             {
                 if (this.transformateOption)
                 {
@@ -1805,7 +1821,61 @@ namespace WindowsFormsApp1
             });
             return result; 
         }
-
+        //ODCZYT PLIKU TXT W NOTATNIKU ORAZ ZAPIS WYNIKÓW:
+        private void FileOpenerButton_Click(object sender, EventArgs e)
+        {
+            Process.Start("notepad.exe", this.FileName.ToString());
+        }
+        public void PrintFile(List<PointBLH> Points, string filename,int precisionA,int precisionL, bool degreeForm, string transformType)
+        {
+            StreamWriter file = new StreamWriter(filename);
+            int precisiondF = precisionA + 4;
+            Points.ForEach(p =>
+            {
+                StringBuilder line = new StringBuilder();
+                if (degreeForm)
+                {
+                    if (!p.Format()) { p.convertToDegrees(); }
+                    double fi = Math.Round(p.fi(), precisiondF);
+                    double lambda = Math.Round(p.lambda(), precisiondF);
+                    double H = Math.Round(p.height(), precisionL);
+                    line.Append(p.Name()).Append(" ").Append(fi).Append(" ").Append(lambda).Append(" ").Append(H)
+                    .Append(" ").Append(transformType);
+                    file.WriteLine(line.ToString());
+                }
+                else if (!degreeForm)
+                {
+                    p.convertToDegreesMinsNSecs();
+                    double bsec = Math.Round(p.bsec(), precisionA); double lsec = Math.Round(p.lsec(),precisionA);
+                    double H = Math.Round(p.height(), precisionL);
+                    line.Append(p.Name()).Append(" ").Append(p.fi()).Append(" ").Append(p.bmin()).Append(" ").Append(bsec).Append(" ")
+                    .Append(p.lambda()).Append(" ").Append(p.lmin()).Append(" ").Append(lsec).Append(" ")
+                    .Append(H).Append(" ").Append(transformType);
+                    file.WriteLine(line);
+                }
+            });
+            file.Close();
+        }
+        public void PrintFile(List<Point3D> Points, string filename, int precision, string transformType)
+        {
+            StreamWriter file = new StreamWriter(filename);
+            Points.ForEach(p =>
+            {
+                double X = Math.Round(p.x(), precision); double Y = Math.Round(p.y(), precision); double Z = Math.Round(p.z(), precision);
+                file.WriteLine(p.Name() + " " + X.ToString() + " " + Y.ToString() + " " + Z + " " + transformType);
+            });
+            file.Close();
+        }
+        public void PrintFile(List<Point> Points, string filename, int precision, string transformType)
+        {
+            StreamWriter file = new StreamWriter(filename);
+            Points.ForEach(p =>
+            {
+                double X = Math.Round(p.x(), precision); double Y = Math.Round(p.y(), precision);
+                file.WriteLine(p.Name()+ " " + X.ToString() + " " + Y.ToString() + " " + transformType);
+            });
+            file.Close();
+        }
     }
 
 
@@ -1829,16 +1899,7 @@ namespace WindowsFormsApp1
         {
             return this.name;
         }
-        public void PrintFile(List<Point> Points, string filename, int precision, string transformType)
-        {
-            StreamWriter file = new StreamWriter(filename);
-            Points.ForEach(p =>
-            {
-                p.X = Math.Round(p.x(), precision); p.Y = Math.Round(p.y(), precision);
-                file.WriteLine(p.name.ToString() + " " + p.X.ToString() + " " + p.Y.ToString() + " "+ transformType);
-            });
-            file.Close();
-        }
+
     }
     public partial class Point3D
     {
@@ -1888,16 +1949,7 @@ namespace WindowsFormsApp1
         {
             MessageBox.Show(this.X + " " + this.Y + " " + this.Z);
         }
-        public void PrintFile(List<Point3D> Points, string filename, int precision, string transformType)
-        {
-            StreamWriter file = new StreamWriter(filename);
-            Points.ForEach(p =>
-            {
-                p.X = Math.Round(p.x(), precision); p.Y = Math.Round(p.y(), precision); p.Z = Math.Round(p.z(), precision);
-                file.WriteLine(p.name.ToString() + " " + p.X.ToString() + " " + p.Y.ToString() + " " +p.Z+" "+ transformType);
-            });
-            file.Close();
-        }
+
     }
     public partial class PointBLH
     {
@@ -1951,25 +2003,7 @@ namespace WindowsFormsApp1
         {
             return this.Lsec;
         }
-        public void PrintFile(List<PointBLH> Points, string name, bool degreeForm, string transformType)
-        {
-            /*W trakcie obliczeń wszystkie punkty są transformowane do formatu kątowego, stąd też potencjalna konwersja
-              punktu przy użyciu funkcji .convertToDegrees() jest zbędna.*/
-            StreamWriter file = new StreamWriter(name);
-            Points.ForEach(p =>
-            {
-                if (degreeForm)
-                {
-       file.WriteLine(p.name.ToString() + " " + p.B.ToString() + " " + p.L.ToString() + " " +p.H.ToString()+" "+ transformType);
-                }
-                else if(!degreeForm)
-                {
-                    p.convertToDegreesMinsNSecs();
-   file.WriteLine(p.name.ToString() + " " + p.B.ToString() + " " + p.Bmin.ToString() + " " + p.Bsec.ToString() + " " + p.L.ToString() + " " + p.Lmin.ToString() + " " + p.Lsec.ToString()+" "+p.H.ToString() + transformType);
-                }
-            });
-            file.Close();
-        }
+
         public void convertToDegrees()
         {
             this.B = this.B + this.Bmin / 60 + this.Bsec / 3600;
