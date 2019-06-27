@@ -10,11 +10,14 @@ using System.Windows.Forms;
 using System.Text.RegularExpressions;
 using System.IO;
 using System.Diagnostics;
+using System.Threading;
 namespace WindowsFormsApp1
 {
 
     public partial class Transform : Form
     {
+        StringBuilder comunicator = new StringBuilder("");
+        StringBuilder errorCatcher = new StringBuilder("");
         StringBuilder FileName =new StringBuilder("");
         StringBuilder start = new StringBuilder("");
         StringBuilder end = new StringBuilder("");
@@ -71,30 +74,39 @@ namespace WindowsFormsApp1
                         {
                             try
                             {
-                                this.Points.Add(new Point(data[0], Convert.ToDouble(data[1]), Convert.ToDouble(data[2])));
-                                //MessageBox.Show(data[1] + " " + data[2]);
+                                this.Points.Add(new Point(data[0], Convert.ToDouble(data[1]), Convert.ToDouble(data[2])));         
                             }
                             catch (Exception ex) //SPRAWDZENIE CZY FORMAT PLIKÓW JEST DOPUSZCZALNY
                             {
                                 if (ex is FormatException || ex is ArgumentException)
                                 {
                                     problems++;
-                                    this.MonitorRichTextBox.Text+=("Punkt " + data[0] + ": Niedopuszczalna wartość parametrów.\n");
+                                    Thread.Sleep(100);
+                                    this.errorCatcher.Clear();
+                                    this.errorCatcher.Append("Punkt " + this.data[0] + ": Niedopuszczalna wartość parametrów.\n");
+                                    TransformerBW.ReportProgress(0);   
                                 }
                                 else { MessageBox.Show("Nastąpił błąd wczytania pliku. Sprawdź format danych wejściowych."); problems++; break; }
                             }
                         }
-                        else { this.MonitorRichTextBox.Text += ("Punkt " + data[0] + ": Nieodpowiednia liczba wejściowych parametrów(" + data.Length + ").\n"); problems++; }
+                        else {
+                            Thread.Sleep(100);
+                            this.errorCatcher.Clear();
+                            this.errorCatcher.Append("Punkt " + this.data[0] + ": Nieodpowiednia liczba wejściowych parametrów(" + this.data.Length + ").\n");
+                            TransformerBW.ReportProgress(0); problems++;
+                        }
                     }
                 }
             }
             else { MessageBox.Show("Plik \"" + Path.GetFileName(filePath.Text) + "\" jest pusty."); problems++; }
             clock.Stop();
-            if (problems == 0) { this.canIStartCounting = true; 
-            this.MonitorRichTextBox.Text += "Czas wczytywania danych startowych: " + Convert.ToString(clock.Elapsed)+ ".\n";
+            if (problems == 0) { this.canIStartCounting = true;
+                Thread.Sleep(500);
+                this.comunicator.Clear();
+                this.comunicator.Append("Czas wczytywania danych startowych: " + Convert.ToString(clock.Elapsed)+ ".\n");
+                TransformerBW.ReportProgress(1);
             }
-            //MessageBox.Show(clock.Elapsed+" ");
-        }
+             }
         public void loadPoints3D()
         {
             Stopwatch clock = new Stopwatch();
@@ -116,21 +128,26 @@ namespace WindowsFormsApp1
                             try
                             {
                                 this.Points3D.Add(new Point3D(data[0], Convert.ToDouble(data[1]), Convert.ToDouble(data[2]), Convert.ToDouble(data[3])));
-                                //MessageBox.Show(data[1] + " " + data[2]);
+                              
                             }
                             catch (Exception ex) //SPRAWDZENIE CZY FORMAT PLIKÓW JEST DOPUSZCZALNY
                             {
                                 if (ex is FormatException || ex is ArgumentException)
                                 {
-                                    problems = true; 
-                                    this.MonitorRichTextBox.Text += ("Punkt " + data[0] + ": Niedopuszczalna wartość parametrów.\n");
+                                    problems = true;
+                                    Thread.Sleep(100);
+                                    this.errorCatcher.Clear();
+                                    this.errorCatcher.Append("Punkt " + this.data[0] + ": Niedopuszczalna wartość parametrów.\n");
+                                    TransformerBW.ReportProgress(1);
                                 }
                                 else { MessageBox.Show("Nastąpił błąd wczytania pliku. Sprawdź format danych wejściowych.");
                                     problems = true;  break; }
                             }
                         }
                         else {
-                            this.MonitorRichTextBox.Text += ("Punkt " + data[0] + ": Nieodpowiednia liczba wejściowych parametrów(" + data.Length + ").\n");
+                            Thread.Sleep(100);
+                            this.errorCatcher.Clear();
+                            this.errorCatcher.Append("Punkt " + this.data[0] + ": Nieodpowiednia liczba wejściowych parametrów(" + this.data.Length + ").\n");
                             problems =true; }
                     }
                 }
@@ -140,10 +157,13 @@ namespace WindowsFormsApp1
             clock.Stop();
             if (!problems)
             {
+                Thread.Sleep(500);
                 this.canIStartCounting = true;
-                this.MonitorRichTextBox.Text += "Czas wczytywania danych startowych: " + Convert.ToString(clock.Elapsed)+ ".\n";
+                this.comunicator.Clear();
+                this.comunicator.Append("Czas wczytywania danych startowych: " + Convert.ToString(clock.Elapsed) + ".\n");
+                TransformerBW.ReportProgress(1);
             }
-            //MessageBox.Show(clock.Elapsed + " ");
+        
         }
         public void loadPointsBLH()
         {
@@ -176,22 +196,27 @@ namespace WindowsFormsApp1
                                             isCorrectlyFormated(PointsBLH.Last());
                                             anyFalseFormattedPoint = false;
                                         }
-                                        //MessageBox.Show(data[1] + " " + data[2]);
                                     }
                                     catch (Exception ex) //SPRAWDZENIE CZY FORMAT PLIKÓW JEST DOPUSZCZALNY
                                     {
                                         if (ex is FormatException || ex is ArgumentException)
                                         {
                                             problems=true;
-                                            this.MonitorRichTextBox.Text += ("Punkt " + data[0] + ": Niedopuszczalna wartość parametrów.\n"); 
+                                            Thread.Sleep(100);
+                                            this.errorCatcher.Clear();
+                                            this.errorCatcher.Append("Punkt " + this.data[0] + ": Niedopuszczalna wartość parametrów.\n");
+                                           TransformerBW.ReportProgress(0);
                                         }
                                         else { MessageBox.Show("Nastąpił błąd wczytania pliku. Sprawdź format danych wejściowych.");
                                             problems=true; goto gameOver; }
                                     }
                                 } 
                                 else {
-                                    this.MonitorRichTextBox.Text += ("Punkt " + data[0] + ": Nieodpowiednia liczba wejściowych parametrów(" + data.Length + ").\n");
-                                    problems=true;  }
+                                    Thread.Sleep(100);
+                                    this.errorCatcher.Clear();
+                                    this.errorCatcher.Append("Punkt " + this.data[0] + ": Nieodpowiednia liczba wejściowych parametrów(" + data.Length + ").\n");
+                                    this.TransformerBW.ReportProgress(0);
+                                    problems =true;  }
                                 break;
                             case 8:
                                 if (data.Length == format)
@@ -204,21 +229,25 @@ namespace WindowsFormsApp1
                                             isCorrectlyFormated(PointsBLH.Last());
                                             anyFalseFormattedPoint = false;
                                         }
-                                        //MessageBox.Show(data[1] + " " + data[4]);
                                     }
                                     catch (Exception ex) //SPRAWDZENIE CZY FORMAT PLIKÓW JEST DOPUSZCZALNY
                                     {
                                         if (ex is FormatException || ex is ArgumentException)
                                         {
-                                            problems=true;
-                                            this.MonitorRichTextBox.Text += ("Punkt " + data[0] + ": Niedopuszczalna wartość parametrów.\n");
+                                            problems=true; Thread.Sleep(100);
+                                            this.errorCatcher.Clear();
+                                            this.errorCatcher.Append("Punkt " + this.data[0] + ": Niedopuszczalna wartość parametrów.\n");
+                                            this.TransformerBW.ReportProgress(0);
                                         }
                                         else { MessageBox.Show("Nastąpił błąd wczytania pliku. Sprawdź format danych wejściowych.");
                                             problems =true; goto gameOver; }
                                     }
                                 }
                                 else {
-                                    this.MonitorRichTextBox.Text += ("Punkt " + data[0] + ": Nieodpowiednia liczba wejściowych parametrów(" + data.Length + ").\n");
+                                    Thread.Sleep(100);
+                                    this.errorCatcher.Clear();
+                                    this.errorCatcher.Append("Punkt " + this.data[0] + ": Nieodpowiednia liczba wejściowych parametrów(" + data.Length + ").\n");
+                                    this.TransformerBW.ReportProgress(0);
                                     problems =true;  }
                                 break;
                         }
@@ -229,9 +258,11 @@ namespace WindowsFormsApp1
             gameOver:
             clock.Stop();
             if ((!problems) && anyFalseFormattedPoint) { this.canIStartCounting = true;
-                this.MonitorRichTextBox.Text += "Czas wczytywania danych startowych: " + Convert.ToString(clock.Elapsed)+ ".\n";
+                Thread.Sleep(500);
+                this.comunicator.Clear();
+                this.comunicator.Append("Czas wczytywania danych startowych: " + Convert.ToString(clock.Elapsed) + ".\n");
+                this.TransformerBW.ReportProgress(1);
             } 
-            //MessageBox.Show(clock.Elapsed + " ");
         }
         public void getPointsData() 
         {
@@ -239,7 +270,7 @@ namespace WindowsFormsApp1
             {
                 if (this.start.ToString().Equals("Układ 2000"))
                 {
-                    this.longitude = setLongitude(longitude15, longitude18, longitude21, longitude24);
+                    this.longitude = setLongitude(longitude15, longitude18, longitude21, longitude24) ;
                     if (this.longitude != 0)
                     {
                         loadPoints2D(); this.Points3D.Clear(); this.PointsBLH.Clear();
@@ -292,15 +323,15 @@ namespace WindowsFormsApp1
 
          byte setLongitude(params RadioButton[] list)
         {
-            
+            byte longitude = 0;
             for(int i=0; i< list.Length; i++)
             {
                 if (list[i].Checked)
                 {
-                    this.longitude = Convert.ToByte(list[i].Text.Substring(0, 2)); break;
+                    longitude = Convert.ToByte(list[i].Text.Substring(0, 2)); break;
                 }
             }
-            return this.longitude;
+            return longitude;
         }
         private void CountUp_Click(object sender, EventArgs e)
         {
@@ -310,52 +341,17 @@ namespace WindowsFormsApp1
             this.PointsBLH.Clear();
             this.FileOpenerButton.Visible = false; this.FileOpenerButton.Text = "";
             this.MonitorRichTextBox.Clear(); this.MonitorRichTextBox.Text = "MONITOR: \n";
-            //List<WebGrid> greedy = webGrids();
-            //MessageBox.Show(this.degreeForm + " " + this.resultDegreeForm);
             if (!filePath.Text.Equals(""))
             {
-                getPointsData();         
-                if (this.canIStartCounting)
-                {
-                    double anglePrecision = Convert.ToDouble(this.AnglePrecisionDUD.Text)/3600 * Math.PI / 180;
-                    int printPrecisionL = this.LengthPrecisionDUD.Text.Length - 2;
-                    int printPrecisionA = this.AnglePrecisionDUD.Text.Length-2;
-                    if (!end.Equals(""))
-                    {
-                        if(start.ToString().Equals("Układ 2000"))
-                        {
-                            if(end.Equals("Układ 2000"))
-                            {
-                                this.resLongitude = setLongitude(resultLongitude15, resultLongitude18, resultLongitude21, resultLongitude24);
+                TransformerBW.RunWorkerAsync();
 
-                            }
-                        }
-                        else if(start.ToString().Equals("BLH GRS80"))
-                        {
-                            if(end.ToString().Equals("BLH GRS80"))
-                            {
-                                List<PointBLH> result = BLH2BLH(anglePrecision, this.PointsBLH);
-                                //result.ForEach(p => { p.Display(); });
-                                FileOpenerButton.Visible = true; FileOpenerButton.Text = "BLH";
-                                this.FileName.Append("BLH.txt");
-                                PrintFile(result, this.FileName.ToString(),printPrecisionA, printPrecisionL, this.resultDegreeForm, "BLH GRS80 do układu BLHGRS80.");
-                            }
-                        }
-                        
-                    }
-                    else
-                    {
-                        MessageBox.Show("Nie wybrano układu wyjściowego.");
-                    }
-
-                    this.canIStartCounting = false;         
-                }      
             }
             else
             {
                 MessageBox.Show("Nie wybrano zbioru punktów.");
             }
-            this.longitude = 0; this.canIStartCounting = false;
+            //koniecPsot:
+            //this.longitude = 0; this.canIStartCounting = false; this.resLongitude = 0;
         }
         //WCZYTANIE SIATKI GRID DO METODY EMPIRYCZNEJ oraz INTERPOLACJA DWULINIOWA
         private List<WebGrid> webGrids()
@@ -374,7 +370,9 @@ namespace WindowsFormsApp1
             Stopwatch clock = new Stopwatch(); clock.Start();
             List<WebGrid> grid = webGrids();
             clock.Stop();
-            this.MonitorRichTextBox.Text += "Wczytywanie siatki grid: " + Convert.ToString(clock.Elapsed)+ ".\n";
+            this.comunicator.Clear();
+            this.comunicator.Append( "Wczytywanie siatki grid: " + Convert.ToString(clock.Elapsed)+ ".\n");
+            this.TransformerBW.ReportProgress(2);
             List<PointBLH> result = new List<PointBLH>();
             points.ForEach(p =>
             {
@@ -402,19 +400,27 @@ namespace WindowsFormsApp1
         /* KONIECZNIE ŁADOWAĆ PUNKTY SIATKI W ODPOWIEDNIEJ KOLEJNOŚCI!! */
         private WebGrid BilinearInterpolation(double B, double L, WebGrid grid11, WebGrid grid12, WebGrid grid21, WebGrid grid22)
         {
-            
+            double dfi, dl, dh;
+
+                if (grid11.Equals(grid22))
+                {
+                    dfi = grid11.deltaFi(); dl = grid11.deltaLambda(); dh = grid11.deltaH();
+                }
+            else
+            {
+                double df1 = (grid21.lambda() - L) / (grid21.lambda() - grid11.lambda()) * grid11.deltaFi() + (L - grid11.lambda()) / (grid21.lambda() - grid11.lambda()) * grid21.deltaFi();
+                double df2 = (grid21.lambda() - L) / (grid21.lambda() - grid11.lambda()) * grid12.deltaFi() + (L - grid11.lambda()) / (grid21.lambda() - grid11.lambda()) * grid22.deltaFi();
+                dfi = (grid12.fi() - B) / (grid12.fi() - grid11.fi()) * df1 + (B - grid11.fi()) / (grid12.fi() - grid11.fi()) * df2;
+                double dl1 = (grid21.lambda() - L) / (grid21.lambda() - grid11.lambda()) * grid11.deltaLambda() + (L - grid11.lambda()) / (grid21.lambda() - grid11.lambda()) * grid21.deltaLambda();
+                double dl2 = (grid21.lambda() - L) / (grid21.lambda() - grid11.lambda()) * grid12.deltaLambda() + (L - grid11.lambda()) / (grid21.lambda() - grid11.lambda()) * grid22.deltaLambda();
+                dl = (grid12.fi() - B) / (grid12.fi() - grid11.fi()) * dl1 + (B - grid11.fi()) / (grid12.fi() - grid11.fi()) * dl2;
+                double dh1 = (grid21.lambda() - L) / (grid21.lambda() - grid11.lambda()) * grid11.deltaH() + (L - grid11.lambda()) / (grid21.lambda() - grid11.lambda()) * grid21.deltaH();
+                double dh2 = (grid21.lambda() - L) / (grid21.lambda() - grid11.lambda()) * grid12.deltaH() + (L - grid11.lambda()) / (grid21.lambda() - grid11.lambda()) * grid22.deltaH();
+                dh = (grid12.fi() - B) / (grid12.fi() - grid11.fi()) * dh1 + (B - grid11.fi()) / (grid12.fi() - grid11.fi()) * dh2;
+                //MessageBox.Show(dfi+" "+dl+" "+dh);
+            }
             //MessageBox.Show(grid11.lambda() + "");
-            double df1 = (grid21.lambda() - L) / (grid21.lambda() - grid11.lambda()) * grid11.deltaFi() + (L - grid11.lambda()) / (grid21.lambda() - grid11.lambda()) * grid21.deltaFi();
-            double df2 = (grid21.lambda() - L) / (grid21.lambda() - grid11.lambda()) * grid12.deltaFi() + (L - grid11.lambda()) / (grid21.lambda() - grid11.lambda()) * grid22.deltaFi();
-            double dfi = (grid12.fi() - B) / (grid12.fi() - grid11.fi()) * df1 + (B - grid11.fi()) / (grid12.fi() - grid11.fi()) * df2;
-            double dl1 = (grid21.lambda() - L) / (grid21.lambda() - grid11.lambda()) * grid11.deltaLambda() + (L - grid11.lambda()) / (grid21.lambda() - grid11.lambda()) * grid21.deltaLambda();
-            double dl2 = (grid21.lambda() - L) / (grid21.lambda() - grid11.lambda()) * grid12.deltaLambda() + (L - grid11.lambda()) / (grid21.lambda() - grid11.lambda()) * grid22.deltaLambda();
-            double dl = (grid12.fi() - B) / (grid12.fi() - grid11.fi()) * dl1 + (B - grid11.fi()) / (grid12.fi() - grid11.fi()) *dl2;
-            double dh1 = (grid21.lambda() - L) / (grid21.lambda() - grid11.lambda()) * grid11.deltaH() + (L - grid11.lambda()) / (grid21.lambda() - grid11.lambda()) * grid21.deltaH();
-            double dh2 = (grid21.lambda() - L) / (grid21.lambda() - grid11.lambda()) * grid12.deltaH() + (L - grid11.lambda()) / (grid21.lambda() - grid11.lambda()) * grid22.deltaH();
-            double dh = (grid12.fi() - B) / (grid12.fi() - grid11.fi()) * dh1 + (B - grid11.fi()) / (grid12.fi() - grid11.fi()) * dh2;
-            //MessageBox.Show(dfi+" "+dl+" "+dh);
-            WebGrid result = new WebGrid(B,L,dfi,dl,dh);
+            WebGrid result = new WebGrid(B, L, dfi, dl, dh);
             return result;
         }
 
@@ -1736,9 +1742,11 @@ namespace WindowsFormsApp1
             }
             else
             {
-
-                this.MonitorRichTextBox.Text+=("Punkt \"" + p.Name() + "\": Nieprawidłowy format zapisu stopni (Wartość B poza [0,90] \\ wartość L poza [0,180)). \n");
-                //MessageBox.Show("Punkt \"" + this.name + "\": Nieprawidłowy format zapisu stopni (Wartość B poza [0,90] \\ wartość L poza [0,180)).");
+                Thread.Sleep(100);
+                this.errorCatcher.Clear();
+                this.errorCatcher.Append("Punkt \"" + p.Name() + "\": Nieprawidłowy format zapisu stopni (Wartość B poza [0,90] \\ wartość L poza [0,180)). \n");
+                this.TransformerBW.ReportProgress(0);
+                //this.MonitorRichTextBox.Text+=("Punkt \"" + p.Name() + "\": Nieprawidłowy format zapisu stopni (Wartość B poza [0,90] \\ wartość L poza [0,180)). \n");
             }
             if (!p.Format())
             {
@@ -1751,8 +1759,11 @@ namespace WindowsFormsApp1
                 }
                 else
                 {
-                    this.MonitorRichTextBox.Text += ("Punkt \"" + p.Name() + "\": Nieprawidłowy format zapisu stopni (Wymagana wartość całkowita).\n");
-                    //MessageBox.Show("Punkt \"" + this.name + "\": Nieprawidłowy format zapisu stopni (Wymagana wartość całkowita).");
+                    Thread.Sleep(100);
+                    this.errorCatcher.Clear();
+                    this.errorCatcher.Append("Punkt \"" + p.Name() + "\": Nieprawidłowy format zapisu stopni (Wymagana wartość całkowita).\n");
+                    this.TransformerBW.ReportProgress(0);
+                    //this.MonitorRichTextBox.Text += ("Punkt \"" + p.Name() + "\": Nieprawidłowy format zapisu stopni (Wymagana wartość całkowita).\n");
                 }
                 //SPRAWDZA CZY MINUTY KĄTOWE SĄ WARTOŚCIAMI CAŁKOWITYMI
                 bool minutesAreInteger = Math.Floor(p.bmin()).Equals(p.bmin()) && Math.Floor(p.lmin()).Equals(p.lmin());
@@ -1762,8 +1773,11 @@ namespace WindowsFormsApp1
                 }
                 else
                 {
-                    this.MonitorRichTextBox.Text += ("Punkt \"" + p.Name() + "\": Nieprawidłowy format zapisu minut kątowych(Wymagana wartość całkowita).\n");
-                    //MessageBox.Show("Punkt \"" + this.name + "\": Nieprawidłowy format zapisu minut kątowych(Wymagana wartość całkowita).");
+                    Thread.Sleep(100);
+                    this.errorCatcher.Clear();
+                    this.errorCatcher.Append("Punkt \"" + p.Name() + "\": Nieprawidłowy format zapisu minut kątowych(Wymagana wartość całkowita).\n");
+                    this.TransformerBW.ReportProgress(0);
+                    //this.MonitorRichTextBox.Text += ("Punkt \"" + p.Name() + "\": Nieprawidłowy format zapisu minut kątowych(Wymagana wartość całkowita).\n");
                 }
                 // SPRAWDZA CZY MINUTY KĄTOWE NALEŻĄ DO PRZEDZIAŁU [0,60)
                 bool isbetweenB = (p.bmin() >= 0 && p.bmin() < 60);
@@ -1774,7 +1788,11 @@ namespace WindowsFormsApp1
                 }
                 else
                 {
-                    this.MonitorRichTextBox.Text += ("Punkt \"" + p.Name() + "\": Nieprawidłowy format zapisu minut kątowych. Wartość poza [0,60).\n");
+                    Thread.Sleep(100);
+                    this.errorCatcher.Clear();
+                    this.errorCatcher.Append("Punkt \"" + p.Name() + "\": Nieprawidłowy format zapisu minut kątowych. Wartość poza [0,60).\n");
+                    this.TransformerBW.ReportProgress(0);
+                    //this.MonitorRichTextBox.Text += ("Punkt \"" + p.Name() + "\": Nieprawidłowy format zapisu minut kątowych. Wartość poza [0,60).\n");
                 }
                 //SPRAWDZA CZY SEKUNDY KĄTOWE NALEŻĄ DO PRZEDZIAŁU [0,60)
                 if ((p.bsec() >= 0 && p.bsec() < 60) && (p.lsec() >= 0 && p.lsec() < 60))
@@ -1783,7 +1801,10 @@ namespace WindowsFormsApp1
                 }
                 else
                 {
-                    this.MonitorRichTextBox.Text += ("Punkt \"" + p.Name() + "\": Nieprawidłowy format zapisu sekund kątowych. Wartość poza [0,60).\n");
+                    Thread.Sleep(100);
+                    this.errorCatcher.Clear();
+                    this.errorCatcher.Append("Punkt \"" + p.Name() + "\": Nieprawidłowy format zapisu sekund kątowych. Wartość poza [0,60).\n");
+                    this.TransformerBW.ReportProgress(0);
                 }
                 return Btrue = problems == 0 ? true : false;
             }
@@ -1829,6 +1850,8 @@ namespace WindowsFormsApp1
         public void PrintFile(List<PointBLH> Points, string filename,int precisionA,int precisionL, bool degreeForm, string transformType)
         {
             StreamWriter file = new StreamWriter(filename);
+            StringBuilder firstLine = degreeForm ? new StringBuilder("P B L H ") : new StringBuilder("P B B' B\" L L' L\" H ");
+            file.WriteLine(firstLine.ToString());
             int precisiondF = precisionA + 4;
             Points.ForEach(p =>
             {
@@ -1859,6 +1882,8 @@ namespace WindowsFormsApp1
         public void PrintFile(List<Point3D> Points, string filename, int precision, string transformType)
         {
             StreamWriter file = new StreamWriter(filename);
+            StringBuilder firstLine = new StringBuilder("P X Y Z ");
+            file.WriteLine(firstLine);
             Points.ForEach(p =>
             {
                 double X = Math.Round(p.x(), precision); double Y = Math.Round(p.y(), precision); double Z = Math.Round(p.z(), precision);
@@ -1869,12 +1894,380 @@ namespace WindowsFormsApp1
         public void PrintFile(List<Point> Points, string filename, int precision, string transformType)
         {
             StreamWriter file = new StreamWriter(filename);
+            StringBuilder firstLine = new StringBuilder("P X Y ");
+            file.WriteLine(firstLine);
             Points.ForEach(p =>
             {
                 double X = Math.Round(p.x(), precision); double Y = Math.Round(p.y(), precision);
                 file.WriteLine(p.Name()+ " " + X.ToString() + " " + Y.ToString() + " " + transformType);
             });
             file.Close();
+        }
+        //FUNKCJA WYKONAWCZA DLA WSZYSTKICH WARIANTÓW PROGRAMU:
+        public void GottaTransformThemAll()
+        {
+            this.resLongitude = 0;
+            double anglePrecision = Convert.ToDouble(this.AnglePrecisionDUD.Text) / 3600 * Math.PI / 180;
+            int printPrecisionL = this.LengthPrecisionDUD.Text.Length - 2;
+            int printPrecisionA = this.AnglePrecisionDUD.Text.Length - 2;
+            if (start.ToString().Equals("Układ 2000"))
+            {
+                if (end.ToString().Equals("Układ 2000"))
+                {
+                    this.resLongitude = 0;
+                    this.resLongitude = setLongitude(resultLongitude15, resultLongitude18, resultLongitude21, resultLongitude24);
+                    if (this.resLongitude != 0)
+                    {
+                        List<Point> result = U2000ToU2000(longitude, resLongitude, anglePrecision, this.Points);
+                        TransformerBW.ReportProgress(10);
+                        //FileOpenerButton.Visible = true; FileOpenerButton.Text = "U2000";
+                        this.FileName.Append("U2000.txt");
+                        PrintFile(result, this.FileName.ToString(), printPrecisionL, ("Układ 2000 do Układu 2000, L0=" + resLongitude.ToString()));
+                    }
+                    else
+                    {
+                        MessageBox.Show("Nie wybrano południka osiowego funkcji wyjściowej.");
+                        goto koniecPsot;
+                    }
+                }
+                else if(end.ToString().Equals("Układ 1992"))
+                {
+                    List<Point> result = U2000To1992(this.longitude, anglePrecision, this.Points);
+                    TransformerBW.ReportProgress(20);
+                    //FileOpenerButton.Visible = true; FileOpenerButton.Text = "U1992";
+                    this.FileName.Append("U1992.txt");
+                    PrintFile(result, this.FileName.ToString(), printPrecisionL, ("Układ 2000 do Układu 1992, L0=" + resLongitude.ToString()));
+                }
+                else if (end.ToString().Equals("UTM"))
+                {
+                    this.resLongitude = setLongitude(resultLongitudeUTM15, resultLongitudeUTM21);
+                    if (this.resLongitude!=0){
+                        List<Point> result = U2000ToUTM(this.resLongitude, this.longitude, anglePrecision, this.Points);
+                        TransformerBW.ReportProgress(30);
+                        //FileOpenerButton.Visible = true; FileOpenerButton.Text = "UTM";
+                        this.FileName.Append("UTM.txt");
+                        PrintFile(result, this.FileName.ToString(), printPrecisionL, ("Układ 2000 do Układu UTM, L0=" + resLongitude.ToString()));
+                    }
+                    else
+                    {
+                        MessageBox.Show("Nie wybrano południka osiowego funkcji wyjściowej.");
+                        goto koniecPsot;
+                    }
+                }
+                else if(end.ToString().Equals("BLH GRS80"))
+                {
+                    List<PointBLH> result = U2000ToBLH(this.longitude, anglePrecision, this.Points);
+                    TransformerBW.ReportProgress(40);
+                    //FileOpenerButton.Visible = true; FileOpenerButton.Text = "BLH";
+                    this.FileName.Append("BLH.txt");
+                    PrintFile(result, this.FileName.ToString(), printPrecisionA,printPrecisionL,this.resultDegreeForm, "Układ 2000 do BLH");
+                }
+                else if(end.ToString().Equals("XYZ GRS80"))
+                {
+                    List<Point3D> result = U2000ToXYZ(this.longitude, anglePrecision, this.Points);
+                    TransformerBW.ReportProgress(50);
+                    //FileOpenerButton.Visible = true; FileOpenerButton.Text = "XYZ";
+                    this.FileName.Append("XYZ.txt");
+                    PrintFile(result, this.FileName.ToString(), printPrecisionL, "Układ 2000 do XYZ");
+                }
+            }
+            else if(start.ToString().Equals("Układ 1992"))
+            {
+                if (end.ToString().Equals("Układ 2000"))
+                {
+                    this.resLongitude = setLongitude(resultLongitude15, resultLongitude18, resultLongitude21, resultLongitude24);
+                    if (this.resLongitude != 0)
+                    {
+                        List<Point> result = U1992To2000(this.resLongitude, anglePrecision, this.Points);
+                        TransformerBW.ReportProgress(10);
+                        //FileOpenerButton.Visible = true; FileOpenerButton.Text = "U2000";
+                        this.FileName.Append("U2000.txt");
+                        PrintFile(result, this.FileName.ToString(), printPrecisionL, ("Układ 1992 do Układu 2000, L0=" + resLongitude.ToString()));
+                    }
+                    else
+                    {
+                        MessageBox.Show("Nie wybrano południka osiowego funkcji wyjściowej.");
+                        goto koniecPsot;
+                    }
+                }
+                else if (end.ToString().Equals("Układ 1992"))
+                {
+                    List<Point> result = U1992ToU1992(anglePrecision, this.Points);
+                    TransformerBW.ReportProgress(20);
+                    //FileOpenerButton.Visible = true; FileOpenerButton.Text = "U1992";
+                    this.FileName.Append("U1992.txt");
+                    PrintFile(result, this.FileName.ToString(), printPrecisionL, ("Układ 1992 do Układu 1992, L0=" + resLongitude.ToString()));
+                }
+                else if (end.ToString().Equals("UTM"))
+                {
+                    this.resLongitude = setLongitude(resultLongitudeUTM15, resultLongitudeUTM21);
+                    if (this.resLongitude != 0)
+                    {
+                        List<Point> result = U1992ToUTM(this.resLongitude, anglePrecision, this.Points);
+                        TransformerBW.ReportProgress(30);
+                        //FileOpenerButton.Visible = true; FileOpenerButton.Text = "UTM";
+                        this.FileName.Append("UTM.txt");
+                        PrintFile(result, this.FileName.ToString(), printPrecisionL, ("Układ 1992 do Układu UTM, L0=" + resLongitude.ToString()));
+                    }
+                    else
+                    {
+                        MessageBox.Show("Nie wybrano południka osiowego funkcji wyjściowej.");
+                        goto koniecPsot;
+                    }
+                }
+                else if (end.ToString().Equals("BLH GRS80"))
+                {
+                    List<PointBLH> result = U1992ToBLH(anglePrecision, this.Points);
+                    TransformerBW.ReportProgress(40);
+                    //FileOpenerButton.Visible = true; FileOpenerButton.Text = "BLH";
+                    this.FileName.Append("BLH.txt");
+                    PrintFile(result, this.FileName.ToString(), printPrecisionA, printPrecisionL, this.resultDegreeForm, "Układ 1992 do BLH");
+                }
+                else if (end.ToString().Equals("XYZ GRS80"))
+                {
+                    List<Point3D> result = U1992ToXYZ(anglePrecision, this.Points);
+                    TransformerBW.ReportProgress(50);
+                    //FileOpenerButton.Visible = true; FileOpenerButton.Text = "XYZ";
+                    this.FileName.Append("XYZ.txt");
+                    PrintFile(result, this.FileName.ToString(), printPrecisionL, "Układ 1992 do XYZ");
+                }
+            }
+            else if (start.ToString().Equals("UTM"))
+            {
+                if (end.ToString().Equals("Układ 2000"))
+                {
+                    this.resLongitude = setLongitude(resultLongitude15, resultLongitude18, resultLongitude21, resultLongitude24);
+                    if (this.resLongitude != 0)
+                    {
+                        List<Point> result = UTM2U2000(this.longitude, this.resLongitude, anglePrecision, this.Points);
+                        TransformerBW.ReportProgress(10);
+                        //FileOpenerButton.Visible = true; FileOpenerButton.Text = "U2000";
+                        this.FileName.Append("U2000.txt");
+                        PrintFile(result, this.FileName.ToString(), printPrecisionL, ("Układ UTM do Układu 2000, L0=" + resLongitude.ToString()));
+                    }
+                    else
+                    {
+                        MessageBox.Show("Nie wybrano południka osiowego funkcji wyjściowej.");
+                        goto koniecPsot;
+                    }
+                }
+                else if (end.ToString().Equals("Układ 1992"))
+                {
+                    List<Point> result = UTM2U1992(this.longitude, anglePrecision, this.Points);
+                    TransformerBW.ReportProgress(20);
+                    //FileOpenerButton.Visible = true; FileOpenerButton.Text = "U1992";
+                    this.FileName.Append("U1992.txt");
+                    PrintFile(result, this.FileName.ToString(), printPrecisionL, ("Układ UTM do Układu 1992, L0=" + resLongitude.ToString()));
+                }
+                else if (end.ToString().Equals("UTM"))
+                {
+                    this.resLongitude = setLongitude(resultLongitudeUTM15, resultLongitudeUTM21);
+                    if (this.resLongitude != 0)
+                    {
+                        List<Point> result = UTM2UTM(this.longitude, this.resLongitude, anglePrecision, this.Points);
+                        TransformerBW.ReportProgress(30);
+                        //FileOpenerButton.Visible = true; FileOpenerButton.Text = "UTM";
+                        this.FileName.Append("UTM.txt");
+                        PrintFile(result, this.FileName.ToString(), printPrecisionL, ("Układ UTM do Układu UTM, L0=" + resLongitude.ToString()));
+                    }
+                    else
+                    {
+                        MessageBox.Show("Nie wybrano południka osiowego funkcji wyjściowej.");
+                        goto koniecPsot;
+                    }
+                }
+                else if (end.ToString().Equals("BLH GRS80"))
+                {
+                    List<PointBLH> result = UTM2BLH(this.Points, this.longitude, anglePrecision);
+                    TransformerBW.ReportProgress(40);
+                    //FileOpenerButton.Visible = true; FileOpenerButton.Text = "BLH";
+                    this.FileName.Append("BLH.txt");
+                    PrintFile(result, this.FileName.ToString(), printPrecisionA, printPrecisionL, this.resultDegreeForm, "Układ UTM do BLH");
+                }
+                else if (end.ToString().Equals("XYZ GRS80"))
+                {
+                    List<Point3D> result = UTMtoXYZ(this.longitude, anglePrecision, this.Points);
+                    TransformerBW.ReportProgress(50);
+                    //FileOpenerButton.Visible = true; FileOpenerButton.Text = "XYZ";
+                    this.FileName.Append("XYZ.txt");
+                    PrintFile(result, this.FileName.ToString(), printPrecisionL, "Układ UTM do XYZ");
+                }
+            }
+            else if (start.ToString().Equals("BLH GRS80"))
+            {
+                if (end.ToString().Equals("Układ 2000"))
+                {
+                    this.resLongitude = setLongitude(resultLongitude15, resultLongitude18, resultLongitude21, resultLongitude24);
+                    if (this.resLongitude != 0)
+                    {
+                        List<Point> result = BLH2U2000(this.resLongitude, anglePrecision, this.PointsBLH);
+                        TransformerBW.ReportProgress(10);
+                        //FileOpenerButton.Visible = true; FileOpenerButton.Text = "U2000";
+                        this.FileName.Append("U2000.txt");
+                        PrintFile(result, this.FileName.ToString(), printPrecisionL, ("BLH do Układu 2000, L0=" + resLongitude.ToString()));
+                    }
+                    else
+                    {
+                        MessageBox.Show("Nie wybrano południka osiowego funkcji wyjściowej.");
+                        goto koniecPsot;
+                    }
+                }
+                else if (end.ToString().Equals("Układ 1992"))
+                {
+                    List<Point> result = BLH2U1992(anglePrecision, this.PointsBLH);
+                    TransformerBW.ReportProgress(20);
+                    //FileOpenerButton.Visible = true; FileOpenerButton.Text = "U1992";
+                    this.FileName.Append("U1992.txt");
+                    PrintFile(result, this.FileName.ToString(), printPrecisionL, ("BLH do Układu 1992, L0=" + resLongitude.ToString()));
+                }
+                else if (end.ToString().Equals("UTM"))
+                {
+                    this.resLongitude = setLongitude(resultLongitudeUTM15, resultLongitudeUTM21);
+                    if (this.resLongitude != 0)
+                    {
+                        List<Point> result = BLH2UTM(this.PointsBLH, this.resLongitude);
+                        TransformerBW.ReportProgress(30);
+                        //FileOpenerButton.Visible = true; FileOpenerButton.Text = "UTM";
+                        this.FileName.Append("UTM.txt");
+                        PrintFile(result, this.FileName.ToString(), printPrecisionL, ("BLH do Układu UTM, L0=" + resLongitude.ToString()));
+                    }
+                    else
+                    {
+                        MessageBox.Show("Nie wybrano południka osiowego funkcji wyjściowej.");
+                        goto koniecPsot;
+                    }
+                }
+                else if (end.ToString().Equals("BLH GRS80"))
+                {
+                    List<PointBLH> result = BLH2BLH(anglePrecision, this.PointsBLH);
+                    TransformerBW.ReportProgress(40);
+                    //FileOpenerButton.Visible = true; FileOpenerButton.Text = "BLH";
+                    this.FileName.Append("BLH.txt");
+                    PrintFile(result, this.FileName.ToString(), printPrecisionA, printPrecisionL, this.resultDegreeForm, "BLH do BLH.");
+                }
+                else if(end.ToString().Equals("XYZ GRS80"))
+                {
+                    List<Point3D> result = BLH2XYZFull(this.PointsBLH);
+                    TransformerBW.ReportProgress(50);
+                    //FileOpenerButton.Visible = true; FileOpenerButton.Text = "XYZ";
+                    this.FileName.Append("XYZ.txt");
+                    PrintFile(result, this.FileName.ToString(), printPrecisionL, "BLH do XYZ.");
+                }
+            }
+            else if (start.ToString().Equals("XYZ GRS80"))
+            {
+                if (end.ToString().Equals("Układ 2000"))
+                {
+                    this.resLongitude = setLongitude(resultLongitude15, resultLongitude18, resultLongitude21, resultLongitude24);
+                    if (this.resLongitude != 0)
+                    {
+                        List<Point> result = XYZ2U2000(this.resLongitude, anglePrecision, this.Points3D);
+                        TransformerBW.ReportProgress(10);
+                        //FileOpenerButton.Visible = true; FileOpenerButton.Text = "U2000";
+                        this.FileName.Append("U2000.txt");
+                        PrintFile(result, this.FileName.ToString(), printPrecisionL, ("XYZ do Układu 2000, L0=" + resLongitude.ToString()));
+                    }
+                    else
+                    {
+                        MessageBox.Show("Nie wybrano południka osiowego funkcji wyjściowej.");
+                        goto koniecPsot;
+                    }
+                }
+                else if (end.ToString().Equals("Układ 1992"))
+                {
+                    List<Point> result = XYZ2U1992(anglePrecision, this.Points3D);
+                    TransformerBW.ReportProgress(20);
+                    //FileOpenerButton.Visible = true; FileOpenerButton.Text = "U1992";
+                    this.FileName.Append("U1992.txt");
+                    PrintFile(result, this.FileName.ToString(), printPrecisionL, ("XYZ do Układu 1992, L0=" + resLongitude.ToString()));
+                }
+                else if (end.ToString().Equals("UTM"))
+                {
+                    this.resLongitude = setLongitude(resultLongitudeUTM15, resultLongitudeUTM21);
+                    if (this.resLongitude != 0)
+                    {
+                        List<Point> result = XYZ2UTM(this.resLongitude, anglePrecision, this.Points3D);
+                        TransformerBW.ReportProgress(30);
+                        //FileOpenerButton.Visible = true; FileOpenerButton.Text = "UTM";
+                        this.FileName.Append("UTM.txt");
+                        PrintFile(result, this.FileName.ToString(), printPrecisionL, ("XYZ do Układu UTM, L0=" + resLongitude.ToString()));
+                    }
+                    else
+                    {
+                        MessageBox.Show("Nie wybrano południka osiowego funkcji wyjściowej.");
+                        goto koniecPsot;
+                    }
+                }
+                else if (end.ToString().Equals("BLH GRS80"))
+                {
+                    List<PointBLH> result = XYZ2BLHFull(this.Points3D, anglePrecision);
+                    TransformerBW.ReportProgress(40);
+                    //FileOpenerButton.Visible = true; FileOpenerButton.Text = "BLH";
+                    this.FileName.Append("BLH.txt");
+                    PrintFile(result, this.FileName.ToString(), printPrecisionA, printPrecisionL, this.resultDegreeForm, "XYZ do BLH");
+                }
+                else if (end.ToString().Equals("XYZ GRS80"))
+                {
+                    List<Point3D> result = XYZ2XYZ(anglePrecision, this.Points3D);
+                    TransformerBW.ReportProgress(50);
+                    //FileOpenerButton.Visible = true; FileOpenerButton.Text = "XYZ";
+                    this.FileName.Append("XYZ.txt");
+                    PrintFile(result, this.FileName.ToString(), printPrecisionL, "XYZ do XYZ.");
+                }
+            }
+            koniecPsot:
+            this.longitude = 0; this.canIStartCounting = false;
+        }
+        private void TransformerBW_DoWork(object sender, DoWorkEventArgs e)
+        {
+            try { getPointsData();
+                if (this.canIStartCounting)
+                {                  
+                    if (!end.Equals(""))
+                    {
+                        GottaTransformThemAll();
+                    }
+                    else
+                    {
+                        MessageBox.Show("Nie wybrano układu wyjściowego.");
+                    }
+                    this.canIStartCounting = false;
+                }
+               
+            }
+            catch (ThreadAbortException)
+            {
+                Thread.ResetAbort();
+            }
+        }
+
+        private void TransformerBW_ProgressChanged(object sender, ProgressChangedEventArgs e)
+        {
+            switch (e.ProgressPercentage)
+            {
+                case 0:
+                    this.MonitorRichTextBox.Text += this.errorCatcher; break;
+                case 1:
+                    this.MonitorRichTextBox.Text += this.comunicator; break;
+                case 2:
+                    this.MonitorRichTextBox.Text += this.comunicator; break;
+                case 10:
+                    FileOpenerButton.Visible = true; FileOpenerButton.Text = "U2000"; break;
+                case 20:
+                    FileOpenerButton.Visible = true; FileOpenerButton.Text = "U1992"; break;
+                case 30:
+                    FileOpenerButton.Visible = true; FileOpenerButton.Text = "UTM"; break;
+                case 40:
+                    FileOpenerButton.Visible = true; FileOpenerButton.Text = "BLH"; break;
+                case 50: FileOpenerButton.Visible = true; FileOpenerButton.Text = "XYZ"; break;
+
+                default: break;
+            }
+        }
+
+        private void TransformerBW_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
+        {
+
         }
     }
 

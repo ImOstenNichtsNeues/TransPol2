@@ -87,6 +87,7 @@
             this.degreesBLH = new System.Windows.Forms.RadioButton();
             this.tabPage2 = new System.Windows.Forms.TabPage();
             this.tabPage3 = new System.Windows.Forms.TabPage();
+            this.TransformerBW = new System.ComponentModel.BackgroundWorker();
             this.ChoiceOne.SuspendLayout();
             this.ChoiceTwo.SuspendLayout();
             this.LongitudeChoice.SuspendLayout();
@@ -825,6 +826,14 @@
             this.tabPage3.TabIndex = 2;
             this.tabPage3.Text = "PL-geoid-2011";
             // 
+            // TransformerBW
+            // 
+            this.TransformerBW.WorkerReportsProgress = true;
+            this.TransformerBW.WorkerSupportsCancellation = true;
+            this.TransformerBW.DoWork += new System.ComponentModel.DoWorkEventHandler(this.TransformerBW_DoWork);
+            this.TransformerBW.ProgressChanged += new System.ComponentModel.ProgressChangedEventHandler(this.TransformerBW_ProgressChanged);
+            this.TransformerBW.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.TransformerBW_RunWorkerCompleted);
+            // 
             // Transform
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -929,6 +938,7 @@
         private System.Windows.Forms.DomainUpDown LengthPrecisionDUD;
         private System.Windows.Forms.DomainUpDown AnglePrecisionDUD;
         private System.Windows.Forms.Button FileOpenerButton;
+        private System.ComponentModel.BackgroundWorker TransformerBW;
     }
 }
 
