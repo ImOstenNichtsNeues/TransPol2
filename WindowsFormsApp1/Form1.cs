@@ -382,20 +382,23 @@ namespace WindowsFormsApp1
                 WebGrid grid11 = grid.Find(q => q.fi().Equals(Bdown) && q.lambda().Equals(Ldown));
                 //MessageBox.Show(grid11.fi() + " " + grid11.lambda());
                 WebGrid grid12 = grid.Find(q => q.fi().Equals(Bup) && q.lambda().Equals(Ldown));
+                //MessageBox.Show(grid12.fi() + " " + grid12.lambda());
                 WebGrid grid21 = grid.Find(q => q.fi().Equals(Bdown) && q.lambda().Equals(Lup));
+                //MessageBox.Show(grid21.fi() + " " + grid21.lambda());
                 WebGrid grid22 = grid.Find(q => q.fi().Equals(Bup) && q.lambda().Equals(Lup));
+                //MessageBox.Show(grid22.fi() + " " + grid22.lambda());
                 WebGrid deltas = BilinearInterpolation(B, L, grid11, grid12, grid21, grid22);
                 if (ETRF2000change89)
                 {
-                    result.Add(new PointBLH(p.Name(), B + deltas.deltaFi(), L + deltas.deltaLambda(), p.height() + deltas.deltaH()));
+                    result.Add(new PointBLH(p.Name(), B - deltas.deltaFi(), L - deltas.deltaLambda(), p.height() - deltas.deltaH()));
                 }
                 else if (!ETRF2000change89)
                 {
-                    result.Add(new PointBLH(p.Name(), B - deltas.deltaFi(), L - deltas.deltaLambda(), p.height() - deltas.deltaH()));
+                    result.Add(new PointBLH(p.Name(), B + deltas.deltaFi(), L + deltas.deltaLambda(), p.height() + deltas.deltaH()));
                 }
             });
             return result;
-        }
+        } //działa
 
         /* KONIECZNIE ŁADOWAĆ PUNKTY SIATKI W ODPOWIEDNIEJ KOLEJNOŚCI!! */
         private WebGrid BilinearInterpolation(double B, double L, WebGrid grid11, WebGrid grid12, WebGrid grid21, WebGrid grid22)
@@ -554,7 +557,7 @@ namespace WindowsFormsApp1
                 //MessageBox.Show(xGK + " " + yGK);
             });
             return result;
-        }
+        } //działa
         public List<Point> U1992ToGK(List<Point> Points)
         {
             List<Point> result = new List<Point>();
@@ -566,7 +569,7 @@ namespace WindowsFormsApp1
                 MessageBox.Show(xGK + " " + yGK);
             });
             return result;
-        }
+        } //działa
         public List<Point> GKToU2000(List<Point> Points, byte longitude)
         {
             List<Point> result = new List<Point>();
@@ -577,7 +580,7 @@ namespace WindowsFormsApp1
             result.Add(new Point(p.Name(), x, y));
             });
             return result;
-        }
+        } //działa
         public List<Point> GKToU1992(List<Point> Points)
         {
             List<Point> result = new List<Point>();
@@ -588,7 +591,7 @@ namespace WindowsFormsApp1
                 result.Add(new Point(p.Name(), x, y));
             });
             return result;
-        }
+        } //działa
         public List<Point3D> BLH2XYZ(List<PointBLH> PointsBLH)
         {
             double a = 6378137;
@@ -606,7 +609,7 @@ namespace WindowsFormsApp1
                 result.Add(new Point3D(name, X, Y, Z));
             });
             return result;
-        }
+        } //działa
         public List<PointBLH> XYZ2BLH(List<Point3D> Points3D, double precision)
         {
             List<PointBLH> result = new List<PointBLH>();
@@ -634,7 +637,7 @@ namespace WindowsFormsApp1
                 result.Add(new PointBLH(point.Name(), B*180/Math.PI, L, H));
             });
             return result;
-        }
+        } //działa
         public List<Point> BLH2XYGK(List<PointBLH> PointsBLH, byte longitude)
         {
             List<Point> result = new List<Point>();
@@ -661,7 +664,7 @@ namespace WindowsFormsApp1
                 result.Add(new Point(p.Name(), xGK, yGK));
             });
             return result; 
-        }
+        } //działa
         public List<PointBLH> XYGK2BLH(List<Point> Points, byte longitude, double precision)
         {
             List<PointBLH> result = new List<PointBLH>();
@@ -700,7 +703,7 @@ namespace WindowsFormsApp1
                 
             });
             return result;
-        }
+        } //działa
         public List<Point> BLH2UTM(List<PointBLH> PointsBLH, byte longitude)
         {
             List<Point> result = new List<Point>();
@@ -738,7 +741,7 @@ namespace WindowsFormsApp1
                 result.Add(new Point(p.Name(), xUTM, yUTM));
             });
             return result;
-        }
+        } //nie działa
         public List<PointBLH> UTM2BLH(List<Point> Points, byte longitude, double precision)
         {
             List<PointBLH> result = new List<PointBLH>();
@@ -783,7 +786,7 @@ namespace WindowsFormsApp1
                 result.Add(new PointBLH(p.Name(), B * 180 / Math.PI, L * 180 / Math.PI, 0));
             });
             return result;
-        }
+        } //nie działa
         //SCENARIUSZE TRANSFORMACYJNE: 20 GŁÓWNYCH PERMUTACJI
         //PRECISION ZAWSZE ODNOSI SIĘ DO DOKŁADNOŚCI KĄTOWEJ. DOKŁADNOŚĆ LINIOWA DOTYCZY WYŁĄCZNIE KOŃCOWYCH WYNIKÓW.
         //Wszystkie wartości longitude odnoszą się do południka osiowego układu 2000 lub południka osiowego UTM.
