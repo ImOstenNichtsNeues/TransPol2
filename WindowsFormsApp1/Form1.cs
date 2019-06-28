@@ -551,6 +551,7 @@ namespace WindowsFormsApp1
                 double yGK = (p.y() - 500000 - 1000000 * longitude / 3) / 0.999923;
 
                 result.Add(new Point(p.Name(), xGK, yGK));
+                //MessageBox.Show(xGK + " " + yGK);
             });
             return result;
         }
@@ -562,6 +563,7 @@ namespace WindowsFormsApp1
                 double xGK = (p.x() + 5300000) / 0.9993;
                 double yGK = (p.y() - 500000) / 0.9993;
                 result.Add(new Point(p.Name(), xGK, yGK));
+                MessageBox.Show(xGK + " " + yGK);
             });
             return result;
         }
@@ -594,9 +596,10 @@ namespace WindowsFormsApp1
             List<Point3D> result = new List<Point3D>();
             PointsBLH.ForEach(x =>
             {
-                if (!x.Format()) { x.convertToDegrees(); }
+                if (!x.Format()) { x.convertToDegrees(); }               
                 string name = x.Name();
-                double N = a / Math.Sqrt(1 - e2 * Math.Sin(x.fi()*Math.PI/180) * Math.Sin(x.fi() * Math.PI / 180));
+                double N = a / (Math.Sqrt(1 - e2 * Math.Pow(Math.Sin(x.fi() * Math.PI / 180), 2)));
+                //MessageBox.Show("N: " + N);
                 double X = (N + x.height()) * Math.Cos(x.fi() * Math.PI / 180) * Math.Cos(x.lambda() * Math.PI / 180);
                 double Y = (N + x.height()) * Math.Cos(x.fi() * Math.PI / 180) * Math.Sin(x.lambda() * Math.PI / 180);
                 double Z = (N + x.height()) * Math.Sin(x.fi() * Math.PI / 180) - e2 * N * Math.Sin(x.fi() * Math.PI / 180);
@@ -620,7 +623,7 @@ namespace WindowsFormsApp1
                 {
                     B = Math.Atan(tangensB);
                     double N = a / Math.Sqrt(1 - e2 * Math.Sin(B) * Math.Sin(B));
-                    H = Math.Sqrt(Math.Pow(point.x(), 2) + Math.Pow(point.y(), 2)) / Math.Cos(B) - N;
+                    H = (Math.Sqrt(Math.Pow(point.x(), 2) + Math.Pow(point.y(), 2)) / Math.Cos(B)) - N;                    
                     double tangensB1 = point.z() / Math.Sqrt(Math.Pow(point.x(), 2) + Math.Pow(point.y(), 2)) * 1 / (1 - e2 * (N / (N + H)));
                     double B1 = Math.Atan(tangensB1);
                     dif = Math.Abs(B1 - B);
@@ -640,9 +643,10 @@ namespace WindowsFormsApp1
             double e12 = 0.00673949677548;
             double longitude0 = longitude * Math.PI / 180;
             double A0 = 1 - (e2 / 4) - (3 * Math.Pow(e2,2) / 64) - (5 * Math.Pow(e2,3) / 256);
-            double A2 = 3 / 8 * (e2 + (Math.Pow(e2,2) / 4) + 15 * Math.Pow(e2,3) / 128);
-            double A4 = 15 / 256 * (Math.Pow(e2,2) + 3 * Math.Pow(e2,3) / 4);
+            double A2 = ((e2 + (Math.Pow(e2,2) / 4) + (15 * Math.Pow(e2,3)) / 128));  A2 *= 0.375;
+            double A4 = ((Math.Pow(e2,2) + 3 * Math.Pow(e2,3) / 4)); A4 *= 0.05859375;
             double A6 = 35 * Math.Pow(e2,3) / 3072;
+
             PointsBLH.ForEach(p =>
             {
                 if (!p.Format()) { p.convertToDegrees(); }
@@ -650,13 +654,13 @@ namespace WindowsFormsApp1
                 double sigma = a * (A0 * fi - A2 * Math.Sin(2 * fi) + A4 * Math.Sin(4 * fi) - A6 * Math.Sin(6 * fi));
                 double l = lambda - longitude0;
                 double t = Math.Tan(fi);
-                double eta2 = (e12) * (Math.Cos(fi)) * Math.Cos(fi);
-                double N = a / Math.Sqrt(1 - e2 * Math.Sin(fi) * Math.Sin(fi));
+                double eta2 = (e12) * Math.Pow(Math.Cos(fi),2);
+                double N = a / Math.Sqrt(1 - e2 * Math.Pow(Math.Sin(fi), 2));
   double xGK = sigma + (Math.Pow(l,2) / 2) * N * Math.Sin(fi) * Math.Cos(fi) * (1 + (Math.Pow(l, 2) / 12) * (Math.Pow(Math.Cos(fi),2)) * (5 - Math.Pow(t,2) + 9 * (eta2) + 4 * Math.Pow(eta2,2)) + (Math.Pow(l,4) / 360) * Math.Pow(Math.Cos(fi),4) * (61 - 58 * Math.Pow(t,2) + Math.Pow(t,4) + 270 * (eta2) - 330 * (eta2) * Math.Pow(t,2)));
   double yGK = l * N * Math.Cos(fi) * (1 + (Math.Pow(l,2) / 6) * Math.Pow(Math.Cos(fi),2) * (1 - Math.Pow(t,2) + eta2) + (Math.Pow(l,4) / 120) * Math.Pow(Math.Cos(fi),4) * (5 - 18 * Math.Pow(t,2) + Math.Pow(t,4) + 14 * (eta2) - 58 * (eta2) * Math.Pow(t,2)));
                 result.Add(new Point(p.Name(), xGK, yGK));
             });
-            return result;
+            return result; 
         }
         public List<PointBLH> XYGK2BLH(List<Point> Points, byte longitude, double precision)
         {
@@ -666,27 +670,34 @@ namespace WindowsFormsApp1
             double e12 = 0.00673949677548;
             double longitude0 = longitude * Math.PI / 180;
             double A0 = 1 - (e2 / 4) - (3 * Math.Pow(e2, 2) / 64) - (5 * Math.Pow(e2, 3) / 256);
-            double A2 = 3 / 8 * (e2 + (Math.Pow(e2, 2) / 4) + 15 * Math.Pow(e2, 3) / 128);
-            double A4 = 15 / 256 * (Math.Pow(e2, 2) + 3 * Math.Pow(e2, 3) / 4);
+            double A2 =(e2 + (Math.Pow(e2, 2) / 4) + 15 * Math.Pow(e2, 3) / 128); A2 *= 0.375;
+            double A4 = (Math.Pow(e2, 2) + 3 * Math.Pow(e2, 3) / 4); A4 *= 0.05859375;
             double A6 = 35 * Math.Pow(e2, 3) / 3072;
             Points.ForEach(p =>
             {
                 double epsilon = 1;
                 double sigma = p.x();
+                //MessageBox.Show(sigma.ToString());
                 double fi0 = sigma / a * A0;
                 while (epsilon > precision)
                 {
                     double fi1 = ((sigma / a) + A2 * Math.Sin(2 * fi0) - A4 * Math.Sin(4 * fi0) + A6 * Math.Sin(6 * fi0)) / A0;
                     epsilon = Math.Abs(fi1 - fi0);
                     fi0 = fi1;
+                    //MessageBox.Show(fi0.ToString());
                 }
-                double N = a / Math.Sqrt(1 - e2 * Math.Sin(fi0 * Math.PI / 180) * Math.Sin(fi0 * Math.PI / 180));
+                double N = a / Math.Sqrt(1 - e2 * Math.Sin(fi0) * Math.Sin(fi0));
                 double M = a * (1 - e2) / Math.Pow(Math.Sqrt(1 - e2 * Math.Pow(Math.Sin(fi0), 2)), 3);
                 double t = Math.Tan(fi0);
                 double eta2 = (e12) * Math.Cos(fi0) * Math.Cos(fi0);
-                double L = longitude+ p.y() / (N * (Math.Cos(fi0))) * (1 - (Math.Pow(p.y(),2) / (6 * Math.Pow(N,2))) * (1 + 2 * Math.Pow(t,2) + (eta2)) + (Math.Pow(p.y(),4) / (120 * Math.Pow(N,4))) * (5 + 28 * Math.Pow(t,2) + 24 * Math.Pow(t,4) + 6 * (eta2) + 8 * (eta2) * Math.Pow(t,2)));
+                //MessageBox.Show(eta2.ToString());
+                double L = longitude*Math.PI/180 + p.y() / (N * (Math.Cos(fi0)))
+                * (1 - (Math.Pow(p.y(),2) / (6 * Math.Pow(N,2))) * (1 + 2 * Math.Pow(t,2) + (eta2))
+                + (Math.Pow(p.y(),4) / (120 * Math.Pow(N,4)))
+                * (5 + 28 * Math.Pow(t,2) + 24 * Math.Pow(t,4) + 6 * (eta2) + 8 * (eta2) * Math.Pow(t,2)));
                 double B = fi0 - ((Math.Pow(p.y(),2) * t) / (2 * M * N)) * (1 - (Math.Pow(p.y(),2) / (12 * Math.Pow(N,2))) * (5 + 3 * Math.Pow(t,2) + (eta2) - 9 * eta2 * Math.Pow(t,2) - 4 * Math.Pow(eta2,2)) + Math.Pow(p.y(),4) / (360 * Math.Pow(N,4)) * (61 + 90 * Math.Pow(t,2) + 45 * Math.Pow(t,4)));
                 result.Add(new PointBLH(p.Name(), B * 180 / Math.PI, L*180/Math.PI, 0 ));
+                
             });
             return result;
         }
@@ -700,8 +711,8 @@ namespace WindowsFormsApp1
             double b = 6356752.3142;
             e2 = (Math.Pow(a, 2) - Math.Pow(b, 2)) / Math.Pow(a, 2);
             double A0 = 1 - (e2 / 4) - (3 * Math.Pow(e2, 2) / 64) - (5 * Math.Pow(e2, 3) / 256);
-            double A2 = 3 / 8 * (e2 + (Math.Pow(e2, 2) / 4) + 15 * Math.Pow(e2, 3) / 128);
-            double A4 = 15 / 256 * (Math.Pow(e2, 2) + 3 * Math.Pow(e2, 3) / 4);
+            double A2 = (e2 + (Math.Pow(e2, 2) / 4) + 15 * Math.Pow(e2, 3) / 128); A2 *= 0.375;
+            double A4 = (Math.Pow(e2, 2) + 3 * Math.Pow(e2, 3) / 4); A4 *= 0.05859375;
             double A6 = 35 * Math.Pow(e2, 3) / 3072;
             PointsBLH.ForEach(p =>
             {
@@ -738,8 +749,8 @@ namespace WindowsFormsApp1
             double b = 6356752.3142;
             e2 = (Math.Pow(a, 2) - Math.Pow(b, 2)) / Math.Pow(a, 2);
             double A0 = 1 - (e2 / 4) - (3 * Math.Pow(e2, 2) / 64) - (5 * Math.Pow(e2, 3) / 256);
-            double A2 = 3 / 8 * (e2 + (Math.Pow(e2, 2) / 4) + 15 * Math.Pow(e2, 3) / 128);
-            double A4 = 15 / 256 * (Math.Pow(e2, 2) + 3 * Math.Pow(e2, 3) / 4);
+            double A2 = (e2 + (Math.Pow(e2, 2) / 4) + 15 * Math.Pow(e2, 3) / 128); A2 *= 0.375;
+            double A4 = (Math.Pow(e2, 2) + 3 * Math.Pow(e2, 3) / 4); A4 *= 0.05859375;
             double A6 = 35 * Math.Pow(e2, 3) / 3072;
             Points.ForEach(p =>
             {
@@ -1908,8 +1919,8 @@ namespace WindowsFormsApp1
         {
             this.resLongitude = 0;
             double anglePrecision = Convert.ToDouble(this.AnglePrecisionDUD.Text) / 3600 * Math.PI / 180;
-            int printPrecisionL = this.LengthPrecisionDUD.Text.Length - 2;
-            int printPrecisionA = this.AnglePrecisionDUD.Text.Length - 2;
+            int printPrecisionL = this.LengthPrecisionDUD.Text.Length -2;
+            int printPrecisionA = this.AnglePrecisionDUD.Text.Length -2;
             if (start.ToString().Equals("Układ 2000"))
             {
                 if (end.ToString().Equals("Układ 2000"))
