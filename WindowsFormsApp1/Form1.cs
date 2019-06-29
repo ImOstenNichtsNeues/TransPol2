@@ -26,7 +26,7 @@ namespace WindowsFormsApp1
         List<Point> Points = new List<Point>();
         List<Point3D> Points3D = new List<Point3D>();
         List<PointBLH> PointsBLH = new List<PointBLH>();
-        string[] data;
+        string[] data;        
         /* Zmienne bool degreeForm i degreeForm odpowiadają za format danych kątowych wejściowych i wyjściowym. true oznacza format kątowy.
          False oznacza format kąt-min-sec. Nie ma opcji wprowadzania danych w gradach!*/
         bool degreeForm = true; bool resultDegreeForm = true;
@@ -736,8 +736,10 @@ namespace WindowsFormsApp1
                 double cos3fi = Math.Pow(Math.Cos(fi), 3); double cos5fi = Math.Pow(Math.Cos(fi), 5); double cos7fi = Math.Pow(Math.Cos(fi), 7);
                 double psi2 = Math.Pow(psi, 2); double psi3 = Math.Pow(psi, 3);
                 double yUTM = N * l * Math.Cos(fi) + N * l3 / 6 * cos3fi * (psi - t2) + N * l5 / 120 * cos5fi * (4 * psi3 * (1 - 6 * t2) + psi2 * (1 + 8 * t2) -2*psi*t2 + t4);
-                yUTM += N * l7 / 5040 * cos7fi * (61 - 479 * t2 + 179 * t4 - t6);
-                yUTM *= m0;
+                yUTM += N * l7 / 5040 * cos7fi * (61 - 479 * t2 + 179 * t4 - t6); yUTM *= m0;
+                MessageBox.Show(yUTM.ToString());
+                yUTM +=500000;
+                int n = longitude.Equals(15) ? 3 : 4; yUTM += n * 1000000;               
                 result.Add(new Point(p.Name(), xUTM, yUTM));
             });
             return result;
@@ -751,10 +753,12 @@ namespace WindowsFormsApp1
             double a = 6378137;
             double b = 6356752.3142;
             e2 = (Math.Pow(a, 2) - Math.Pow(b, 2)) / Math.Pow(a, 2);
+            //MessageBox.Show(e2.ToString());
             double A0 = 1 - (e2 / 4) - (3 * Math.Pow(e2, 2) / 64) - (5 * Math.Pow(e2, 3) / 256);
             double A2 = (e2 + (Math.Pow(e2, 2) / 4) + 15 * Math.Pow(e2, 3) / 128); A2 *= 0.375;
             double A4 = (Math.Pow(e2, 2) + 3 * Math.Pow(e2, 3) / 4); A4 *= 0.05859375;
             double A6 = 35 * Math.Pow(e2, 3) / 3072;
+            //MessageBox.Show(A0 + " " + A2 + " " + A4 + " " + A6);
             Points.ForEach(p =>
             {
                 double epsilon = 1;
@@ -766,24 +770,27 @@ namespace WindowsFormsApp1
                     epsilon = Math.Abs(fi1 - fi0);
                     fi0 = fi1;
                 }
-                double N = a / Math.Sqrt(1 - e2 * Math.Sin(fi0 * Math.PI / 180) * Math.Sin(fi0 * Math.PI / 180));
-                double M = a * (1 - e2) / Math.Pow(Math.Sqrt(1 - e2 * Math.Pow(Math.Sin(fi0), 2)), 3);
+                
+                double N = a / Math.Sqrt(1 - e2 * Math.Pow(Math.Sin(fi0), 2));
+                double M = a * (1 - e2) / Math.Pow(Math.Sqrt(1 - e2 * Math.Pow(Math.Sin(fi0), 2)), 3); MessageBox.Show(M.ToString());
                 double psi = N / M; double psi2 = Math.Pow(psi, 2); double psi4 = Math.Pow(psi, 4); double psi3 = Math.Pow(psi, 3);
                 double t = Math.Tan(fi0); double t2 = Math.Pow(t, 2); double t4 = Math.Pow(t, 4); double t6 = Math.Pow(t, 6);
                 double v = N; double v3 = Math.Pow(v, 3); double v5 = Math.Pow(v, 5); double v7 = Math.Pow(v, 7);
-                double E = p.y(); double E2 = Math.Pow(E, 2); double E4 = Math.Pow(E, 4); double E6 = Math.Pow(E, 6); double E8 = Math.Pow(E, 8);
+                double E = p.y(); int n = longitude.Equals(15) ? 3 : 4; E -= 500000; E -= (n * 1000000);
+                double E2 = Math.Pow(E, 2); double E4 = Math.Pow(E, 4); double E6 = Math.Pow(E, 6); double E8 = Math.Pow(E, 8);
                 double E3 = Math.Pow(E, 3); double E5 = Math.Pow(E, 5); double E7 = Math.Pow(E, 7);
                 double m03 = Math.Pow(m0, 3); double m05 = Math.Pow(m0, 5); double m07 = Math.Pow(m0, 7);
                 double element = E2 / (2 * m0 * v) - E4 / (24 * m03 * v3) * (-4 * psi2 + 9 * psi * (1 - t2) + 12 * t2);
-                element += E6 / (720 * m05 * v5) * (8 * psi4 * (11 - 24 * t2) + 12 * psi3 * (21 - 71 * t2) + 15 * psi2 * (15 - 98 * t2 + 15 * t4) + 180 * psi * (5 * t2 - 3 * t4) + 360 * t4);
-                element += E8 / (40320 * m07 * v7) * (1385 + 3633 * t2 + 4095 * t4 + 1575 * t6);
-                element *= t / (m0 * M);
+                element += (E6 / (720 * m05 * v5)) * (8 * psi4 * (11 - 24 * t2) - 12 * psi3 * (21 - 71 * t2) 
+                + 15 * psi2 * (15 - 98 * t2 + 15 * t4) + 180 * psi * (5 * t2 - 3 * t4) + 360 * t4);
+                element -= (E8 / (40320 * m07 * v7) * (1385 + 3633 * t2 + 4095 * t4 + 1575 * t6));
+                element *= (t / (m0 * M));
                 double B = fi0 - element;
-                double L = E / (m0 * v) - E3 / (6 * m03 * v3) * (psi + 2 * t2);
+                double L = E / (m0 * v) - (E3 / (6 * m03 * v3)) * (psi + 2 * t2);
                 L += E5 / (120 * m05 * v5) * (-4 * psi3 * (1 - 6 * t2) + psi2 * (9 - 68 * t2) + 72 * psi * t2 + 24 * t4);
-                L += E7 / (5040 * m07 * v7) * (61 + 662 * t2 + 1320 * t4 + 720 * t6);
-                L *= 1 / Math.Cos(fi0);
-                result.Add(new PointBLH(p.Name(), B * 180 / Math.PI, L * 180 / Math.PI, 0));
+                L -= E7 / (5040 * m07 * v7) * (61 + 662 * t2 + 1320 * t4 + 720 * t6);
+                L *= (1 / Math.Cos(fi0));
+                result.Add(new PointBLH(p.Name(), B * 180 / Math.PI, L * 180 / Math.PI + longitude, 0));
             });
             return result;
         } //nie działa
@@ -1722,7 +1729,7 @@ namespace WindowsFormsApp1
         }
         //USTALENIE MOŻLIWEJ DOKŁADNOŚCI KĄTOWEJ I LINIOWEJ oraz WYBÓR METODY OBLICZENIOWEJ
         private void Transform_Load(object sender, EventArgs e)
-        {
+        {            
             DomainUpDown.DomainUpDownItemCollection collection = this.AnglePrecisionDUD.Items;
             collection.Add("0,001");
             collection.Add("0,0001");
@@ -2240,6 +2247,8 @@ namespace WindowsFormsApp1
                     if (!end.Equals(""))
                     {
                         GottaTransformThemAll();
+                        Thread.Sleep(100);
+                        TransformerBW.ReportProgress(99);
                     }
                     else
                     {
@@ -2274,7 +2283,7 @@ namespace WindowsFormsApp1
                 case 40:
                     FileOpenerButton.Visible = true; FileOpenerButton.Text = "BLH"; break;
                 case 50: FileOpenerButton.Visible = true; FileOpenerButton.Text = "XYZ"; break;
-
+                case 99: this.MonitorRichTextBox.Text += "Koniec obliczeń."; break;
                 default: break;
             }
         }
