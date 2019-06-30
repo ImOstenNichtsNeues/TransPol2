@@ -11,6 +11,8 @@ using System.Text.RegularExpressions;
 using System.IO;
 using System.Diagnostics;
 using System.Threading;
+using System.Reflection;
+using System.Diagnostics;
 namespace WindowsFormsApp1
 {
 
@@ -357,8 +359,8 @@ namespace WindowsFormsApp1
         private List<WebGrid> webGrids()
         {
             List<WebGrid> result = new List<WebGrid>();
-            string [] text = File.ReadAllLines("gridETRF.txt");
-            foreach(string line in text)
+            string[] text= Regex.Split(Properties.Resources.gridETRF, "\n");
+            foreach (string line in text)
             {
                 string[] point = Regex.Split(line.Trim(), @"\s+");
                 result.Add(new WebGrid(Convert.ToDouble(point[0]), Convert.ToDouble(point[1]), Convert.ToDouble(point[2]), Convert.ToDouble(point[3]), Convert.ToDouble(point[4])));
@@ -737,7 +739,7 @@ namespace WindowsFormsApp1
                 double psi2 = Math.Pow(psi, 2); double psi3 = Math.Pow(psi, 3);
                 double yUTM = N * l * Math.Cos(fi) + N * l3 / 6 * cos3fi * (psi - t2) + N * l5 / 120 * cos5fi * (4 * psi3 * (1 - 6 * t2) + psi2 * (1 + 8 * t2) -2*psi*t2 + t4);
                 yUTM += N * l7 / 5040 * cos7fi * (61 - 479 * t2 + 179 * t4 - t6); yUTM *= m0;
-                MessageBox.Show(yUTM.ToString());
+                //MessageBox.Show(yUTM.ToString());
                 yUTM +=500000;
                 int n = longitude.Equals(15) ? 3 : 4; yUTM += n * 1000000;               
                 result.Add(new Point(p.Name(), xUTM, yUTM));
