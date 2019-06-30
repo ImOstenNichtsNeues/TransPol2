@@ -320,7 +320,7 @@ namespace WindowsFormsApp1
         
         public Transform()
         {
-            InitializeComponent();
+             InitializeComponent();
         }
 
          byte setLongitude(params RadioButton[] list)

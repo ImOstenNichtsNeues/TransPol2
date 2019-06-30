@@ -74,26 +74,6 @@ namespace WindowsFormsApp1.Properties {
         ///49,00	22,77	0,000000085	-0,000000318	-0,0931
         ///49,00	 [obcięto pozostałą część ciągu]&quot;;.
         /// </summary>
-        internal static string Grid {
-            get {
-                return ResourceManager.GetString("Grid", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        /// Wyszukuje zlokalizowany ciąg podobny do ciągu 49,00	22,65	0,000000075	-0,000000349	-0,0942
-        ///49,00	22,66	0,000000076	-0,000000347	-0,0940
-        ///49,00	22,67	0,000000076	-0,000000344	-0,0939
-        ///49,00	22,68	0,000000077	-0,000000342	-0,0937
-        ///49,00	22,69	0,000000078	-0,000000339	-0,0936
-        ///49,00	22,70	0,000000078	-0,000000337	-0,0935
-        ///49,00	22,71	0,000000079	-0,000000336	-0,0933
-        ///49,00	22,74	0,000000081	-0,000000326	-0,0931
-        ///49,00	22,75	0,000000082	-0,000000325	-0,0931
-        ///49,00	22,76	0,000000083	-0,000000321	-0,0930
-        ///49,00	22,77	0,000000085	-0,000000318	-0,0931
-        ///49,00	 [obcięto pozostałą część ciągu]&quot;;.
-        /// </summary>
         internal static string gridETRF {
             get {
                 return ResourceManager.GetString("gridETRF", resourceCulture);
