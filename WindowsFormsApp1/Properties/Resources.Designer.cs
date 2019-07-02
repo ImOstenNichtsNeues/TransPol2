@@ -79,5 +79,15 @@ namespace WindowsFormsApp1.Properties {
                 return ResourceManager.GetString("gridETRF", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Wyszukuje zlokalizowany zasób typu System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap UW1965 {
+            get {
+                object obj = ResourceManager.GetObject("UW1965", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
     }
 }

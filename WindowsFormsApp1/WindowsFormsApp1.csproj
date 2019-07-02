@@ -82,6 +82,8 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Files\gridETRF.txt" />
+    <Content Include="Resources\gridETRF.txt" />
+    <None Include="Resources\UW1965.jpg" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

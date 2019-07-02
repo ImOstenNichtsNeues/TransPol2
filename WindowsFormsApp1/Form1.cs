@@ -33,7 +33,7 @@ namespace WindowsFormsApp1
          False oznacza format kąt-min-sec. Nie ma opcji wprowadzania danych w gradach!*/
         bool degreeForm = true; bool resultDegreeForm = true;
         /*parametr longitude określa wartość południka osiowego, jeśli takowy występuje.*/
-        byte longitude=0; byte resLongitude = 0;
+        byte longitude=0; byte resLongitude = 0; double longitude65 = 0; double resLongitude65 = 0;
         //Promienie krzywizn, potrzebne do wyznaczenia współrzędnych w odwzorowaniu stereograficznym Roussihle'a elipsoidy Krasowkiego.
         //To samo tyczy się współrzędnych punktów głównych
         double R0 = 0; double resR0 = 0; double x0; double y0; double resx0; double resy0;
@@ -342,6 +342,7 @@ namespace WindowsFormsApp1
             }
             return longitude;
         }
+
         private void CountUp_Click(object sender, EventArgs e)
         {
             this.FileName.Clear();
@@ -499,7 +500,84 @@ namespace WindowsFormsApp1
             this.end.Clear(); this.end.Append("XYZ GRS80");
         }
         //WYBÓR UKŁADU WSPÓŁRZĘDNYCH: KRASOWSKI
-
+        private void XY65RB_CheckedChanged(object sender, EventArgs e)
+        {
+            switchGroupBoxVisibility(XY65StrefaGB, XY42GB);
+            clearRadioButtonsCheck(longitudeK15, longitudeK18, longitudeK21, longitudeK24, xy42width3, xy42width6);
+            this.start.Clear(); this.start.Append("Układ 1965"); loadFile.Enabled = true;
+        }
+        private void XY42RB_CheckedChanged(object sender, EventArgs e)
+        {
+            switchGroupBoxVisibility(XY42GB, XY65StrefaGB);
+            clearRadioButtonsCheck(xy65s1,xy65s2,xy65s3,xy65s4,xy65s5);
+            this.start.Clear(); this.start.Append("Układ 1942"); loadFile.Enabled = true;
+        }
+        private void XYGUGIK80RB_CheckedChanged(object sender, EventArgs e)
+        {
+            setFalseGroupBoxVisibility(XY65StrefaGB, XY42GB);
+            clearRadioButtonsCheck(longitudeK15, longitudeK18, longitudeK21, longitudeK24, xy42width3, xy42width6);
+            clearRadioButtonsCheck(xy65s1, xy65s2, xy65s3, xy65s4, xy65s5);
+            this.start.Clear(); this.start.Append("Układ 1942"); loadFile.Enabled = true;
+        }
+        private void BLHKrasowskiRB_CheckedChanged(object sender, EventArgs e)
+        {
+            setFalseGroupBoxVisibility(XY65StrefaGB, XY42GB);
+            clearRadioButtonsCheck(longitudeK15, longitudeK18, longitudeK21, longitudeK24, xy42width3, xy42width6);
+            clearRadioButtonsCheck(xy65s1, xy65s2, xy65s3, xy65s4, xy65s5);
+            this.start.Clear(); this.start.Append("BLH Krasowski"); loadFile.Enabled = true;
+        }
+        private void XYZKrasowskiRB_CheckedChanged(object sender, EventArgs e)
+        {
+            setFalseGroupBoxVisibility(XY65StrefaGB, XY42GB);
+            clearRadioButtonsCheck(longitudeK15, longitudeK18, longitudeK21, longitudeK24, xy42width3, xy42width6);
+            clearRadioButtonsCheck(xy65s1, xy65s2, xy65s3, xy65s4, xy65s5);
+            this.start.Clear(); this.start.Append("XYZ Krasowski"); loadFile.Enabled = true;
+        }
+        private void ResXY65RB_CheckedChanged(object sender, EventArgs e)
+        {
+            switchGroupBoxVisibility(resXY65StrefaGB, resXY42GB);
+            clearRadioButtonsCheck(reslongitudeK15, reslongitudeK18, reslongitudeK21, reslongitudeK24, resxy42width3, resxy42width6);
+            this.end.Clear(); this.end.Append("Układ 1965");
+        }
+        private void ResXY42RB_CheckedChanged(object sender, EventArgs e)
+        {
+            switchGroupBoxVisibility(resXY42GB, resXY65StrefaGB);
+            clearRadioButtonsCheck(resxy65s1, resxy65s2, resxy65s3, resxy65s4, resxy65s5);
+            this.end.Clear(); this.end.Append("Układ 1942");
+        }
+        private void ResXYGUGIK80RB_CheckedChanged(object sender, EventArgs e)
+        {
+            setFalseGroupBoxVisibility(resXY65StrefaGB, resXY42GB);
+            clearRadioButtonsCheck(reslongitudeK15, reslongitudeK18, reslongitudeK21, reslongitudeK24, resxy42width3, resxy42width6);
+            clearRadioButtonsCheck(resxy65s1, resxy65s2, resxy65s3, resxy65s4, resxy65s5);
+            this.end.Clear(); this.end.Append("Układ 1942"); 
+        }
+        private void ResBLHKrasowskiRB_CheckedChanged(object sender, EventArgs e)
+        {
+            setFalseGroupBoxVisibility(resXY65StrefaGB, resXY42GB);
+            clearRadioButtonsCheck(reslongitudeK15, reslongitudeK18, reslongitudeK21, reslongitudeK24, resxy42width3, resxy42width6);
+            clearRadioButtonsCheck(resxy65s1, resxy65s2, resxy65s3, resxy65s4, resxy65s5);
+            this.end.Clear(); this.end.Append("BLH Krasowski");
+        }
+        private void ResXYZKrasowskiRB_CheckedChanged(object sender, EventArgs e)
+        {
+            setFalseGroupBoxVisibility(resXY65StrefaGB, resXY42GB);
+            clearRadioButtonsCheck(reslongitudeK15, reslongitudeK18, reslongitudeK21, reslongitudeK24, resxy42width3, resxy42width6);
+            clearRadioButtonsCheck(resxy65s1, resxy65s2, resxy65s3, resxy65s4, resxy65s5);
+            this.end.Clear(); this.end.Append("XYZ Krasowski");
+        }
+        //USTAWIENIA WYBORU PASÓW UKŁADU PUŁKOWO 42'
+        private void Xy42width3_CheckedChanged(object sender, EventArgs e)
+        {
+            XY42LongitudeGB.Visible = true;
+            clearRadioButtonsCheck(longitudeK18, longitudeK24);
+            longitudeK18.Visible = false; longitudeK24.Visible = false;
+        }
+        private void Xy42width6_CheckedChanged(object sender, EventArgs e)
+        {
+            XY42LongitudeGB.Visible = true;
+            longitudeK18.Visible = true; longitudeK24.Visible = true;
+        }
         //WCZYTYWANIE PLIKU WEJŚCIOWEGO
         [STAThread]
         private void LoadFile_Click_1(object sender, EventArgs e)
@@ -512,11 +590,60 @@ namespace WindowsFormsApp1
                 }
             }
         }
+        //USTAWIENIA PARAMETRÓ DLA STREF UKŁADU 1965
+        private void Xy65s1_CheckedChanged(object sender, EventArgs e)
+        {
+            this.longitude65 = 21 + 5 / 60; this.x0 = 5467000.00; this.y0 = 4637000.00;
+            this.R0 = 6382390.164984; this.xGK0 = 5610467.577042;
+        }
+        private void Resxy65s1_CheckedChanged(object sender, EventArgs e)
+        {
+            this.resLongitude65 = 21 + 5 / 60; this.resx0 = 5467000.00; this.resy0 = 4637000.00;
+            this.resR0 = 6382390.164984; this.resXGK0 = 5610467.577042;
+        }
+        private void Xy65s2_CheckedChanged(object sender, EventArgs e)
+        {
+            this.longitude65 = 21 + 30 / 60 + 10 / 3600; this.x0 = 5806000.00; this.y0 = 4603000.00;
+            this.R0 = 6384119.427305; this.xGK0 = 5874939.874115;
+        }
+        private void Resxy65s2_CheckedChanged(object sender, EventArgs e)
+        {
+            this.resLongitude65 = 21 + 30 / 60 + 10 / 3600; this.resx0 = 5806000.00; this.resy0 = 4603000.00;
+            this.resR0 = 6384119.427305; this.resXGK0 = 5874939.874115;
+        }
+        private void Xy65s3_CheckedChanged(object sender, EventArgs e)
+        {
+            this.longitude65 = 17 + 30 / 3600; this.x0 = 5999000.00; this.y0 = 3501000.00;
+            this.R0 = 6384536.793566; this.xGK0 = 5939644.770112;
+        }
+        private void Resxy65s3_CheckedChanged(object sender, EventArgs e)
+        {
+            this.resLongitude65 = 17 + 30 / 3600; this.resx0 = 5999000.00; this.resy0 = 3501000.00;
+            this.resR0 = 6384536.793566; this.resXGK0 = 5939644.770112;
+        }
+        private void Xy65s4_CheckedChanged(object sender, EventArgs e)
+        {
+            this.longitude65 = 16 + 40 / 60 + 20 / 3600; this.x0 = 5627000.00; this.y0 = 3703000.00;
+            this.R0 = 6383155.165130; this.xGK0 = 5726819.667829;
+        }
+        private void Resxy65s4_CheckedChanged(object sender, EventArgs e)
+        {
+            this.resLongitude65 = 16 + 40 / 60 + 20 / 3600; this.resx0 = 5627000.00; this.resy0 = 3703000.00;
+            this.resR0 = 6383155.165130; this.resXGK0 = 5726819.667829;
+        }
+        private void Xy65s5_CheckedChanged(object sender, EventArgs e)
+        {
+            this.longitude65 = 18 + 57 / 60 + 30 / 3600; this.x0 = -4700000.00; this.y0 = 237000.00;
+            this.R0 = 0; this.xGK0 = 0;
+        }
         //WYBÓR UKŁADU ODNIESIENIA PLIKÓW: WEJŚCIOWEGO I WYJŚCIOWEGO // WYBÓR ELIPSOIDY ODNIESIENIA
         private void ETRF2000_CheckedChanged(object sender, EventArgs e)
         {
             clearRadioButtonsCheck(XY65RB, XY42RB, XYGUGIK80RB, BLHKrasowskiRB, XYZKrasowskiRB);
             switchGroupBoxVisibility(ChoiceOne,KrasowskiGB);
+            clearRadioButtonsCheck(xy65s1,xy65s2,xy65s3,xy65s4,xy65s5,xy42width3,xy42width6);
+            clearRadioButtonsCheck(longitudeK15, longitudeK18, longitudeK21, longitudeK24);
+            setFalseGroupBoxVisibility(XY65StrefaGB, XY42GB);
             this.startETRF.Clear();
             this.startETRF.Append("ETRF2000");
         }
@@ -524,6 +651,9 @@ namespace WindowsFormsApp1
         {
             clearRadioButtonsCheck(XY65RB, XY42RB, XYGUGIK80RB, BLHKrasowskiRB, XYZKrasowskiRB);
             switchGroupBoxVisibility(ChoiceOne, KrasowskiGB);
+            clearRadioButtonsCheck(xy65s1, xy65s2, xy65s3, xy65s4, xy65s5, xy42width3, xy42width6);
+            clearRadioButtonsCheck(longitudeK15, longitudeK18, longitudeK21, longitudeK24);
+            setFalseGroupBoxVisibility(XY65StrefaGB, XY42GB);
             this.startETRF.Clear();
             this.startETRF.Append("ETRF89");
         }
@@ -531,6 +661,9 @@ namespace WindowsFormsApp1
         {
             clearRadioButtonsCheck(resXY65RB, resXY42RB, resXYGUGIK80RB, resBLHKrasowskiRB, resXYZKrasowskiRB);
             switchGroupBoxVisibility(ChoiceTwo, resKrasowskiGB);
+            clearRadioButtonsCheck(resxy65s1, resxy65s2, resxy65s3, resxy65s4, resxy65s5, resxy42width3, resxy42width6);
+            clearRadioButtonsCheck(reslongitudeK15, reslongitudeK18, reslongitudeK21, reslongitudeK24);
+            setFalseGroupBoxVisibility(resXY65StrefaGB, resXY42GB);
             this.endETRF.Clear();
             this.endETRF.Append("ETRF2000");
         }
@@ -538,6 +671,9 @@ namespace WindowsFormsApp1
         {
             clearRadioButtonsCheck(resXY65RB, resXY42RB, resXYGUGIK80RB, resBLHKrasowskiRB, resXYZKrasowskiRB);
             switchGroupBoxVisibility(ChoiceTwo, resKrasowskiGB);
+            clearRadioButtonsCheck(resxy65s1, resxy65s2, resxy65s3, resxy65s4, resxy65s5, resxy42width3, resxy42width6);
+            clearRadioButtonsCheck(reslongitudeK15, reslongitudeK18, reslongitudeK21, reslongitudeK24);
+            setFalseGroupBoxVisibility(resXY65StrefaGB, resXY42GB);
             this.endETRF.Clear();
             this.endETRF.Append("ETRF89");
         }
@@ -548,6 +684,7 @@ namespace WindowsFormsApp1
             clearRadioButtonsCheck(longitude15, longitude18, longitude21, longitude24, longitudeUTM15, longitudeUTM21);
             setFalseGroupBoxVisibility(LongitudeChoice, LongitudeUTM);
             this.startETRF.Clear();
+            this.startETRF.Append("Krasowski");
         }
         private void ResKrasowskiRB_CheckedChanged(object sender, EventArgs e)
         {
@@ -556,7 +693,9 @@ namespace WindowsFormsApp1
             clearRadioButtonsCheck(resultLongitude15, resultLongitude18, resultLongitude21, resultLongitude24, resultLongitudeUTM15, resultLongitudeUTM21);
             setFalseGroupBoxVisibility(resultLongitudeChoice, resultLongitudeUTM);
             this.endETRF.Clear();
+            this.endETRF.Append("Krasowski");
         }
+
         //WYBÓR FORMATU BLH PLIKÓW: WEJŚCIOWEGO I WYJŚCIOWEGO
         private void DegreesBLH_CheckedChanged(object sender, EventArgs e)
         {
@@ -2456,6 +2595,8 @@ namespace WindowsFormsApp1
         {
 
         }
+
+ 
     }
 
 

@@ -41,17 +41,17 @@
             this.XYGUGIK80RB = new System.Windows.Forms.RadioButton();
             this.XY65RB = new System.Windows.Forms.RadioButton();
             this.ChoiceTwo = new System.Windows.Forms.GroupBox();
+            this.resultXYZ_GRS = new System.Windows.Forms.RadioButton();
+            this.resultXY1992 = new System.Windows.Forms.RadioButton();
+            this.resultBLH_GRS = new System.Windows.Forms.RadioButton();
+            this.resultXY2000 = new System.Windows.Forms.RadioButton();
+            this.resultUTM = new System.Windows.Forms.RadioButton();
             this.resKrasowskiGB = new System.Windows.Forms.GroupBox();
             this.resXYZKrasowskiRB = new System.Windows.Forms.RadioButton();
             this.resBLHKrasowskiRB = new System.Windows.Forms.RadioButton();
             this.resXY42RB = new System.Windows.Forms.RadioButton();
             this.resXYGUGIK80RB = new System.Windows.Forms.RadioButton();
             this.resXY65RB = new System.Windows.Forms.RadioButton();
-            this.resultXYZ_GRS = new System.Windows.Forms.RadioButton();
-            this.resultXY1992 = new System.Windows.Forms.RadioButton();
-            this.resultBLH_GRS = new System.Windows.Forms.RadioButton();
-            this.resultXY2000 = new System.Windows.Forms.RadioButton();
-            this.resultUTM = new System.Windows.Forms.RadioButton();
             this.LongitudeChoice = new System.Windows.Forms.GroupBox();
             this.longitude24 = new System.Windows.Forms.RadioButton();
             this.longitude21 = new System.Windows.Forms.RadioButton();
@@ -86,6 +86,36 @@
             this.TextBoxTrans2D3D = new System.Windows.Forms.TextBox();
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.tabPage1 = new System.Windows.Forms.TabPage();
+            this.resXY65StrefaGB = new System.Windows.Forms.GroupBox();
+            this.resxy65s5 = new System.Windows.Forms.RadioButton();
+            this.resxy65s4 = new System.Windows.Forms.RadioButton();
+            this.resxy65s3 = new System.Windows.Forms.RadioButton();
+            this.resxy65s2 = new System.Windows.Forms.RadioButton();
+            this.resxy65s1 = new System.Windows.Forms.RadioButton();
+            this.resXY42GB = new System.Windows.Forms.GroupBox();
+            this.resXY42LongitudeGB = new System.Windows.Forms.GroupBox();
+            this.reslongitudeK15 = new System.Windows.Forms.RadioButton();
+            this.reslongitudeK24 = new System.Windows.Forms.RadioButton();
+            this.reslongitudeK18 = new System.Windows.Forms.RadioButton();
+            this.reslongitudeK21 = new System.Windows.Forms.RadioButton();
+            this.resXY42WidthGB = new System.Windows.Forms.GroupBox();
+            this.resxy42width6 = new System.Windows.Forms.RadioButton();
+            this.resxy42width3 = new System.Windows.Forms.RadioButton();
+            this.XY65StrefaGB = new System.Windows.Forms.GroupBox();
+            this.xy65s5 = new System.Windows.Forms.RadioButton();
+            this.xy65s4 = new System.Windows.Forms.RadioButton();
+            this.xy65s3 = new System.Windows.Forms.RadioButton();
+            this.xy65s2 = new System.Windows.Forms.RadioButton();
+            this.xy65s1 = new System.Windows.Forms.RadioButton();
+            this.XY42GB = new System.Windows.Forms.GroupBox();
+            this.XY42LongitudeGB = new System.Windows.Forms.GroupBox();
+            this.longitudeK15 = new System.Windows.Forms.RadioButton();
+            this.longitudeK24 = new System.Windows.Forms.RadioButton();
+            this.longitudeK18 = new System.Windows.Forms.RadioButton();
+            this.longitudeK21 = new System.Windows.Forms.RadioButton();
+            this.XY42WidthGB = new System.Windows.Forms.GroupBox();
+            this.xy42width6 = new System.Windows.Forms.RadioButton();
+            this.xy42width3 = new System.Windows.Forms.RadioButton();
             this.FileOpenerButton = new System.Windows.Forms.Button();
             this.PrecisionGB = new System.Windows.Forms.GroupBox();
             this.LengthPrecisionDUD = new System.Windows.Forms.DomainUpDown();
@@ -115,6 +145,14 @@
             this.groupBox2.SuspendLayout();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
+            this.resXY65StrefaGB.SuspendLayout();
+            this.resXY42GB.SuspendLayout();
+            this.resXY42LongitudeGB.SuspendLayout();
+            this.resXY42WidthGB.SuspendLayout();
+            this.XY65StrefaGB.SuspendLayout();
+            this.XY42GB.SuspendLayout();
+            this.XY42LongitudeGB.SuspendLayout();
+            this.XY42WidthGB.SuspendLayout();
             this.PrecisionGB.SuspendLayout();
             this.TransOption.SuspendLayout();
             this.FormatBLH.SuspendLayout();
@@ -226,6 +264,7 @@
             this.XYZKrasowskiRB.TabIndex = 9;
             this.XYZKrasowskiRB.Text = "XYZ Krasowski";
             this.XYZKrasowskiRB.UseVisualStyleBackColor = true;
+            this.XYZKrasowskiRB.CheckedChanged += new System.EventHandler(this.XYZKrasowskiRB_CheckedChanged);
             // 
             // BLHKrasowskiRB
             // 
@@ -237,6 +276,7 @@
             this.BLHKrasowskiRB.TabIndex = 8;
             this.BLHKrasowskiRB.Text = "BLH Krasowski";
             this.BLHKrasowskiRB.UseVisualStyleBackColor = true;
+            this.BLHKrasowskiRB.CheckedChanged += new System.EventHandler(this.BLHKrasowskiRB_CheckedChanged);
             // 
             // XY42RB
             // 
@@ -248,6 +288,7 @@
             this.XY42RB.TabIndex = 1;
             this.XY42RB.Text = "X Y 1942";
             this.XY42RB.UseVisualStyleBackColor = true;
+            this.XY42RB.CheckedChanged += new System.EventHandler(this.XY42RB_CheckedChanged);
             // 
             // XYGUGIK80RB
             // 
@@ -259,6 +300,7 @@
             this.XYGUGIK80RB.TabIndex = 7;
             this.XYGUGIK80RB.Text = "X Y GUGIK 80";
             this.XYGUGIK80RB.UseVisualStyleBackColor = true;
+            this.XYGUGIK80RB.CheckedChanged += new System.EventHandler(this.XYGUGIK80RB_CheckedChanged);
             // 
             // XY65RB
             // 
@@ -270,6 +312,7 @@
             this.XY65RB.TabIndex = 0;
             this.XY65RB.Text = "X Y 65";
             this.XY65RB.UseVisualStyleBackColor = true;
+            this.XY65RB.CheckedChanged += new System.EventHandler(this.XY65RB_CheckedChanged);
             // 
             // ChoiceTwo
             // 
@@ -288,79 +331,6 @@
             this.ChoiceTwo.Text = "GRS80";
             this.ChoiceTwo.UseCompatibleTextRendering = true;
             this.ChoiceTwo.Visible = false;
-            // 
-            // resKrasowskiGB
-            // 
-            this.resKrasowskiGB.BackColor = System.Drawing.Color.DarkGray;
-            this.resKrasowskiGB.Controls.Add(this.resXYZKrasowskiRB);
-            this.resKrasowskiGB.Controls.Add(this.resBLHKrasowskiRB);
-            this.resKrasowskiGB.Controls.Add(this.resXY42RB);
-            this.resKrasowskiGB.Controls.Add(this.resXYGUGIK80RB);
-            this.resKrasowskiGB.Controls.Add(this.resXY65RB);
-            this.resKrasowskiGB.ForeColor = System.Drawing.Color.Black;
-            this.resKrasowskiGB.Location = new System.Drawing.Point(258, 137);
-            this.resKrasowskiGB.Name = "resKrasowskiGB";
-            this.resKrasowskiGB.Size = new System.Drawing.Size(131, 137);
-            this.resKrasowskiGB.TabIndex = 21;
-            this.resKrasowskiGB.TabStop = false;
-            this.resKrasowskiGB.Text = "elipsoida Krasowskiego";
-            this.resKrasowskiGB.UseCompatibleTextRendering = true;
-            this.resKrasowskiGB.Visible = false;
-            // 
-            // resXYZKrasowskiRB
-            // 
-            this.resXYZKrasowskiRB.AutoSize = true;
-            this.resXYZKrasowskiRB.ForeColor = System.Drawing.Color.Maroon;
-            this.resXYZKrasowskiRB.Location = new System.Drawing.Point(7, 113);
-            this.resXYZKrasowskiRB.Name = "resXYZKrasowskiRB";
-            this.resXYZKrasowskiRB.Size = new System.Drawing.Size(97, 17);
-            this.resXYZKrasowskiRB.TabIndex = 9;
-            this.resXYZKrasowskiRB.Text = "XYZ Krasowski";
-            this.resXYZKrasowskiRB.UseVisualStyleBackColor = true;
-            // 
-            // resBLHKrasowskiRB
-            // 
-            this.resBLHKrasowskiRB.AutoSize = true;
-            this.resBLHKrasowskiRB.ForeColor = System.Drawing.Color.Maroon;
-            this.resBLHKrasowskiRB.Location = new System.Drawing.Point(7, 90);
-            this.resBLHKrasowskiRB.Name = "resBLHKrasowskiRB";
-            this.resBLHKrasowskiRB.Size = new System.Drawing.Size(97, 17);
-            this.resBLHKrasowskiRB.TabIndex = 8;
-            this.resBLHKrasowskiRB.Text = "BLH Krasowski";
-            this.resBLHKrasowskiRB.UseVisualStyleBackColor = true;
-            // 
-            // resXY42RB
-            // 
-            this.resXY42RB.AutoSize = true;
-            this.resXY42RB.ForeColor = System.Drawing.Color.Maroon;
-            this.resXY42RB.Location = new System.Drawing.Point(7, 44);
-            this.resXY42RB.Name = "resXY42RB";
-            this.resXY42RB.Size = new System.Drawing.Size(69, 17);
-            this.resXY42RB.TabIndex = 1;
-            this.resXY42RB.Text = "X Y 1942";
-            this.resXY42RB.UseVisualStyleBackColor = true;
-            // 
-            // resXYGUGIK80RB
-            // 
-            this.resXYGUGIK80RB.AutoSize = true;
-            this.resXYGUGIK80RB.ForeColor = System.Drawing.Color.Maroon;
-            this.resXYGUGIK80RB.Location = new System.Drawing.Point(7, 67);
-            this.resXYGUGIK80RB.Name = "resXYGUGIK80RB";
-            this.resXYGUGIK80RB.Size = new System.Drawing.Size(94, 17);
-            this.resXYGUGIK80RB.TabIndex = 7;
-            this.resXYGUGIK80RB.Text = "X Y GUGIK 80";
-            this.resXYGUGIK80RB.UseVisualStyleBackColor = true;
-            // 
-            // resXY65RB
-            // 
-            this.resXY65RB.AutoSize = true;
-            this.resXY65RB.ForeColor = System.Drawing.Color.Maroon;
-            this.resXY65RB.Location = new System.Drawing.Point(7, 20);
-            this.resXY65RB.Name = "resXY65RB";
-            this.resXY65RB.Size = new System.Drawing.Size(57, 17);
-            this.resXY65RB.TabIndex = 0;
-            this.resXY65RB.Text = "X Y 65";
-            this.resXY65RB.UseVisualStyleBackColor = true;
             // 
             // resultXYZ_GRS
             // 
@@ -423,6 +393,84 @@
             this.resultUTM.Text = "UTM";
             this.resultUTM.UseVisualStyleBackColor = true;
             this.resultUTM.CheckedChanged += new System.EventHandler(this.ResultUTM_CheckedChanged);
+            // 
+            // resKrasowskiGB
+            // 
+            this.resKrasowskiGB.BackColor = System.Drawing.Color.DarkGray;
+            this.resKrasowskiGB.Controls.Add(this.resXYZKrasowskiRB);
+            this.resKrasowskiGB.Controls.Add(this.resBLHKrasowskiRB);
+            this.resKrasowskiGB.Controls.Add(this.resXY42RB);
+            this.resKrasowskiGB.Controls.Add(this.resXYGUGIK80RB);
+            this.resKrasowskiGB.Controls.Add(this.resXY65RB);
+            this.resKrasowskiGB.ForeColor = System.Drawing.Color.Black;
+            this.resKrasowskiGB.Location = new System.Drawing.Point(258, 137);
+            this.resKrasowskiGB.Name = "resKrasowskiGB";
+            this.resKrasowskiGB.Size = new System.Drawing.Size(131, 137);
+            this.resKrasowskiGB.TabIndex = 21;
+            this.resKrasowskiGB.TabStop = false;
+            this.resKrasowskiGB.Text = "elipsoida Krasowskiego";
+            this.resKrasowskiGB.UseCompatibleTextRendering = true;
+            this.resKrasowskiGB.Visible = false;
+            // 
+            // resXYZKrasowskiRB
+            // 
+            this.resXYZKrasowskiRB.AutoSize = true;
+            this.resXYZKrasowskiRB.ForeColor = System.Drawing.Color.Maroon;
+            this.resXYZKrasowskiRB.Location = new System.Drawing.Point(7, 113);
+            this.resXYZKrasowskiRB.Name = "resXYZKrasowskiRB";
+            this.resXYZKrasowskiRB.Size = new System.Drawing.Size(97, 17);
+            this.resXYZKrasowskiRB.TabIndex = 9;
+            this.resXYZKrasowskiRB.Text = "XYZ Krasowski";
+            this.resXYZKrasowskiRB.UseVisualStyleBackColor = true;
+            this.resXYZKrasowskiRB.CheckedChanged += new System.EventHandler(this.ResXYZKrasowskiRB_CheckedChanged);
+            // 
+            // resBLHKrasowskiRB
+            // 
+            this.resBLHKrasowskiRB.AutoSize = true;
+            this.resBLHKrasowskiRB.ForeColor = System.Drawing.Color.Maroon;
+            this.resBLHKrasowskiRB.Location = new System.Drawing.Point(7, 90);
+            this.resBLHKrasowskiRB.Name = "resBLHKrasowskiRB";
+            this.resBLHKrasowskiRB.Size = new System.Drawing.Size(97, 17);
+            this.resBLHKrasowskiRB.TabIndex = 8;
+            this.resBLHKrasowskiRB.Text = "BLH Krasowski";
+            this.resBLHKrasowskiRB.UseVisualStyleBackColor = true;
+            this.resBLHKrasowskiRB.CheckedChanged += new System.EventHandler(this.ResBLHKrasowskiRB_CheckedChanged);
+            // 
+            // resXY42RB
+            // 
+            this.resXY42RB.AutoSize = true;
+            this.resXY42RB.ForeColor = System.Drawing.Color.Maroon;
+            this.resXY42RB.Location = new System.Drawing.Point(7, 44);
+            this.resXY42RB.Name = "resXY42RB";
+            this.resXY42RB.Size = new System.Drawing.Size(69, 17);
+            this.resXY42RB.TabIndex = 1;
+            this.resXY42RB.Text = "X Y 1942";
+            this.resXY42RB.UseVisualStyleBackColor = true;
+            this.resXY42RB.CheckedChanged += new System.EventHandler(this.ResXY42RB_CheckedChanged);
+            // 
+            // resXYGUGIK80RB
+            // 
+            this.resXYGUGIK80RB.AutoSize = true;
+            this.resXYGUGIK80RB.ForeColor = System.Drawing.Color.Maroon;
+            this.resXYGUGIK80RB.Location = new System.Drawing.Point(7, 67);
+            this.resXYGUGIK80RB.Name = "resXYGUGIK80RB";
+            this.resXYGUGIK80RB.Size = new System.Drawing.Size(94, 17);
+            this.resXYGUGIK80RB.TabIndex = 7;
+            this.resXYGUGIK80RB.Text = "X Y GUGIK 80";
+            this.resXYGUGIK80RB.UseVisualStyleBackColor = true;
+            this.resXYGUGIK80RB.CheckedChanged += new System.EventHandler(this.ResXYGUGIK80RB_CheckedChanged);
+            // 
+            // resXY65RB
+            // 
+            this.resXY65RB.AutoSize = true;
+            this.resXY65RB.ForeColor = System.Drawing.Color.Maroon;
+            this.resXY65RB.Location = new System.Drawing.Point(7, 20);
+            this.resXY65RB.Name = "resXY65RB";
+            this.resXY65RB.Size = new System.Drawing.Size(57, 17);
+            this.resXY65RB.TabIndex = 0;
+            this.resXY65RB.Text = "X Y 65";
+            this.resXY65RB.UseVisualStyleBackColor = true;
+            this.resXY65RB.CheckedChanged += new System.EventHandler(this.ResXY65RB_CheckedChanged);
             // 
             // LongitudeChoice
             // 
@@ -820,6 +868,10 @@
             // tabPage1
             // 
             this.tabPage1.BackColor = System.Drawing.Color.DarkGray;
+            this.tabPage1.Controls.Add(this.resXY65StrefaGB);
+            this.tabPage1.Controls.Add(this.resXY42GB);
+            this.tabPage1.Controls.Add(this.XY65StrefaGB);
+            this.tabPage1.Controls.Add(this.XY42GB);
             this.tabPage1.Controls.Add(this.resKrasowskiGB);
             this.tabPage1.Controls.Add(this.KrasowskiGB);
             this.tabPage1.Controls.Add(this.FileOpenerButton);
@@ -848,6 +900,407 @@
             this.tabPage1.TabIndex = 0;
             this.tabPage1.Text = "TRANS 2D/3D";
             this.tabPage1.Click += new System.EventHandler(this.TabPage1_Click);
+            // 
+            // resXY65StrefaGB
+            // 
+            this.resXY65StrefaGB.BackColor = System.Drawing.Color.DarkGray;
+            this.resXY65StrefaGB.BackgroundImage = global::WindowsFormsApp1.Properties.Resources.UW1965;
+            this.resXY65StrefaGB.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
+            this.resXY65StrefaGB.Controls.Add(this.resxy65s5);
+            this.resXY65StrefaGB.Controls.Add(this.resxy65s4);
+            this.resXY65StrefaGB.Controls.Add(this.resxy65s3);
+            this.resXY65StrefaGB.Controls.Add(this.resxy65s2);
+            this.resXY65StrefaGB.Controls.Add(this.resxy65s1);
+            this.resXY65StrefaGB.ForeColor = System.Drawing.Color.Black;
+            this.resXY65StrefaGB.Location = new System.Drawing.Point(395, 163);
+            this.resXY65StrefaGB.Name = "resXY65StrefaGB";
+            this.resXY65StrefaGB.Size = new System.Drawing.Size(114, 114);
+            this.resXY65StrefaGB.TabIndex = 25;
+            this.resXY65StrefaGB.TabStop = false;
+            this.resXY65StrefaGB.Text = "Strefy";
+            this.resXY65StrefaGB.UseCompatibleTextRendering = true;
+            this.resXY65StrefaGB.Visible = false;
+            // 
+            // resxy65s5
+            // 
+            this.resxy65s5.AutoSize = true;
+            this.resxy65s5.BackColor = System.Drawing.SystemColors.ActiveCaption;
+            this.resxy65s5.ForeColor = System.Drawing.Color.Maroon;
+            this.resxy65s5.Location = new System.Drawing.Point(48, 76);
+            this.resxy65s5.Name = "resxy65s5";
+            this.resxy65s5.Size = new System.Drawing.Size(31, 17);
+            this.resxy65s5.TabIndex = 4;
+            this.resxy65s5.TabStop = true;
+            this.resxy65s5.Text = "5";
+            this.resxy65s5.UseVisualStyleBackColor = false;
+            // 
+            // resxy65s4
+            // 
+            this.resxy65s4.AutoSize = true;
+            this.resxy65s4.BackColor = System.Drawing.SystemColors.ActiveCaption;
+            this.resxy65s4.ForeColor = System.Drawing.Color.Maroon;
+            this.resxy65s4.Location = new System.Drawing.Point(12, 51);
+            this.resxy65s4.Name = "resxy65s4";
+            this.resxy65s4.Size = new System.Drawing.Size(31, 17);
+            this.resxy65s4.TabIndex = 3;
+            this.resxy65s4.TabStop = true;
+            this.resxy65s4.Text = "4";
+            this.resxy65s4.UseVisualStyleBackColor = false;
+            this.resxy65s4.CheckedChanged += new System.EventHandler(this.Resxy65s4_CheckedChanged);
+            // 
+            // resxy65s3
+            // 
+            this.resxy65s3.AutoSize = true;
+            this.resxy65s3.BackColor = System.Drawing.SystemColors.ActiveCaption;
+            this.resxy65s3.ForeColor = System.Drawing.Color.Maroon;
+            this.resxy65s3.Location = new System.Drawing.Point(22, 17);
+            this.resxy65s3.Name = "resxy65s3";
+            this.resxy65s3.Size = new System.Drawing.Size(31, 17);
+            this.resxy65s3.TabIndex = 2;
+            this.resxy65s3.TabStop = true;
+            this.resxy65s3.Text = "3";
+            this.resxy65s3.UseVisualStyleBackColor = false;
+            this.resxy65s3.CheckedChanged += new System.EventHandler(this.Resxy65s3_CheckedChanged);
+            // 
+            // resxy65s2
+            // 
+            this.resxy65s2.AutoSize = true;
+            this.resxy65s2.BackColor = System.Drawing.SystemColors.ActiveCaption;
+            this.resxy65s2.ForeColor = System.Drawing.Color.Maroon;
+            this.resxy65s2.Location = new System.Drawing.Point(73, 29);
+            this.resxy65s2.Name = "resxy65s2";
+            this.resxy65s2.Size = new System.Drawing.Size(31, 17);
+            this.resxy65s2.TabIndex = 1;
+            this.resxy65s2.TabStop = true;
+            this.resxy65s2.Text = "2";
+            this.resxy65s2.UseVisualStyleBackColor = false;
+            this.resxy65s2.CheckedChanged += new System.EventHandler(this.Resxy65s2_CheckedChanged);
+            // 
+            // resxy65s1
+            // 
+            this.resxy65s1.AutoSize = true;
+            this.resxy65s1.BackColor = System.Drawing.SystemColors.ActiveCaption;
+            this.resxy65s1.ForeColor = System.Drawing.Color.Maroon;
+            this.resxy65s1.Location = new System.Drawing.Point(79, 70);
+            this.resxy65s1.Name = "resxy65s1";
+            this.resxy65s1.Size = new System.Drawing.Size(31, 17);
+            this.resxy65s1.TabIndex = 0;
+            this.resxy65s1.TabStop = true;
+            this.resxy65s1.Text = "1";
+            this.resxy65s1.UseVisualStyleBackColor = false;
+            this.resxy65s1.CheckedChanged += new System.EventHandler(this.Resxy65s1_CheckedChanged);
+            // 
+            // resXY42GB
+            // 
+            this.resXY42GB.BackColor = System.Drawing.Color.DarkGray;
+            this.resXY42GB.Controls.Add(this.resXY42LongitudeGB);
+            this.resXY42GB.Controls.Add(this.resXY42WidthGB);
+            this.resXY42GB.ForeColor = System.Drawing.Color.Black;
+            this.resXY42GB.Location = new System.Drawing.Point(395, 162);
+            this.resXY42GB.Name = "resXY42GB";
+            this.resXY42GB.Size = new System.Drawing.Size(114, 114);
+            this.resXY42GB.TabIndex = 24;
+            this.resXY42GB.TabStop = false;
+            this.resXY42GB.Text = "Pasy południkowe";
+            this.resXY42GB.UseCompatibleTextRendering = true;
+            this.resXY42GB.Visible = false;
+            // 
+            // resXY42LongitudeGB
+            // 
+            this.resXY42LongitudeGB.Controls.Add(this.reslongitudeK15);
+            this.resXY42LongitudeGB.Controls.Add(this.reslongitudeK24);
+            this.resXY42LongitudeGB.Controls.Add(this.reslongitudeK18);
+            this.resXY42LongitudeGB.Controls.Add(this.reslongitudeK21);
+            this.resXY42LongitudeGB.Location = new System.Drawing.Point(56, 14);
+            this.resXY42LongitudeGB.Name = "resXY42LongitudeGB";
+            this.resXY42LongitudeGB.Size = new System.Drawing.Size(56, 100);
+            this.resXY42LongitudeGB.TabIndex = 24;
+            this.resXY42LongitudeGB.TabStop = false;
+            this.resXY42LongitudeGB.Visible = false;
+            // 
+            // reslongitudeK15
+            // 
+            this.reslongitudeK15.AutoSize = true;
+            this.reslongitudeK15.ForeColor = System.Drawing.Color.Maroon;
+            this.reslongitudeK15.Location = new System.Drawing.Point(6, 8);
+            this.reslongitudeK15.Name = "reslongitudeK15";
+            this.reslongitudeK15.Size = new System.Drawing.Size(44, 17);
+            this.reslongitudeK15.TabIndex = 0;
+            this.reslongitudeK15.TabStop = true;
+            this.reslongitudeK15.Text = "15 °";
+            this.reslongitudeK15.UseVisualStyleBackColor = true;
+            // 
+            // reslongitudeK24
+            // 
+            this.reslongitudeK24.AutoSize = true;
+            this.reslongitudeK24.ForeColor = System.Drawing.Color.Maroon;
+            this.reslongitudeK24.Location = new System.Drawing.Point(7, 78);
+            this.reslongitudeK24.Name = "reslongitudeK24";
+            this.reslongitudeK24.Size = new System.Drawing.Size(44, 17);
+            this.reslongitudeK24.TabIndex = 3;
+            this.reslongitudeK24.TabStop = true;
+            this.reslongitudeK24.Text = "24 °";
+            this.reslongitudeK24.UseVisualStyleBackColor = true;
+            // 
+            // reslongitudeK18
+            // 
+            this.reslongitudeK18.AutoSize = true;
+            this.reslongitudeK18.ForeColor = System.Drawing.Color.Maroon;
+            this.reslongitudeK18.Location = new System.Drawing.Point(6, 32);
+            this.reslongitudeK18.Name = "reslongitudeK18";
+            this.reslongitudeK18.Size = new System.Drawing.Size(44, 17);
+            this.reslongitudeK18.TabIndex = 1;
+            this.reslongitudeK18.TabStop = true;
+            this.reslongitudeK18.Text = "18 °";
+            this.reslongitudeK18.UseVisualStyleBackColor = true;
+            // 
+            // reslongitudeK21
+            // 
+            this.reslongitudeK21.AutoSize = true;
+            this.reslongitudeK21.ForeColor = System.Drawing.Color.Maroon;
+            this.reslongitudeK21.Location = new System.Drawing.Point(7, 55);
+            this.reslongitudeK21.Name = "reslongitudeK21";
+            this.reslongitudeK21.Size = new System.Drawing.Size(44, 17);
+            this.reslongitudeK21.TabIndex = 2;
+            this.reslongitudeK21.TabStop = true;
+            this.reslongitudeK21.Text = "21 °";
+            this.reslongitudeK21.UseVisualStyleBackColor = true;
+            // 
+            // resXY42WidthGB
+            // 
+            this.resXY42WidthGB.Controls.Add(this.resxy42width6);
+            this.resXY42WidthGB.Controls.Add(this.resxy42width3);
+            this.resXY42WidthGB.Location = new System.Drawing.Point(3, 14);
+            this.resXY42WidthGB.Name = "resXY42WidthGB";
+            this.resXY42WidthGB.Size = new System.Drawing.Size(53, 100);
+            this.resXY42WidthGB.TabIndex = 4;
+            this.resXY42WidthGB.TabStop = false;
+            // 
+            // resxy42width6
+            // 
+            this.resxy42width6.AutoSize = true;
+            this.resxy42width6.ForeColor = System.Drawing.Color.Maroon;
+            this.resxy42width6.Location = new System.Drawing.Point(8, 52);
+            this.resxy42width6.Name = "resxy42width6";
+            this.resxy42width6.Size = new System.Drawing.Size(38, 17);
+            this.resxy42width6.TabIndex = 3;
+            this.resxy42width6.TabStop = true;
+            this.resxy42width6.Text = "6 °";
+            this.resxy42width6.UseVisualStyleBackColor = true;
+            // 
+            // resxy42width3
+            // 
+            this.resxy42width3.AutoSize = true;
+            this.resxy42width3.ForeColor = System.Drawing.Color.Maroon;
+            this.resxy42width3.Location = new System.Drawing.Point(8, 29);
+            this.resxy42width3.Name = "resxy42width3";
+            this.resxy42width3.Size = new System.Drawing.Size(38, 17);
+            this.resxy42width3.TabIndex = 2;
+            this.resxy42width3.TabStop = true;
+            this.resxy42width3.Text = "3 °";
+            this.resxy42width3.UseVisualStyleBackColor = true;
+            // 
+            // XY65StrefaGB
+            // 
+            this.XY65StrefaGB.BackColor = System.Drawing.Color.DarkGray;
+            this.XY65StrefaGB.BackgroundImage = global::WindowsFormsApp1.Properties.Resources.UW1965;
+            this.XY65StrefaGB.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
+            this.XY65StrefaGB.Controls.Add(this.xy65s5);
+            this.XY65StrefaGB.Controls.Add(this.xy65s4);
+            this.XY65StrefaGB.Controls.Add(this.xy65s3);
+            this.XY65StrefaGB.Controls.Add(this.xy65s2);
+            this.XY65StrefaGB.Controls.Add(this.xy65s1);
+            this.XY65StrefaGB.ForeColor = System.Drawing.Color.Black;
+            this.XY65StrefaGB.Location = new System.Drawing.Point(140, 162);
+            this.XY65StrefaGB.Name = "XY65StrefaGB";
+            this.XY65StrefaGB.Size = new System.Drawing.Size(114, 114);
+            this.XY65StrefaGB.TabIndex = 22;
+            this.XY65StrefaGB.TabStop = false;
+            this.XY65StrefaGB.Text = "Strefy";
+            this.XY65StrefaGB.UseCompatibleTextRendering = true;
+            this.XY65StrefaGB.Visible = false;
+            // 
+            // xy65s5
+            // 
+            this.xy65s5.AutoSize = true;
+            this.xy65s5.BackColor = System.Drawing.SystemColors.ActiveCaption;
+            this.xy65s5.ForeColor = System.Drawing.Color.Maroon;
+            this.xy65s5.Location = new System.Drawing.Point(48, 76);
+            this.xy65s5.Name = "xy65s5";
+            this.xy65s5.Size = new System.Drawing.Size(31, 17);
+            this.xy65s5.TabIndex = 4;
+            this.xy65s5.TabStop = true;
+            this.xy65s5.Text = "5";
+            this.xy65s5.UseVisualStyleBackColor = false;
+            this.xy65s5.CheckedChanged += new System.EventHandler(this.Xy65s5_CheckedChanged);
+            // 
+            // xy65s4
+            // 
+            this.xy65s4.AutoSize = true;
+            this.xy65s4.BackColor = System.Drawing.SystemColors.ActiveCaption;
+            this.xy65s4.ForeColor = System.Drawing.Color.Maroon;
+            this.xy65s4.Location = new System.Drawing.Point(12, 51);
+            this.xy65s4.Name = "xy65s4";
+            this.xy65s4.Size = new System.Drawing.Size(31, 17);
+            this.xy65s4.TabIndex = 3;
+            this.xy65s4.TabStop = true;
+            this.xy65s4.Text = "4";
+            this.xy65s4.UseVisualStyleBackColor = false;
+            this.xy65s4.CheckedChanged += new System.EventHandler(this.Xy65s4_CheckedChanged);
+            // 
+            // xy65s3
+            // 
+            this.xy65s3.AutoSize = true;
+            this.xy65s3.BackColor = System.Drawing.SystemColors.ActiveCaption;
+            this.xy65s3.ForeColor = System.Drawing.Color.Maroon;
+            this.xy65s3.Location = new System.Drawing.Point(22, 17);
+            this.xy65s3.Name = "xy65s3";
+            this.xy65s3.Size = new System.Drawing.Size(31, 17);
+            this.xy65s3.TabIndex = 2;
+            this.xy65s3.TabStop = true;
+            this.xy65s3.Text = "3";
+            this.xy65s3.UseVisualStyleBackColor = false;
+            this.xy65s3.CheckedChanged += new System.EventHandler(this.Xy65s3_CheckedChanged);
+            // 
+            // xy65s2
+            // 
+            this.xy65s2.AutoSize = true;
+            this.xy65s2.BackColor = System.Drawing.SystemColors.ActiveCaption;
+            this.xy65s2.ForeColor = System.Drawing.Color.Maroon;
+            this.xy65s2.Location = new System.Drawing.Point(73, 29);
+            this.xy65s2.Name = "xy65s2";
+            this.xy65s2.Size = new System.Drawing.Size(31, 17);
+            this.xy65s2.TabIndex = 1;
+            this.xy65s2.TabStop = true;
+            this.xy65s2.Text = "2";
+            this.xy65s2.UseVisualStyleBackColor = false;
+            this.xy65s2.CheckedChanged += new System.EventHandler(this.Xy65s2_CheckedChanged);
+            // 
+            // xy65s1
+            // 
+            this.xy65s1.AutoSize = true;
+            this.xy65s1.BackColor = System.Drawing.SystemColors.ActiveCaption;
+            this.xy65s1.ForeColor = System.Drawing.Color.Maroon;
+            this.xy65s1.Location = new System.Drawing.Point(79, 70);
+            this.xy65s1.Name = "xy65s1";
+            this.xy65s1.Size = new System.Drawing.Size(31, 17);
+            this.xy65s1.TabIndex = 0;
+            this.xy65s1.TabStop = true;
+            this.xy65s1.Text = "1";
+            this.xy65s1.UseVisualStyleBackColor = false;
+            this.xy65s1.CheckedChanged += new System.EventHandler(this.Xy65s1_CheckedChanged);
+            // 
+            // XY42GB
+            // 
+            this.XY42GB.BackColor = System.Drawing.Color.DarkGray;
+            this.XY42GB.Controls.Add(this.XY42LongitudeGB);
+            this.XY42GB.Controls.Add(this.XY42WidthGB);
+            this.XY42GB.ForeColor = System.Drawing.Color.Black;
+            this.XY42GB.Location = new System.Drawing.Point(140, 162);
+            this.XY42GB.Name = "XY42GB";
+            this.XY42GB.Size = new System.Drawing.Size(114, 114);
+            this.XY42GB.TabIndex = 23;
+            this.XY42GB.TabStop = false;
+            this.XY42GB.Text = "Pasy południkowe";
+            this.XY42GB.UseCompatibleTextRendering = true;
+            this.XY42GB.Visible = false;
+            // 
+            // XY42LongitudeGB
+            // 
+            this.XY42LongitudeGB.Controls.Add(this.longitudeK15);
+            this.XY42LongitudeGB.Controls.Add(this.longitudeK24);
+            this.XY42LongitudeGB.Controls.Add(this.longitudeK18);
+            this.XY42LongitudeGB.Controls.Add(this.longitudeK21);
+            this.XY42LongitudeGB.Location = new System.Drawing.Point(56, 14);
+            this.XY42LongitudeGB.Name = "XY42LongitudeGB";
+            this.XY42LongitudeGB.Size = new System.Drawing.Size(56, 100);
+            this.XY42LongitudeGB.TabIndex = 24;
+            this.XY42LongitudeGB.TabStop = false;
+            this.XY42LongitudeGB.Visible = false;
+            // 
+            // longitudeK15
+            // 
+            this.longitudeK15.AutoSize = true;
+            this.longitudeK15.ForeColor = System.Drawing.Color.Maroon;
+            this.longitudeK15.Location = new System.Drawing.Point(6, 8);
+            this.longitudeK15.Name = "longitudeK15";
+            this.longitudeK15.Size = new System.Drawing.Size(44, 17);
+            this.longitudeK15.TabIndex = 0;
+            this.longitudeK15.TabStop = true;
+            this.longitudeK15.Text = "15 °";
+            this.longitudeK15.UseVisualStyleBackColor = true;
+            // 
+            // longitudeK24
+            // 
+            this.longitudeK24.AutoSize = true;
+            this.longitudeK24.ForeColor = System.Drawing.Color.Maroon;
+            this.longitudeK24.Location = new System.Drawing.Point(7, 78);
+            this.longitudeK24.Name = "longitudeK24";
+            this.longitudeK24.Size = new System.Drawing.Size(44, 17);
+            this.longitudeK24.TabIndex = 3;
+            this.longitudeK24.TabStop = true;
+            this.longitudeK24.Text = "24 °";
+            this.longitudeK24.UseVisualStyleBackColor = true;
+            // 
+            // longitudeK18
+            // 
+            this.longitudeK18.AutoSize = true;
+            this.longitudeK18.ForeColor = System.Drawing.Color.Maroon;
+            this.longitudeK18.Location = new System.Drawing.Point(6, 32);
+            this.longitudeK18.Name = "longitudeK18";
+            this.longitudeK18.Size = new System.Drawing.Size(44, 17);
+            this.longitudeK18.TabIndex = 1;
+            this.longitudeK18.TabStop = true;
+            this.longitudeK18.Text = "18 °";
+            this.longitudeK18.UseVisualStyleBackColor = true;
+            // 
+            // longitudeK21
+            // 
+            this.longitudeK21.AutoSize = true;
+            this.longitudeK21.ForeColor = System.Drawing.Color.Maroon;
+            this.longitudeK21.Location = new System.Drawing.Point(7, 55);
+            this.longitudeK21.Name = "longitudeK21";
+            this.longitudeK21.Size = new System.Drawing.Size(44, 17);
+            this.longitudeK21.TabIndex = 2;
+            this.longitudeK21.TabStop = true;
+            this.longitudeK21.Text = "21 °";
+            this.longitudeK21.UseVisualStyleBackColor = true;
+            // 
+            // XY42WidthGB
+            // 
+            this.XY42WidthGB.Controls.Add(this.xy42width6);
+            this.XY42WidthGB.Controls.Add(this.xy42width3);
+            this.XY42WidthGB.Location = new System.Drawing.Point(3, 14);
+            this.XY42WidthGB.Name = "XY42WidthGB";
+            this.XY42WidthGB.Size = new System.Drawing.Size(53, 100);
+            this.XY42WidthGB.TabIndex = 4;
+            this.XY42WidthGB.TabStop = false;
+            // 
+            // xy42width6
+            // 
+            this.xy42width6.AutoSize = true;
+            this.xy42width6.ForeColor = System.Drawing.Color.Maroon;
+            this.xy42width6.Location = new System.Drawing.Point(8, 52);
+            this.xy42width6.Name = "xy42width6";
+            this.xy42width6.Size = new System.Drawing.Size(38, 17);
+            this.xy42width6.TabIndex = 3;
+            this.xy42width6.TabStop = true;
+            this.xy42width6.Text = "6 °";
+            this.xy42width6.UseVisualStyleBackColor = true;
+            this.xy42width6.CheckedChanged += new System.EventHandler(this.Xy42width6_CheckedChanged);
+            // 
+            // xy42width3
+            // 
+            this.xy42width3.AutoSize = true;
+            this.xy42width3.ForeColor = System.Drawing.Color.Maroon;
+            this.xy42width3.Location = new System.Drawing.Point(8, 29);
+            this.xy42width3.Name = "xy42width3";
+            this.xy42width3.Size = new System.Drawing.Size(38, 17);
+            this.xy42width3.TabIndex = 2;
+            this.xy42width3.TabStop = true;
+            this.xy42width3.Text = "3 °";
+            this.xy42width3.UseVisualStyleBackColor = true;
+            this.xy42width3.CheckedChanged += new System.EventHandler(this.Xy42width3_CheckedChanged);
             // 
             // FileOpenerButton
             // 
@@ -1059,6 +1512,20 @@
             this.tabControl1.ResumeLayout(false);
             this.tabPage1.ResumeLayout(false);
             this.tabPage1.PerformLayout();
+            this.resXY65StrefaGB.ResumeLayout(false);
+            this.resXY65StrefaGB.PerformLayout();
+            this.resXY42GB.ResumeLayout(false);
+            this.resXY42LongitudeGB.ResumeLayout(false);
+            this.resXY42LongitudeGB.PerformLayout();
+            this.resXY42WidthGB.ResumeLayout(false);
+            this.resXY42WidthGB.PerformLayout();
+            this.XY65StrefaGB.ResumeLayout(false);
+            this.XY65StrefaGB.PerformLayout();
+            this.XY42GB.ResumeLayout(false);
+            this.XY42LongitudeGB.ResumeLayout(false);
+            this.XY42LongitudeGB.PerformLayout();
+            this.XY42WidthGB.ResumeLayout(false);
+            this.XY42WidthGB.PerformLayout();
             this.PrecisionGB.ResumeLayout(false);
             this.PrecisionGB.PerformLayout();
             this.TransOption.ResumeLayout(false);
@@ -1145,6 +1612,36 @@
         private System.Windows.Forms.RadioButton resXY42RB;
         private System.Windows.Forms.RadioButton resXYGUGIK80RB;
         private System.Windows.Forms.RadioButton resXY65RB;
+        private System.Windows.Forms.GroupBox XY65StrefaGB;
+        private System.Windows.Forms.RadioButton xy65s5;
+        private System.Windows.Forms.RadioButton xy65s4;
+        private System.Windows.Forms.RadioButton xy65s3;
+        private System.Windows.Forms.RadioButton xy65s2;
+        private System.Windows.Forms.RadioButton xy65s1;
+        private System.Windows.Forms.GroupBox XY42GB;
+        private System.Windows.Forms.RadioButton longitudeK24;
+        private System.Windows.Forms.RadioButton longitudeK21;
+        private System.Windows.Forms.RadioButton longitudeK18;
+        private System.Windows.Forms.RadioButton longitudeK15;
+        private System.Windows.Forms.GroupBox XY42LongitudeGB;
+        private System.Windows.Forms.GroupBox XY42WidthGB;
+        private System.Windows.Forms.RadioButton xy42width6;
+        private System.Windows.Forms.RadioButton xy42width3;
+        private System.Windows.Forms.GroupBox resXY42GB;
+        private System.Windows.Forms.GroupBox resXY42LongitudeGB;
+        private System.Windows.Forms.RadioButton reslongitudeK15;
+        private System.Windows.Forms.RadioButton reslongitudeK24;
+        private System.Windows.Forms.RadioButton reslongitudeK18;
+        private System.Windows.Forms.RadioButton reslongitudeK21;
+        private System.Windows.Forms.GroupBox resXY42WidthGB;
+        private System.Windows.Forms.RadioButton resxy42width6;
+        private System.Windows.Forms.RadioButton resxy42width3;
+        private System.Windows.Forms.GroupBox resXY65StrefaGB;
+        private System.Windows.Forms.RadioButton resxy65s5;
+        private System.Windows.Forms.RadioButton resxy65s4;
+        private System.Windows.Forms.RadioButton resxy65s3;
+        private System.Windows.Forms.RadioButton resxy65s2;
+        private System.Windows.Forms.RadioButton resxy65s1;
     }
 }
 
