@@ -45,6 +45,7 @@ namespace WindowsFormsApp1
         bool canIStartCounting = false;
         //TransformateOption określa czy wybrano rozwiązanie teoretyczne czy empiryczne [grid]. True - teoretyczna, false - empiryczna.
         bool transformateOption = true;
+        //StripesSize określa, czy dla układu 1942 wybrano pasy trzystopniowe(true) czy sześciostopniowe(false).
         public static RichTextBox box = new RichTextBox();
         public void setFalseGroupBoxVisibility(GroupBox first, GroupBox second)
         {
@@ -1056,7 +1057,7 @@ namespace WindowsFormsApp1
             });
             return result;
         }
-        public List<PointBLH> XYGK2Krasowski(List<Point> Points, byte longitude, double precision)
+        public List<PointBLH> XYGK2Krasowski(List<Point> Points, double longitude, double precision)
         {
             List<PointBLH> result = new List<PointBLH>();
             double a = 6378245.000;
@@ -1095,6 +1096,60 @@ namespace WindowsFormsApp1
                 result.Add(new PointBLH(p.Name(), B * 180 / Math.PI, L * 180 / Math.PI, 0));
 
             });
+            return result;
+        }
+        public List<Point> Krasowski2XY42(List<PointBLH> Points, byte longitude, double precision, bool stripesSize)
+        {
+            //Parametr stripesSize określa czy wybrano pasy trzystopniowe(true) czy sześciostopniowe(false) dla układu Pułkowo 42'.
+            List<Point> result = new List<Point>();
+            List<Point> helper = Krasowski2XYGK(Points, longitude);
+            if (stripesSize)
+            {
+                helper.ForEach(p =>
+                {
+                    double X42 = p.x();
+                    double Y42 = p.y() + 500000 + longitude / 3 * 1000000;
+                    result.Add(new Point(p.Name(), X42, Y42));
+                });
+            }
+            else
+            {
+                helper.ForEach(p =>
+                {
+                    double X42 = p.x();
+                    double Y42 = p.y() + 500000 + (longitude + 3 )/ 6 * 1000000;
+                    result.Add(new Point(p.Name(), X42, Y42));
+                });
+            }
+            return result;
+        }
+        public List<PointBLH> XY42ToKrasowski(List<Point> Points, byte longitude, double precision, bool stripesSize)
+        {
+            //Parametr stripesSize określa czy wybrano pasy trzystopniowe(true) czy sześciostopniowe(false) dla układu Pułkowo 42'.
+            List<PointBLH> result = new List<PointBLH>();
+            List<Point> helper = new List<Point>();
+            if (stripesSize)
+            {
+                Points.ForEach(p => {
+                    double xGK = p.x(); double yGK = p.y() - 500000 - longitude / 3 * 1000000;
+                    helper.Add(new Point(p.Name(), xGK, yGK));
+                });
+            }
+            else
+            {
+                Points.ForEach(p => {
+                    double xGK = p.x(); double yGK = p.y() - 500000 - (longitude + 3)/ 6 * 1000000;
+                    helper.Add(new Point(p.Name(), xGK, yGK));
+                });
+            }
+            result = XYGK2Krasowski(helper, longitude, precision);
+            return result;
+        }
+        public List<Point> Krasowski2GUGIK80(List<PointBLH> Points, double xGK0)
+        {
+            List<Point> result = new List<Point>();
+            double x0 = 500000; double y0 = 500000; double m0 = 0.999714;
+            double longitude = 19 + 10 / 60; double R0 = 215000;
             return result;
         }
         //SCENARIUSZE TRANSFORMACYJNE: 20 GŁÓWNYCH PERMUTACJI
