@@ -34,6 +34,13 @@ namespace WindowsFormsApp1
         bool degreeForm = true; bool resultDegreeForm = true;
         /*parametr longitude określa wartość południka osiowego, jeśli takowy występuje.*/
         byte longitude=0; byte resLongitude = 0;
+        //Promienie krzywizn, potrzebne do wyznaczenia współrzędnych w odwzorowaniu stereograficznym Roussihle'a elipsoidy Krasowkiego.
+        //To samo tyczy się współrzędnych punktów głównych
+        double R0 = 0; double resR0 = 0; double x0; double y0; double resx0; double resy0;
+        //Rzędna punktu głównego strefy w odwzorowaniu GK - potrzebna do wyznaczenia wsp w odwzorowaniu Roussihle'a elipsoidy Krasowskiego.
+        double xGK0=0; double resXGK0=0;
+        //Określnie strefy układu 1965:
+        byte strefa = 0;
         // canIStartCounting sprawdza, czy dane wejściowe zostały wprowadzone prawidłowo oraz czy układ wyjściowy został wybrany.
         bool canIStartCounting = false;
         //TransformateOption określa czy wybrano rozwiązanie teoretyczne czy empiryczne [grid]. True - teoretyczna, false - empiryczna.
@@ -491,6 +498,8 @@ namespace WindowsFormsApp1
             clearRadioButtonsCheck(resultLongitude15, resultLongitude18, resultLongitude21, resultLongitude24, resultLongitudeUTM15, resultLongitudeUTM21);
             this.end.Clear(); this.end.Append("XYZ GRS80");
         }
+        //WYBÓR UKŁADU WSPÓŁRZĘDNYCH: KRASOWSKI
+
         //WCZYTYWANIE PLIKU WEJŚCIOWEGO
         [STAThread]
         private void LoadFile_Click_1(object sender, EventArgs e)
@@ -503,32 +512,51 @@ namespace WindowsFormsApp1
                 }
             }
         }
-        //WYBÓR UKŁADU ODNIESIENIA PLIKÓW: WEJŚCIOWEGO I WYJŚCIOWEGO
+        //WYBÓR UKŁADU ODNIESIENIA PLIKÓW: WEJŚCIOWEGO I WYJŚCIOWEGO // WYBÓR ELIPSOIDY ODNIESIENIA
         private void ETRF2000_CheckedChanged(object sender, EventArgs e)
         {
-            ChoiceOne.Visible = true;
+            clearRadioButtonsCheck(XY65RB, XY42RB, XYGUGIK80RB, BLHKrasowskiRB, XYZKrasowskiRB);
+            switchGroupBoxVisibility(ChoiceOne,KrasowskiGB);
             this.startETRF.Clear();
             this.startETRF.Append("ETRF2000");
         }
         private void ETRF89_CheckedChanged(object sender, EventArgs e)
         {
-            ChoiceOne.Visible = true;
+            clearRadioButtonsCheck(XY65RB, XY42RB, XYGUGIK80RB, BLHKrasowskiRB, XYZKrasowskiRB);
+            switchGroupBoxVisibility(ChoiceOne, KrasowskiGB);
             this.startETRF.Clear();
             this.startETRF.Append("ETRF89");
         }
         private void ResETRF2000_CheckedChanged(object sender, EventArgs e)
         {
-            ChoiceTwo.Visible = true;
+            clearRadioButtonsCheck(resXY65RB, resXY42RB, resXYGUGIK80RB, resBLHKrasowskiRB, resXYZKrasowskiRB);
+            switchGroupBoxVisibility(ChoiceTwo, resKrasowskiGB);
             this.endETRF.Clear();
             this.endETRF.Append("ETRF2000");
         }
         private void ResETRF89_CheckedChanged(object sender, EventArgs e)
         {
-            ChoiceTwo.Visible = true;
+            clearRadioButtonsCheck(resXY65RB, resXY42RB, resXYGUGIK80RB, resBLHKrasowskiRB, resXYZKrasowskiRB);
+            switchGroupBoxVisibility(ChoiceTwo, resKrasowskiGB);
             this.endETRF.Clear();
             this.endETRF.Append("ETRF89");
         }
-
+        private void KrasowskiRB_CheckedChanged(object sender, EventArgs e)
+        {
+            clearRadioButtonsCheck(XY2000, XY1992, UTM, XYZ_GRS, BLH_GRS);
+            switchGroupBoxVisibility(KrasowskiGB, ChoiceOne);
+            clearRadioButtonsCheck(longitude15, longitude18, longitude21, longitude24, longitudeUTM15, longitudeUTM21);
+            setFalseGroupBoxVisibility(LongitudeChoice, LongitudeUTM);
+            this.startETRF.Clear();
+        }
+        private void ResKrasowskiRB_CheckedChanged(object sender, EventArgs e)
+        {
+            clearRadioButtonsCheck(resultXY2000, resultXY1992, resultUTM, resultXYZ_GRS, resultBLH_GRS);
+            switchGroupBoxVisibility(resKrasowskiGB, ChoiceTwo);
+            clearRadioButtonsCheck(resultLongitude15, resultLongitude18, resultLongitude21, resultLongitude24, resultLongitudeUTM15, resultLongitudeUTM21);
+            setFalseGroupBoxVisibility(resultLongitudeChoice, resultLongitudeUTM);
+            this.endETRF.Clear();
+        }
         //WYBÓR FORMATU BLH PLIKÓW: WEJŚCIOWEGO I WYJŚCIOWEGO
         private void DegreesBLH_CheckedChanged(object sender, EventArgs e)
         {
@@ -796,6 +824,140 @@ namespace WindowsFormsApp1
             });
             return result;
         } //nie działa
+        //Transformacje współrzędnych dla elipsoidy Krasowskiego
+        public List<Point> Krasowski2XY65(List<PointBLH> Points, double x0, double y0, double R0, byte longitude, double xGK0)
+        {
+            /*xGK0 będzie równe zeru przy wyborze strefy 5. Niezależnie nie wpłynie na obliczenia.*/
+            List<Point> result = new List<Point>();
+            List<Point> helper = Krasowski2XYGK(Points, longitude);
+            if(this.strefa>0 && this.strefa < 5)
+            {
+                helper.ForEach(p =>
+                {
+                    double m0 = 0.9998;
+                    double xR = (2*R0*Math.Sin((p.x()-xGK0)/R0))/(Math.Cos((p.x() - xGK0) / R0)+Math.Cosh(p.y()/R0));
+                    double yR = (2 * R0 * Math.Sinh(p.y() / R0)) / (Math.Cos((p.x() - xGK0) / R0) + Math.Cosh(p.y() / R0));
+                    double x65 = m0 * xR + x0;
+                    double y65 = m0 * yR + y0;
+                    result.Add(new Point(p.Name(), x65, y65));
+                });
+            }
+            else if(this.strefa.Equals(5))
+            {
+                double m0 = 0.999983;
+                helper.ForEach(p =>
+                {
+                    double x65 = m0 * p.x() + x0; double y65 = m0 * p.y() + y0;
+                    result.Add(new Point(p.Name(), x65, y65));
+                });
+            }
+            return result;
+        }
+        public List<PointBLH> XY65ToKrasowski(List<Point> Points, double x0, double y0, double R0, byte longitude, double xGK0, double precision)
+        {
+            List<PointBLH> result = new List<PointBLH>();
+            List<Point> helper = new List<Point>();
+            Points.ForEach(p=> {
+                double m0 = this.strefa.Equals(5) ? 0.999983 : 0.9998;
+                double xR = (p.x() - x0) / m0; double yR = (p.y() - y0) / m0;
+                helper.Add(new Point(p.Name(), xR, yR));
+            });
+            if (this.strefa.Equals(5))
+            {
+                result = XYGK2Krasowski(helper, longitude, precision);
+            }
+            else if(this.strefa>0 && this.strefa < 5)
+            {
+                List<Point> helper2 = new List<Point>();
+                helper.ForEach(p =>
+                {
+                    double xR = p.x(); double xR2 = Math.Pow(xR, 2); double xR3 = Math.Pow(xR, 3); double xR4 = Math.Pow(xR, 4);
+                    double xR5 = Math.Pow(xR, 5); double xR6 = Math.Pow(xR, 6); double xR7 = Math.Pow(xR, 7);
+                    double yR = p.y(); double yR2 = Math.Pow(yR, 2); double yR3 = Math.Pow(yR, 3); double yR4 = Math.Pow(yR, 4);
+                    double yR5 = Math.Pow(yR, 5); double yR6 = Math.Pow(yR, 6); double yR7 = Math.Pow(yR, 7);
+                    double R02 = Math.Pow(R0, 2); double R04 = Math.Pow(R0, 4); double R06 = Math.Pow(R0, 6);
+                    double xGK = xGK0 + xR - xR3 / (12 * R02) + xR * yR2 / (4 * R02) + xR5 / (80 * R04) - xR3 * yR2 / (8 * R04);
+                    xGK += xR * yR4 / (16 * R04) - xR7 / (448 * R06) + 3 * xR5 * yR2 / (64 * R06) - 5 * xR3 * yR4 / (64 * R06) + xR * yR6 / (64 * R06);
+                    double yGK = yR - xR2 * yR / (4 * R02) + yR3 / (12 * R02) + xR4 * yR / (16 * R04) - xR2 * yR3 / (8 * R06) + yR5 / (80 * R04) - xR6 * yR / (64 * R06);
+                    yGK += 5 * xR4 * yR3 / (64 * R06) - 3 * xR2 * yR5 / (64 * R06) + yR7 / (448 * R06);
+                    helper2.Add(new Point(p.Name(), xGK, yGK));
+                });
+                result = XYGK2Krasowski(helper2, longitude, precision);
+            }
+            return result;
+        }
+        public List<Point> Krasowski2XYGK(List<PointBLH> Points, byte longitude)
+        {
+            List<Point> result = new List<Point>();
+            double a = 6378245.000;
+            double b = 6356863.019;
+            double e2 = 0.00669342;
+            e2 = (Math.Pow(a, 2) - Math.Pow(b, 2)) / Math.Pow(a, 2);
+            double e12;
+            ////e12 = (Math.Pow(b, 2) - Math.Pow(a, 2)) / Math.Pow(b, 2);
+            e12 = e2 / (1 - e2);
+            double longitude0 = longitude * Math.PI / 180;
+            double A0 = 1 - (e2 / 4) - (3 * Math.Pow(e2, 2) / 64) - (5 * Math.Pow(e2, 3) / 256);
+            double A2 = ((e2 + (Math.Pow(e2, 2) / 4) + (15 * Math.Pow(e2, 3)) / 128)); A2 *= 0.375;
+            double A4 = ((Math.Pow(e2, 2) + 3 * Math.Pow(e2, 3) / 4)); A4 *= 0.05859375;
+            double A6 = 35 * Math.Pow(e2, 3) / 3072;
+
+            PointsBLH.ForEach(p =>
+            {
+                if (!p.Format()) { p.convertToDegrees(); }
+                double fi = p.fi() * Math.PI / 180; double lambda = p.lambda() * Math.PI / 180;
+                double sigma = a * (A0 * fi - A2 * Math.Sin(2 * fi) + A4 * Math.Sin(4 * fi) - A6 * Math.Sin(6 * fi));
+                double l = lambda - longitude0;
+                double t = Math.Tan(fi);
+                double eta2 = (e12) * Math.Pow(Math.Cos(fi), 2);
+                double N = a / Math.Sqrt(1 - e2 * Math.Pow(Math.Sin(fi), 2));
+                double xGK = sigma + (Math.Pow(l, 2) / 2) * N * Math.Sin(fi) * Math.Cos(fi) * (1 + (Math.Pow(l, 2) / 12) * (Math.Pow(Math.Cos(fi), 2)) * (5 - Math.Pow(t, 2) + 9 * (eta2) + 4 * Math.Pow(eta2, 2)) + (Math.Pow(l, 4) / 360) * Math.Pow(Math.Cos(fi), 4) * (61 - 58 * Math.Pow(t, 2) + Math.Pow(t, 4) + 270 * (eta2) - 330 * (eta2) * Math.Pow(t, 2)));
+                double yGK = l * N * Math.Cos(fi) * (1 + (Math.Pow(l, 2) / 6) * Math.Pow(Math.Cos(fi), 2) * (1 - Math.Pow(t, 2) + eta2) + (Math.Pow(l, 4) / 120) * Math.Pow(Math.Cos(fi), 4) * (5 - 18 * Math.Pow(t, 2) + Math.Pow(t, 4) + 14 * (eta2) - 58 * (eta2) * Math.Pow(t, 2)));
+                result.Add(new Point(p.Name(), xGK, yGK));
+            });
+            return result;
+        }
+        public List<PointBLH> XYGK2Krasowski(List<Point> Points, byte longitude, double precision)
+        {
+            List<PointBLH> result = new List<PointBLH>();
+            double a = 6378245.000;
+            double b = 6356863.019;
+            double e2 = 0.00669342;
+            e2 = (Math.Pow(a, 2) - Math.Pow(b, 2)) / Math.Pow(a, 2);
+            double e12 = e2 / (1 - e2);
+            double longitude0 = longitude * Math.PI / 180;
+            double A0 = 1 - (e2 / 4) - (3 * Math.Pow(e2, 2) / 64) - (5 * Math.Pow(e2, 3) / 256);
+            double A2 = (e2 + (Math.Pow(e2, 2) / 4) + 15 * Math.Pow(e2, 3) / 128); A2 *= 0.375;
+            double A4 = (Math.Pow(e2, 2) + 3 * Math.Pow(e2, 3) / 4); A4 *= 0.05859375;
+            double A6 = 35 * Math.Pow(e2, 3) / 3072;
+            Points.ForEach(p =>
+            {
+                double epsilon = 1;
+                double sigma = p.x();
+                //MessageBox.Show(sigma.ToString());
+                double fi0 = sigma / a * A0;
+                while (epsilon > precision)
+                {
+                    double fi1 = ((sigma / a) + A2 * Math.Sin(2 * fi0) - A4 * Math.Sin(4 * fi0) + A6 * Math.Sin(6 * fi0)) / A0;
+                    epsilon = Math.Abs(fi1 - fi0);
+                    fi0 = fi1;
+                    //MessageBox.Show(fi0.ToString());
+                }
+                double N = a / Math.Sqrt(1 - e2 * Math.Sin(fi0) * Math.Sin(fi0));
+                double M = a * (1 - e2) / Math.Pow(Math.Sqrt(1 - e2 * Math.Pow(Math.Sin(fi0), 2)), 3);
+                double t = Math.Tan(fi0);
+                double eta2 = (e12) * Math.Cos(fi0) * Math.Cos(fi0);
+                //MessageBox.Show(eta2.ToString());
+                double L = longitude * Math.PI / 180 + p.y() / (N * (Math.Cos(fi0)))
+                * (1 - (Math.Pow(p.y(), 2) / (6 * Math.Pow(N, 2))) * (1 + 2 * Math.Pow(t, 2) + (eta2))
+                + (Math.Pow(p.y(), 4) / (120 * Math.Pow(N, 4)))
+                * (5 + 28 * Math.Pow(t, 2) + 24 * Math.Pow(t, 4) + 6 * (eta2) + 8 * (eta2) * Math.Pow(t, 2)));
+                double B = fi0 - ((Math.Pow(p.y(), 2) * t) / (2 * M * N)) * (1 - (Math.Pow(p.y(), 2) / (12 * Math.Pow(N, 2))) * (5 + 3 * Math.Pow(t, 2) + (eta2) - 9 * eta2 * Math.Pow(t, 2) - 4 * Math.Pow(eta2, 2)) + Math.Pow(p.y(), 4) / (360 * Math.Pow(N, 4)) * (61 + 90 * Math.Pow(t, 2) + 45 * Math.Pow(t, 4)));
+                result.Add(new PointBLH(p.Name(), B * 180 / Math.PI, L * 180 / Math.PI, 0));
+
+            });
+            return result;
+        }
         //SCENARIUSZE TRANSFORMACYJNE: 20 GŁÓWNYCH PERMUTACJI
         //PRECISION ZAWSZE ODNOSI SIĘ DO DOKŁADNOŚCI KĄTOWEJ. DOKŁADNOŚĆ LINIOWA DOTYCZY WYŁĄCZNIE KOŃCOWYCH WYNIKÓW.
         //Wszystkie wartości longitude odnoszą się do południka osiowego układu 2000 lub południka osiowego UTM.

@@ -34,7 +34,19 @@
             this.XY1992 = new System.Windows.Forms.RadioButton();
             this.UTM = new System.Windows.Forms.RadioButton();
             this.XY2000 = new System.Windows.Forms.RadioButton();
+            this.KrasowskiGB = new System.Windows.Forms.GroupBox();
+            this.XYZKrasowskiRB = new System.Windows.Forms.RadioButton();
+            this.BLHKrasowskiRB = new System.Windows.Forms.RadioButton();
+            this.XY42RB = new System.Windows.Forms.RadioButton();
+            this.XYGUGIK80RB = new System.Windows.Forms.RadioButton();
+            this.XY65RB = new System.Windows.Forms.RadioButton();
             this.ChoiceTwo = new System.Windows.Forms.GroupBox();
+            this.resKrasowskiGB = new System.Windows.Forms.GroupBox();
+            this.resXYZKrasowskiRB = new System.Windows.Forms.RadioButton();
+            this.resBLHKrasowskiRB = new System.Windows.Forms.RadioButton();
+            this.resXY42RB = new System.Windows.Forms.RadioButton();
+            this.resXYGUGIK80RB = new System.Windows.Forms.RadioButton();
+            this.resXY65RB = new System.Windows.Forms.RadioButton();
             this.resultXYZ_GRS = new System.Windows.Forms.RadioButton();
             this.resultXY1992 = new System.Windows.Forms.RadioButton();
             this.resultBLH_GRS = new System.Windows.Forms.RadioButton();
@@ -64,9 +76,11 @@
             this.filePath = new System.Windows.Forms.TextBox();
             this.OFD = new System.Windows.Forms.OpenFileDialog();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.KrasowskiRB = new System.Windows.Forms.RadioButton();
             this.ETRF89 = new System.Windows.Forms.RadioButton();
             this.ETRF2000 = new System.Windows.Forms.RadioButton();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
+            this.resKrasowskiRB = new System.Windows.Forms.RadioButton();
             this.resETRF89 = new System.Windows.Forms.RadioButton();
             this.resETRF2000 = new System.Windows.Forms.RadioButton();
             this.TextBoxTrans2D3D = new System.Windows.Forms.TextBox();
@@ -89,7 +103,9 @@
             this.tabPage3 = new System.Windows.Forms.TabPage();
             this.TransformerBW = new System.ComponentModel.BackgroundWorker();
             this.ChoiceOne.SuspendLayout();
+            this.KrasowskiGB.SuspendLayout();
             this.ChoiceTwo.SuspendLayout();
+            this.resKrasowskiGB.SuspendLayout();
             this.LongitudeChoice.SuspendLayout();
             this.LongitudeUTM.SuspendLayout();
             this.resultLongitudeChoice.SuspendLayout();
@@ -182,6 +198,79 @@
             this.XY2000.UseVisualStyleBackColor = true;
             this.XY2000.CheckedChanged += new System.EventHandler(this.XY2000_CheckedChanged);
             // 
+            // KrasowskiGB
+            // 
+            this.KrasowskiGB.BackColor = System.Drawing.Color.DarkGray;
+            this.KrasowskiGB.Controls.Add(this.XYZKrasowskiRB);
+            this.KrasowskiGB.Controls.Add(this.BLHKrasowskiRB);
+            this.KrasowskiGB.Controls.Add(this.XY42RB);
+            this.KrasowskiGB.Controls.Add(this.XYGUGIK80RB);
+            this.KrasowskiGB.Controls.Add(this.XY65RB);
+            this.KrasowskiGB.ForeColor = System.Drawing.Color.Black;
+            this.KrasowskiGB.Location = new System.Drawing.Point(3, 137);
+            this.KrasowskiGB.Name = "KrasowskiGB";
+            this.KrasowskiGB.Size = new System.Drawing.Size(131, 137);
+            this.KrasowskiGB.TabIndex = 20;
+            this.KrasowskiGB.TabStop = false;
+            this.KrasowskiGB.Text = "elipsoida Krasowskiego";
+            this.KrasowskiGB.UseCompatibleTextRendering = true;
+            this.KrasowskiGB.Visible = false;
+            // 
+            // XYZKrasowskiRB
+            // 
+            this.XYZKrasowskiRB.AutoSize = true;
+            this.XYZKrasowskiRB.ForeColor = System.Drawing.Color.Maroon;
+            this.XYZKrasowskiRB.Location = new System.Drawing.Point(7, 113);
+            this.XYZKrasowskiRB.Name = "XYZKrasowskiRB";
+            this.XYZKrasowskiRB.Size = new System.Drawing.Size(97, 17);
+            this.XYZKrasowskiRB.TabIndex = 9;
+            this.XYZKrasowskiRB.Text = "XYZ Krasowski";
+            this.XYZKrasowskiRB.UseVisualStyleBackColor = true;
+            // 
+            // BLHKrasowskiRB
+            // 
+            this.BLHKrasowskiRB.AutoSize = true;
+            this.BLHKrasowskiRB.ForeColor = System.Drawing.Color.Maroon;
+            this.BLHKrasowskiRB.Location = new System.Drawing.Point(7, 90);
+            this.BLHKrasowskiRB.Name = "BLHKrasowskiRB";
+            this.BLHKrasowskiRB.Size = new System.Drawing.Size(97, 17);
+            this.BLHKrasowskiRB.TabIndex = 8;
+            this.BLHKrasowskiRB.Text = "BLH Krasowski";
+            this.BLHKrasowskiRB.UseVisualStyleBackColor = true;
+            // 
+            // XY42RB
+            // 
+            this.XY42RB.AutoSize = true;
+            this.XY42RB.ForeColor = System.Drawing.Color.Maroon;
+            this.XY42RB.Location = new System.Drawing.Point(7, 44);
+            this.XY42RB.Name = "XY42RB";
+            this.XY42RB.Size = new System.Drawing.Size(69, 17);
+            this.XY42RB.TabIndex = 1;
+            this.XY42RB.Text = "X Y 1942";
+            this.XY42RB.UseVisualStyleBackColor = true;
+            // 
+            // XYGUGIK80RB
+            // 
+            this.XYGUGIK80RB.AutoSize = true;
+            this.XYGUGIK80RB.ForeColor = System.Drawing.Color.Maroon;
+            this.XYGUGIK80RB.Location = new System.Drawing.Point(7, 67);
+            this.XYGUGIK80RB.Name = "XYGUGIK80RB";
+            this.XYGUGIK80RB.Size = new System.Drawing.Size(94, 17);
+            this.XYGUGIK80RB.TabIndex = 7;
+            this.XYGUGIK80RB.Text = "X Y GUGIK 80";
+            this.XYGUGIK80RB.UseVisualStyleBackColor = true;
+            // 
+            // XY65RB
+            // 
+            this.XY65RB.AutoSize = true;
+            this.XY65RB.ForeColor = System.Drawing.Color.Maroon;
+            this.XY65RB.Location = new System.Drawing.Point(7, 20);
+            this.XY65RB.Name = "XY65RB";
+            this.XY65RB.Size = new System.Drawing.Size(57, 17);
+            this.XY65RB.TabIndex = 0;
+            this.XY65RB.Text = "X Y 65";
+            this.XY65RB.UseVisualStyleBackColor = true;
+            // 
             // ChoiceTwo
             // 
             this.ChoiceTwo.BackColor = System.Drawing.Color.DarkGray;
@@ -199,6 +288,79 @@
             this.ChoiceTwo.Text = "GRS80";
             this.ChoiceTwo.UseCompatibleTextRendering = true;
             this.ChoiceTwo.Visible = false;
+            // 
+            // resKrasowskiGB
+            // 
+            this.resKrasowskiGB.BackColor = System.Drawing.Color.DarkGray;
+            this.resKrasowskiGB.Controls.Add(this.resXYZKrasowskiRB);
+            this.resKrasowskiGB.Controls.Add(this.resBLHKrasowskiRB);
+            this.resKrasowskiGB.Controls.Add(this.resXY42RB);
+            this.resKrasowskiGB.Controls.Add(this.resXYGUGIK80RB);
+            this.resKrasowskiGB.Controls.Add(this.resXY65RB);
+            this.resKrasowskiGB.ForeColor = System.Drawing.Color.Black;
+            this.resKrasowskiGB.Location = new System.Drawing.Point(258, 137);
+            this.resKrasowskiGB.Name = "resKrasowskiGB";
+            this.resKrasowskiGB.Size = new System.Drawing.Size(131, 137);
+            this.resKrasowskiGB.TabIndex = 21;
+            this.resKrasowskiGB.TabStop = false;
+            this.resKrasowskiGB.Text = "elipsoida Krasowskiego";
+            this.resKrasowskiGB.UseCompatibleTextRendering = true;
+            this.resKrasowskiGB.Visible = false;
+            // 
+            // resXYZKrasowskiRB
+            // 
+            this.resXYZKrasowskiRB.AutoSize = true;
+            this.resXYZKrasowskiRB.ForeColor = System.Drawing.Color.Maroon;
+            this.resXYZKrasowskiRB.Location = new System.Drawing.Point(7, 113);
+            this.resXYZKrasowskiRB.Name = "resXYZKrasowskiRB";
+            this.resXYZKrasowskiRB.Size = new System.Drawing.Size(97, 17);
+            this.resXYZKrasowskiRB.TabIndex = 9;
+            this.resXYZKrasowskiRB.Text = "XYZ Krasowski";
+            this.resXYZKrasowskiRB.UseVisualStyleBackColor = true;
+            // 
+            // resBLHKrasowskiRB
+            // 
+            this.resBLHKrasowskiRB.AutoSize = true;
+            this.resBLHKrasowskiRB.ForeColor = System.Drawing.Color.Maroon;
+            this.resBLHKrasowskiRB.Location = new System.Drawing.Point(7, 90);
+            this.resBLHKrasowskiRB.Name = "resBLHKrasowskiRB";
+            this.resBLHKrasowskiRB.Size = new System.Drawing.Size(97, 17);
+            this.resBLHKrasowskiRB.TabIndex = 8;
+            this.resBLHKrasowskiRB.Text = "BLH Krasowski";
+            this.resBLHKrasowskiRB.UseVisualStyleBackColor = true;
+            // 
+            // resXY42RB
+            // 
+            this.resXY42RB.AutoSize = true;
+            this.resXY42RB.ForeColor = System.Drawing.Color.Maroon;
+            this.resXY42RB.Location = new System.Drawing.Point(7, 44);
+            this.resXY42RB.Name = "resXY42RB";
+            this.resXY42RB.Size = new System.Drawing.Size(69, 17);
+            this.resXY42RB.TabIndex = 1;
+            this.resXY42RB.Text = "X Y 1942";
+            this.resXY42RB.UseVisualStyleBackColor = true;
+            // 
+            // resXYGUGIK80RB
+            // 
+            this.resXYGUGIK80RB.AutoSize = true;
+            this.resXYGUGIK80RB.ForeColor = System.Drawing.Color.Maroon;
+            this.resXYGUGIK80RB.Location = new System.Drawing.Point(7, 67);
+            this.resXYGUGIK80RB.Name = "resXYGUGIK80RB";
+            this.resXYGUGIK80RB.Size = new System.Drawing.Size(94, 17);
+            this.resXYGUGIK80RB.TabIndex = 7;
+            this.resXYGUGIK80RB.Text = "X Y GUGIK 80";
+            this.resXYGUGIK80RB.UseVisualStyleBackColor = true;
+            // 
+            // resXY65RB
+            // 
+            this.resXY65RB.AutoSize = true;
+            this.resXY65RB.ForeColor = System.Drawing.Color.Maroon;
+            this.resXY65RB.Location = new System.Drawing.Point(7, 20);
+            this.resXY65RB.Name = "resXY65RB";
+            this.resXY65RB.Size = new System.Drawing.Size(57, 17);
+            this.resXY65RB.TabIndex = 0;
+            this.resXY65RB.Text = "X Y 65";
+            this.resXY65RB.UseVisualStyleBackColor = true;
             // 
             // resultXYZ_GRS
             // 
@@ -543,6 +705,7 @@
             // 
             // groupBox1
             // 
+            this.groupBox1.Controls.Add(this.KrasowskiRB);
             this.groupBox1.Controls.Add(this.ETRF89);
             this.groupBox1.Controls.Add(this.ETRF2000);
             this.groupBox1.Location = new System.Drawing.Point(4, 31);
@@ -552,10 +715,21 @@
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "UKŁAD WEJŚCIOWY";
             // 
+            // KrasowskiRB
+            // 
+            this.KrasowskiRB.AutoSize = true;
+            this.KrasowskiRB.Location = new System.Drawing.Point(10, 65);
+            this.KrasowskiRB.Name = "KrasowskiRB";
+            this.KrasowskiRB.Size = new System.Drawing.Size(216, 17);
+            this.KrasowskiRB.TabIndex = 4;
+            this.KrasowskiRB.Text = "Pułkowo 42\'       elipsoida Krasowskiego";
+            this.KrasowskiRB.UseVisualStyleBackColor = true;
+            this.KrasowskiRB.CheckedChanged += new System.EventHandler(this.KrasowskiRB_CheckedChanged);
+            // 
             // ETRF89
             // 
             this.ETRF89.AutoSize = true;
-            this.ETRF89.Location = new System.Drawing.Point(10, 55);
+            this.ETRF89.Location = new System.Drawing.Point(10, 42);
             this.ETRF89.Name = "ETRF89";
             this.ETRF89.Size = new System.Drawing.Size(214, 17);
             this.ETRF89.TabIndex = 3;
@@ -566,7 +740,7 @@
             // ETRF2000
             // 
             this.ETRF2000.AutoSize = true;
-            this.ETRF2000.Location = new System.Drawing.Point(10, 31);
+            this.ETRF2000.Location = new System.Drawing.Point(10, 19);
             this.ETRF2000.Name = "ETRF2000";
             this.ETRF2000.Size = new System.Drawing.Size(219, 17);
             this.ETRF2000.TabIndex = 2;
@@ -576,6 +750,7 @@
             // 
             // groupBox2
             // 
+            this.groupBox2.Controls.Add(this.resKrasowskiRB);
             this.groupBox2.Controls.Add(this.resETRF89);
             this.groupBox2.Controls.Add(this.resETRF2000);
             this.groupBox2.Location = new System.Drawing.Point(259, 31);
@@ -585,10 +760,21 @@
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "UKŁAD WYJŚCIOWY";
             // 
+            // resKrasowskiRB
+            // 
+            this.resKrasowskiRB.AutoSize = true;
+            this.resKrasowskiRB.Location = new System.Drawing.Point(7, 65);
+            this.resKrasowskiRB.Name = "resKrasowskiRB";
+            this.resKrasowskiRB.Size = new System.Drawing.Size(216, 17);
+            this.resKrasowskiRB.TabIndex = 6;
+            this.resKrasowskiRB.Text = "Pułkowo 42\'       elipsoida Krasowskiego";
+            this.resKrasowskiRB.UseVisualStyleBackColor = true;
+            this.resKrasowskiRB.CheckedChanged += new System.EventHandler(this.ResKrasowskiRB_CheckedChanged);
+            // 
             // resETRF89
             // 
             this.resETRF89.AutoSize = true;
-            this.resETRF89.Location = new System.Drawing.Point(7, 55);
+            this.resETRF89.Location = new System.Drawing.Point(7, 42);
             this.resETRF89.Name = "resETRF89";
             this.resETRF89.Size = new System.Drawing.Size(214, 17);
             this.resETRF89.TabIndex = 5;
@@ -599,7 +785,7 @@
             // resETRF2000
             // 
             this.resETRF2000.AutoSize = true;
-            this.resETRF2000.Location = new System.Drawing.Point(7, 31);
+            this.resETRF2000.Location = new System.Drawing.Point(7, 19);
             this.resETRF2000.Name = "resETRF2000";
             this.resETRF2000.Size = new System.Drawing.Size(219, 17);
             this.resETRF2000.TabIndex = 4;
@@ -634,6 +820,8 @@
             // tabPage1
             // 
             this.tabPage1.BackColor = System.Drawing.Color.DarkGray;
+            this.tabPage1.Controls.Add(this.resKrasowskiGB);
+            this.tabPage1.Controls.Add(this.KrasowskiGB);
             this.tabPage1.Controls.Add(this.FileOpenerButton);
             this.tabPage1.Controls.Add(this.PrecisionGB);
             this.tabPage1.Controls.Add(this.TransOption);
@@ -848,8 +1036,12 @@
             this.Load += new System.EventHandler(this.Transform_Load);
             this.ChoiceOne.ResumeLayout(false);
             this.ChoiceOne.PerformLayout();
+            this.KrasowskiGB.ResumeLayout(false);
+            this.KrasowskiGB.PerformLayout();
             this.ChoiceTwo.ResumeLayout(false);
             this.ChoiceTwo.PerformLayout();
+            this.resKrasowskiGB.ResumeLayout(false);
+            this.resKrasowskiGB.PerformLayout();
             this.LongitudeChoice.ResumeLayout(false);
             this.LongitudeChoice.PerformLayout();
             this.LongitudeUTM.ResumeLayout(false);
@@ -939,6 +1131,20 @@
         private System.Windows.Forms.DomainUpDown AnglePrecisionDUD;
         private System.Windows.Forms.Button FileOpenerButton;
         private System.ComponentModel.BackgroundWorker TransformerBW;
+        private System.Windows.Forms.RadioButton KrasowskiRB;
+        private System.Windows.Forms.RadioButton resKrasowskiRB;
+        private System.Windows.Forms.GroupBox KrasowskiGB;
+        private System.Windows.Forms.RadioButton XYZKrasowskiRB;
+        private System.Windows.Forms.RadioButton BLHKrasowskiRB;
+        private System.Windows.Forms.RadioButton XY42RB;
+        private System.Windows.Forms.RadioButton XYGUGIK80RB;
+        private System.Windows.Forms.RadioButton XY65RB;
+        private System.Windows.Forms.GroupBox resKrasowskiGB;
+        private System.Windows.Forms.RadioButton resXYZKrasowskiRB;
+        private System.Windows.Forms.RadioButton resBLHKrasowskiRB;
+        private System.Windows.Forms.RadioButton resXY42RB;
+        private System.Windows.Forms.RadioButton resXYGUGIK80RB;
+        private System.Windows.Forms.RadioButton resXY65RB;
     }
 }
 
