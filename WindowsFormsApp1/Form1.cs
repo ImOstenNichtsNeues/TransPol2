@@ -315,6 +315,7 @@ namespace WindowsFormsApp1
                 {
                     loadPointsBLH(); this.Points3D.Clear(); this.Points.Clear();
                 }
+                
                 else
                 {
                     MessageBox.Show("Jak mam to niby zrobić???");
@@ -346,6 +347,8 @@ namespace WindowsFormsApp1
 
         private void CountUp_Click(object sender, EventArgs e)
         {
+            this.tabControl1.Enabled = false;
+            Application.UseWaitCursor = true;
             this.FileName.Clear();
             this.Points3D.Clear();
             this.Points.Clear();
@@ -360,7 +363,7 @@ namespace WindowsFormsApp1
             else
             {
                 MessageBox.Show("Nie wybrano zbioru punktów.");
-            }
+            }           
             //koniecPsot:
             //this.longitude = 0; this.canIStartCounting = false; this.resLongitude = 0;
         }
@@ -387,27 +390,38 @@ namespace WindowsFormsApp1
             List<PointBLH> result = new List<PointBLH>();
             points.ForEach(p =>
             {
-                if (!p.Format()) { p.convertToDegrees(); }
-                double B = p.fi(); double Bdown = Math.Floor(B * 100) / 100; double Bup = Math.Ceiling(B * 100) / 100;
-                double L = p.lambda(); double Ldown = Math.Floor(L * 100) / 100; double Lup = Math.Ceiling(L * 100) / 100;
-                WebGrid grid11 = grid.Find(q => q.fi().Equals(Bdown) && q.lambda().Equals(Ldown));
-                //MessageBox.Show(grid11.fi() + " " + grid11.lambda());
-                WebGrid grid12 = grid.Find(q => q.fi().Equals(Bup) && q.lambda().Equals(Ldown));
-                //MessageBox.Show(grid12.fi() + " " + grid12.lambda());
-                WebGrid grid21 = grid.Find(q => q.fi().Equals(Bdown) && q.lambda().Equals(Lup));
-                //MessageBox.Show(grid21.fi() + " " + grid21.lambda());
-                WebGrid grid22 = grid.Find(q => q.fi().Equals(Bup) && q.lambda().Equals(Lup));
-                //MessageBox.Show(grid22.fi() + " " + grid22.lambda());
-                WebGrid deltas = BilinearInterpolation(B, L, grid11, grid12, grid21, grid22);
-                if (ETRF2000change89)
+                try
                 {
-                    result.Add(new PointBLH(p.Name(), B - deltas.deltaFi(), L - deltas.deltaLambda(), p.height() - deltas.deltaH()));
+                    if (!p.Format()) { p.convertToDegrees(); }
+                    double B = p.fi(); double Bdown = Math.Floor(B * 100) / 100; double Bup = Math.Ceiling(B * 100) / 100;
+                    double L = p.lambda(); double Ldown = Math.Floor(L * 100) / 100; double Lup = Math.Ceiling(L * 100) / 100;
+                    WebGrid grid11 = grid.Find(q => q.fi().Equals(Bdown) && q.lambda().Equals(Ldown));
+                    //MessageBox.Show(grid11.fi() + " " + grid11.lambda());
+                    WebGrid grid12 = grid.Find(q => q.fi().Equals(Bup) && q.lambda().Equals(Ldown));
+                    //MessageBox.Show(grid12.fi() + " " + grid12.lambda());
+                    WebGrid grid21 = grid.Find(q => q.fi().Equals(Bdown) && q.lambda().Equals(Lup));
+                    //MessageBox.Show(grid21.fi() + " " + grid21.lambda());
+                    WebGrid grid22 = grid.Find(q => q.fi().Equals(Bup) && q.lambda().Equals(Lup));
+                    //MessageBox.Show(grid22.fi() + " " + grid22.lambda());
+                    WebGrid deltas = BilinearInterpolation(B, L, grid11, grid12, grid21, grid22);
+                    if (ETRF2000change89)
+                    {
+                        result.Add(new PointBLH(p.Name(), B - deltas.deltaFi(), L - deltas.deltaLambda(), p.height() - deltas.deltaH()));
+                    }
+                    else if (!ETRF2000change89)
+                    {
+                        result.Add(new PointBLH(p.Name(), B + deltas.deltaFi(), L + deltas.deltaLambda(), p.height() + deltas.deltaH()));
+                    }
                 }
-                else if (!ETRF2000change89)
+                catch(NullReferenceException n)
                 {
-                    result.Add(new PointBLH(p.Name(), B + deltas.deltaFi(), L + deltas.deltaLambda(), p.height() + deltas.deltaH()));
+                    Thread.Sleep(100);
+                    this.comunicator.Clear();
+                    this.comunicator.Append("Współrzędne punktu wejściowego [" + p.Name() + "] przekraczają zakres siatki grid.\n");
+                    this.TransformerBW.ReportProgress(5);
+                    result.Clear();
                 }
-            });
+            });          
             return result;
         } //działa
 
@@ -415,7 +429,7 @@ namespace WindowsFormsApp1
         private WebGrid BilinearInterpolation(double B, double L, WebGrid grid11, WebGrid grid12, WebGrid grid21, WebGrid grid22)
         {
             double dfi, dl, dh;
-
+ 
                 if (grid11.Equals(grid22))
                 {
                     dfi = grid11.deltaFi(); dl = grid11.deltaLambda(); dh = grid11.deltaH();
@@ -591,7 +605,7 @@ namespace WindowsFormsApp1
                 }
             }
         }
-        //USTAWIENIA PARAMETRÓ DLA STREF UKŁADU 1965
+        //USTAWIENIA PARAMETRÓW DLA STREF UKŁADU 1965
         private void Xy65s1_CheckedChanged(object sender, EventArgs e)
         {
             this.longitude65 = 21 + 5 / 60; this.x0 = 5467000.00; this.y0 = 4637000.00;
@@ -645,6 +659,10 @@ namespace WindowsFormsApp1
             clearRadioButtonsCheck(xy65s1,xy65s2,xy65s3,xy65s4,xy65s5,xy42width3,xy42width6);
             clearRadioButtonsCheck(longitudeK15, longitudeK18, longitudeK21, longitudeK24);
             setFalseGroupBoxVisibility(XY65StrefaGB, XY42GB);
+            if (this.startETRF.ToString().Equals("Krasowski"))
+            {
+                this.start.Clear();
+            }
             this.startETRF.Clear();
             this.startETRF.Append("ETRF2000");
         }
@@ -655,6 +673,10 @@ namespace WindowsFormsApp1
             clearRadioButtonsCheck(xy65s1, xy65s2, xy65s3, xy65s4, xy65s5, xy42width3, xy42width6);
             clearRadioButtonsCheck(longitudeK15, longitudeK18, longitudeK21, longitudeK24);
             setFalseGroupBoxVisibility(XY65StrefaGB, XY42GB);
+            if (this.startETRF.ToString().Equals("Krasowski"))
+            {
+                this.start.Clear();
+            }
             this.startETRF.Clear();
             this.startETRF.Append("ETRF89");
         }
@@ -665,6 +687,10 @@ namespace WindowsFormsApp1
             clearRadioButtonsCheck(resxy65s1, resxy65s2, resxy65s3, resxy65s4, resxy65s5, resxy42width3, resxy42width6);
             clearRadioButtonsCheck(reslongitudeK15, reslongitudeK18, reslongitudeK21, reslongitudeK24);
             setFalseGroupBoxVisibility(resXY65StrefaGB, resXY42GB);
+            if (this.endETRF.ToString().Equals("Krasowski"))
+            {
+                this.end.Clear();
+            }
             this.endETRF.Clear();
             this.endETRF.Append("ETRF2000");
         }
@@ -675,6 +701,10 @@ namespace WindowsFormsApp1
             clearRadioButtonsCheck(resxy65s1, resxy65s2, resxy65s3, resxy65s4, resxy65s5, resxy42width3, resxy42width6);
             clearRadioButtonsCheck(reslongitudeK15, reslongitudeK18, reslongitudeK21, reslongitudeK24);
             setFalseGroupBoxVisibility(resXY65StrefaGB, resXY42GB);
+            if (this.endETRF.ToString().Equals("Krasowski"))
+            {
+                this.end.Clear();
+            }
             this.endETRF.Clear();
             this.endETRF.Append("ETRF89");
         }
@@ -685,7 +715,8 @@ namespace WindowsFormsApp1
             clearRadioButtonsCheck(longitude15, longitude18, longitude21, longitude24, longitudeUTM15, longitudeUTM21);
             setFalseGroupBoxVisibility(LongitudeChoice, LongitudeUTM);
             this.startETRF.Clear();
-            this.startETRF.Append("Krasowski");
+            this.startETRF.Append("Krasowski"); this.end.Clear();
+            
         }
         private void ResKrasowskiRB_CheckedChanged(object sender, EventArgs e)
         {
@@ -694,7 +725,7 @@ namespace WindowsFormsApp1
             clearRadioButtonsCheck(resultLongitude15, resultLongitude18, resultLongitude21, resultLongitude24, resultLongitudeUTM15, resultLongitudeUTM21);
             setFalseGroupBoxVisibility(resultLongitudeChoice, resultLongitudeUTM);
             this.endETRF.Clear();
-            this.endETRF.Append("Krasowski");
+            this.endETRF.Append("Krasowski"); this.end.Clear();
         }
 
         //WYBÓR FORMATU BLH PLIKÓW: WEJŚCIOWEGO I WYJŚCIOWEGO
@@ -736,7 +767,7 @@ namespace WindowsFormsApp1
                 double xGK = (p.x() + 5300000) / 0.9993;
                 double yGK = (p.y() - 500000) / 0.9993;
                 result.Add(new Point(p.Name(), xGK, yGK));
-                MessageBox.Show(xGK + " " + yGK);
+                //MessageBox.Show(xGK + " " + yGK);
             });
             return result;
         } //działa
@@ -762,10 +793,22 @@ namespace WindowsFormsApp1
             });
             return result;
         } //działa
+        //BLH2XYZ oraz XYZ2BLH przygotowano tak, aby mogł działać zarówno dla elipsoidy Krasowskiego jak i GRS80.
         public List<Point3D> BLH2XYZ(List<PointBLH> PointsBLH)
         {
-            double a = 6378137;
-            double e2 = 0.006694380022903;
+            double a, e2;
+            bool starting = this.startETRF.ToString().Equals("ETRF89") || this.startETRF.ToString().Equals("ETRF2000");
+            bool ending = this.endETRF.ToString().Equals("ETRF89") || this.endETRF.ToString().Equals("ETRF2000");
+            if (starting || ending)
+            {
+                a = 6378137;
+                e2 = 0.006694380022903;
+            }
+            else
+            {
+                a = 6378425; double b = 6356863.019;
+                e2 = (Math.Pow(a, 2) - Math.Pow(b, 2)) / Math.Pow(a, 2);
+            }
             List<Point3D> result = new List<Point3D>();
             PointsBLH.ForEach(x =>
             {
@@ -782,13 +825,15 @@ namespace WindowsFormsApp1
         } //działa
         public List<PointBLH> XYZ2BLH(List<Point3D> Points3D, double precision)
         {
+            double bKrasowski = 6356863.019;
+            bool check = this.startETRF.ToString().Equals("Krasowski") || this.endETRF.ToString().Equals("Krasowski");
+            double a = check ? 6378425 : 6378137;
+            double e2 = check ? ((Math.Pow(a, 2) - Math.Pow(bKrasowski, 2)) / Math.Pow(a, 2)) : 0.006694380022903;
             List<PointBLH> result = new List<PointBLH>();
             Points3D.ForEach(point =>
             {
-                int iterator = 1;
+                int iterator = 1;               
                 double B = 0; double H = 0;
-                double a = 6378137;
-                double e2 = 0.006694380022903;
                 double L = Math.Atan(point.y() / point.x())*180/Math.PI;
                 double dif = 1;
                 double tangensB = point.z() / Math.Sqrt(point.x() * point.x() + point.y() * point.y()) * (1 / (1 - e2));
@@ -965,7 +1010,7 @@ namespace WindowsFormsApp1
             return result;
         } //nie działa
         //Transformacje współrzędnych dla elipsoidy Krasowskiego
-        public List<Point> Krasowski2XY65(List<PointBLH> Points, double x0, double y0, double R0, byte longitude, double xGK0)
+        public List<Point> Krasowski2XY65(List<PointBLH> Points, double x0, double y0, double R0, double longitude, double xGK0)
         {
             /*xGK0 będzie równe zeru przy wyborze strefy 5. Niezależnie nie wpłynie na obliczenia.*/
             List<Point> result = new List<Point>();
@@ -993,7 +1038,7 @@ namespace WindowsFormsApp1
             }
             return result;
         }
-        public List<PointBLH> XY65ToKrasowski(List<Point> Points, double x0, double y0, double R0, byte longitude, double xGK0, double precision)
+        public List<PointBLH> XY65ToKrasowski(List<Point> Points, double x0, double y0, double R0, double longitude, double xGK0, double precision)
         {
             List<PointBLH> result = new List<PointBLH>();
             List<Point> helper = new List<Point>();
@@ -1026,7 +1071,7 @@ namespace WindowsFormsApp1
             }
             return result;
         }
-        public List<Point> Krasowski2XYGK(List<PointBLH> Points, byte longitude)
+        public List<Point> Krasowski2XYGK(List<PointBLH> Points, double longitude)
         {
             List<Point> result = new List<Point>();
             double a = 6378245.000;
@@ -1042,7 +1087,7 @@ namespace WindowsFormsApp1
             double A4 = ((Math.Pow(e2, 2) + 3 * Math.Pow(e2, 3) / 4)); A4 *= 0.05859375;
             double A6 = 35 * Math.Pow(e2, 3) / 3072;
 
-            PointsBLH.ForEach(p =>
+            Points.ForEach(p =>
             {
                 if (!p.Format()) { p.convertToDegrees(); }
                 double fi = p.fi() * Math.PI / 180; double lambda = p.lambda() * Math.PI / 180;
@@ -1098,7 +1143,7 @@ namespace WindowsFormsApp1
             });
             return result;
         }
-        public List<Point> Krasowski2XY42(List<PointBLH> Points, byte longitude, double precision, bool stripesSize)
+        public List<Point> Krasowski2XY42(List<PointBLH> Points, byte longitude, bool stripesSize)
         {
             //Parametr stripesSize określa czy wybrano pasy trzystopniowe(true) czy sześciostopniowe(false) dla układu Pułkowo 42'.
             List<Point> result = new List<Point>();
@@ -1145,13 +1190,39 @@ namespace WindowsFormsApp1
             result = XYGK2Krasowski(helper, longitude, precision);
             return result;
         }
-        public List<Point> Krasowski2GUGIK80(List<PointBLH> Points, double xGK0)
+        public List<Point> Krasowski2GUGIK80(List<PointBLH> Points)
         {
             List<Point> result = new List<Point>();
             double x0 = 500000; double y0 = 500000; double m0 = 0.999714;
-            double longitude = 19 + 10 / 60; double R0 = 215000;
+            double longitude = 19 + 10 / 60; double fi = 52 + 10 / 60;
+            List<PointBLH> mainPoint = new List<PointBLH>(); mainPoint.Add(new PointBLH("P0", longitude, fi, 0));
+            List<Point> mainPointGK = Krasowski2XYGK(mainPoint, longitude); mainPointGK.ForEach(p => { this.xGK0 = p.x(); });
+            MessageBox.Show(this.xGK0.ToString());
+            double a = 6378245.000;       double b = 6356863.019;
+            double e2 = 0.00669342;       e2 = (Math.Pow(a, 2) - Math.Pow(b, 2)) / Math.Pow(a, 2);
+            double N = a / Math.Sqrt(1 - e2 * Math.Pow(Math.Sin(fi*Math.PI/180), 2));
+            double M = a * (1 - e2) / Math.Pow(Math.Sqrt(1 - e2 * Math.Pow(Math.Sin(fi * Math.PI / 180), 2)), 3);
+            double R0 = Math.Sqrt(N * M);
+            result = Krasowski2XY65(Points, x0, y0, R0, longitude, xGK0);
             return result;
         }
+        public List<PointBLH> GUGIK80ToKrasowski(List<Point>Points, double precision)
+        {
+            List<PointBLH> result = new List<PointBLH>();
+            double x0 = 500000; double y0 = 500000; double m0 = 0.999714;
+            double longitude = 19 + 10 / 60; double fi = 52 + 10 / 60;
+            List<PointBLH> mainPoint = new List<PointBLH>(); mainPoint.Add(new PointBLH("P0", longitude, fi, 0));
+            List<Point> mainPointGK = Krasowski2XYGK(mainPoint, longitude); mainPointGK.ForEach(p => { this.xGK0 = p.x(); });
+            MessageBox.Show(this.xGK0.ToString());
+            double a = 6378245.000; double b = 6356863.019;
+            double e2 = 0.00669342; e2 = (Math.Pow(a, 2) - Math.Pow(b, 2)) / Math.Pow(a, 2);
+            double N = a / Math.Sqrt(1 - e2 * Math.Pow(Math.Sin(fi * Math.PI / 180), 2));
+            double M = a * (1 - e2) / Math.Pow(Math.Sqrt(1 - e2 * Math.Pow(Math.Sin(fi * Math.PI / 180), 2)), 3);
+            double R0 = Math.Sqrt(N * M);
+            result = XY65ToKrasowski(Points, x0, y0, R0, longitude, xGK0, precision);
+            return result;
+        }
+
         //SCENARIUSZE TRANSFORMACYJNE: 20 GŁÓWNYCH PERMUTACJI
         //PRECISION ZAWSZE ODNOSI SIĘ DO DOKŁADNOŚCI KĄTOWEJ. DOKŁADNOŚĆ LINIOWA DOTYCZY WYŁĄCZNIE KOŃCOWYCH WYNIKÓW.
         //Wszystkie wartości longitude odnoszą się do południka osiowego układu 2000 lub południka osiowego UTM.
@@ -1883,6 +1954,13 @@ namespace WindowsFormsApp1
             }
             return result;
         }
+        //SCENARIUSZE TRANSFORMUJĄCE POMIĘDZY ELIPSOIDAMI:
+        public List<Point> U2000ToU65(List<Point> Points, byte longitude, double precision, double longitude65)
+        {
+            List<Point> result = new List<Point>();
+            
+            return result;
+        }
         //SCENARIUSZE TRANSFORMUJĄCE DO TEGO SAMEGO UKŁADU WSPÓŁRZĘDNYCH:
         public List<Point> U2000ToU2000(byte longitudeS, byte longitudeE, double precision, List<Point> Points)
         {
@@ -2221,6 +2299,39 @@ namespace WindowsFormsApp1
             });
             return result; 
         }
+        //TRANSFORMACJA POMIĘDZY ELIPSOIDĄ KRASOWSKIEGO A GRS80
+        public List<Point3D> Krasowki2GRS(List<Point3D> Points)
+        {
+            List<Point3D> result = new List<Point3D>();
+            double d11 = 1 - 0.840780 * 0.000001; double d12 = -4.089600 * 0.000001; double d13 = -0.256146 * 0.000001;
+            double d21 = 4.089600 * 0.000001; double d22 = 1 - 0.840782 * 0.000001; double d23 = 1.738884 * 0.000001;
+            double d31 = 0.256139 * 0.000001; double d32 = -1.738885 * 0.000001; double d33 = 1 - 0.840774 * 0.000001;
+            double Tx = -33.4297; double Ty = 146.5746; double Tz = 76.2865;
+            Points.ForEach(p =>
+            {
+                double xGRS = d11 * (p.x() - Tx) + d12 * (p.y() - Ty) + d13 * (p.z() - Tz);
+                double yGRS = d21 * (p.x() - Tx) + d22 * (p.y() - Ty) + d23 * (p.z() - Tz);
+                double zGRS = d31 * (p.x() - Tx) + d32 * (p.y() - Ty) + d33 * (p.z() - Tz);
+                result.Add(new Point3D(p.Name(), xGRS, yGRS, zGRS));
+            });
+            return result;
+        }
+        public List<Point3D> GRS2Krasowski(List<Point3D> Points)
+        {
+            List<Point3D> result = new List<Point3D>();
+            double c11 = 1 + 0.840764 * 0.000001; double c12 = 4.089607 * 0.000001; double c13 = 0.256139 * 0.000001;
+            double c21 = -4.089606 * 0.000001; double c22 = 1 + 0.840763 * 0.000001; double c23 = -1.738888 * 0.000001;
+            double c31 = -0.256146 * 0.000001; double c32 = 1.738887 * 0.000001; double c33 = 1 + 0.840771 * 0.000001;
+            double Tx = -33.4297; double Ty = 146.5746; double Tz = 76.2865;
+            Points.ForEach(p =>
+            {
+                double xGRS = c11 * (p.x()) + c12 * (p.y()) + c13 * (p.z()) + Tx;
+                double yGRS = c21 * (p.x()) + c22 * (p.y()) + c23 * (p.z()) + Ty;
+                double zGRS = c31 * (p.x()) + c32 * (p.y()) + c33 * (p.z()) + Tz;
+                result.Add(new Point3D(p.Name(), xGRS, yGRS, zGRS));
+            });
+            return result;
+        }
         //ODCZYT PLIKU TXT W NOTATNIKU ORAZ ZAPIS WYNIKÓW:
         private void FileOpenerButton_Click(object sender, EventArgs e)
         {
@@ -2289,6 +2400,7 @@ namespace WindowsFormsApp1
             double anglePrecision = Convert.ToDouble(this.AnglePrecisionDUD.Text) / 3600 * Math.PI / 180;
             int printPrecisionL = this.LengthPrecisionDUD.Text.Length -2;
             int printPrecisionA = this.AnglePrecisionDUD.Text.Length -2;
+ 
             if (start.ToString().Equals("Układ 2000"))
             {
                 if (end.ToString().Equals("Układ 2000"))
@@ -2599,10 +2711,11 @@ namespace WindowsFormsApp1
         }
         private void TransformerBW_DoWork(object sender, DoWorkEventArgs e)
         {
+            
             try { getPointsData();
                 if (this.canIStartCounting)
-                {                  
-                    if (!end.Equals(""))
+                {            
+                    if (!end.ToString().Equals(""))
                     {
                         GottaTransformThemAll();
                         Thread.Sleep(100);
@@ -2632,6 +2745,8 @@ namespace WindowsFormsApp1
                     this.MonitorRichTextBox.Text += this.comunicator; break;
                 case 2:
                     this.MonitorRichTextBox.Text += this.comunicator; break;
+                case 5:
+                    this.MonitorRichTextBox.Text += this.comunicator; break;
                 case 10:
                     FileOpenerButton.Visible = true; FileOpenerButton.Text = "U2000"; break;
                 case 20:
@@ -2641,14 +2756,16 @@ namespace WindowsFormsApp1
                 case 40:
                     FileOpenerButton.Visible = true; FileOpenerButton.Text = "BLH"; break;
                 case 50: FileOpenerButton.Visible = true; FileOpenerButton.Text = "XYZ"; break;
-                case 99: this.MonitorRichTextBox.Text += "Koniec obliczeń."; break;
+                case 99: this.MonitorRichTextBox.Text += "Koniec obliczeń.";
+                    this.comunicator.Clear();  break;
                 default: break;
             }
         }
 
         private void TransformerBW_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
-
+            this.tabControl1.Enabled = true;
+            Application.UseWaitCursor = false;
         }
 
  
