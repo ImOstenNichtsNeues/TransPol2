@@ -86,6 +86,7 @@
             this.TextBoxTrans2D3D = new System.Windows.Forms.TextBox();
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.tabPage1 = new System.Windows.Forms.TabPage();
+            this.StopButton = new System.Windows.Forms.Button();
             this.resXY65StrefaGB = new System.Windows.Forms.GroupBox();
             this.resxy65s5 = new System.Windows.Forms.RadioButton();
             this.resxy65s4 = new System.Windows.Forms.RadioButton();
@@ -132,7 +133,6 @@
             this.tabPage2 = new System.Windows.Forms.TabPage();
             this.tabPage3 = new System.Windows.Forms.TabPage();
             this.TransformerBW = new System.ComponentModel.BackgroundWorker();
-            this.StopButton = new System.Windows.Forms.Button();
             this.ChoiceOne.SuspendLayout();
             this.KrasowskiGB.SuspendLayout();
             this.ChoiceTwo.SuspendLayout();
@@ -903,6 +903,17 @@
             this.tabPage1.Text = "TRANS 2D/3D";
             this.tabPage1.Click += new System.EventHandler(this.TabPage1_Click);
             // 
+            // StopButton
+            // 
+            this.StopButton.Location = new System.Drawing.Point(515, 3);
+            this.StopButton.Name = "StopButton";
+            this.StopButton.Size = new System.Drawing.Size(110, 23);
+            this.StopButton.TabIndex = 26;
+            this.StopButton.Text = "STOP";
+            this.StopButton.UseVisualStyleBackColor = true;
+            this.StopButton.Visible = false;
+            this.StopButton.Click += new System.EventHandler(this.StopButton_Click);
+            // 
             // resXY65StrefaGB
             // 
             this.resXY65StrefaGB.BackColor = System.Drawing.Color.DarkGray;
@@ -914,7 +925,7 @@
             this.resXY65StrefaGB.Controls.Add(this.resxy65s2);
             this.resXY65StrefaGB.Controls.Add(this.resxy65s1);
             this.resXY65StrefaGB.ForeColor = System.Drawing.Color.Black;
-            this.resXY65StrefaGB.Location = new System.Drawing.Point(395, 163);
+            this.resXY65StrefaGB.Location = new System.Drawing.Point(395, 162);
             this.resXY65StrefaGB.Name = "resXY65StrefaGB";
             this.resXY65StrefaGB.Size = new System.Drawing.Size(114, 114);
             this.resXY65StrefaGB.TabIndex = 25;
@@ -1089,6 +1100,7 @@
             this.resxy42width6.TabStop = true;
             this.resxy42width6.Text = "6 °";
             this.resxy42width6.UseVisualStyleBackColor = true;
+            this.resxy42width6.CheckedChanged += new System.EventHandler(this.Resxy42width6_CheckedChanged);
             // 
             // resxy42width3
             // 
@@ -1101,6 +1113,7 @@
             this.resxy42width3.TabStop = true;
             this.resxy42width3.Text = "3 °";
             this.resxy42width3.UseVisualStyleBackColor = true;
+            this.resxy42width3.CheckedChanged += new System.EventHandler(this.Resxy42width3_CheckedChanged);
             // 
             // XY65StrefaGB
             // 
@@ -1476,17 +1489,6 @@
             this.TransformerBW.DoWork += new System.ComponentModel.DoWorkEventHandler(this.TransformerBW_DoWork);
             this.TransformerBW.ProgressChanged += new System.ComponentModel.ProgressChangedEventHandler(this.TransformerBW_ProgressChanged);
             this.TransformerBW.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.TransformerBW_RunWorkerCompleted);
-            // 
-            // StopButton
-            // 
-            this.StopButton.Location = new System.Drawing.Point(515, 3);
-            this.StopButton.Name = "StopButton";
-            this.StopButton.Size = new System.Drawing.Size(110, 23);
-            this.StopButton.TabIndex = 26;
-            this.StopButton.Text = "STOP";
-            this.StopButton.UseVisualStyleBackColor = true;
-            this.StopButton.Visible = false;
-            this.StopButton.Click += new System.EventHandler(this.StopButton_Click);
             // 
             // Transform
             // 
