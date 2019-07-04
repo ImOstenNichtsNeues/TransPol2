@@ -39,13 +39,14 @@ namespace WindowsFormsApp1
         double R0 = 0; double resR0 = 0; double x0; double y0; double resx0; double resy0;
         //Rzędna punktu głównego strefy w odwzorowaniu GK - potrzebna do wyznaczenia wsp w odwzorowaniu Roussihle'a elipsoidy Krasowskiego.
         double xGK0=0; double resXGK0=0;
-        //Określnie strefy układu 1965:
+        //Określnie strefy układu 1965
         byte strefa = 0;
         // canIStartCounting sprawdza, czy dane wejściowe zostały wprowadzone prawidłowo oraz czy układ wyjściowy został wybrany.
         bool canIStartCounting = false;
         //TransformateOption określa czy wybrano rozwiązanie teoretyczne czy empiryczne [grid]. True - teoretyczna, false - empiryczna.
         bool transformateOption = true;
         //StripesSize określa, czy dla układu 1942 wybrano pasy trzystopniowe(true) czy sześciostopniowe(false).
+        bool StripesSize;
         public static RichTextBox box = new RichTextBox();
         public void setFalseGroupBoxVisibility(GroupBox first, GroupBox second)
         {
@@ -63,6 +64,10 @@ namespace WindowsFormsApp1
             {
                 buton.Checked = false;
             }
+        }
+        public void clearPointsLists()
+        {
+            this.Points.Clear(); this.Points3D.Clear(); this.PointsBLH.Clear();
         }
         public void loadPoints2D()
         {
@@ -287,7 +292,8 @@ namespace WindowsFormsApp1
                     }
                     else
                     {
-                        MessageBox.Show("Nie określono południka osiowego."); 
+                        MessageBox.Show("Nie określono południka osiowego.");
+                        this.TransformerBW.CancelAsync();
                     }
                 }
                 else if (this.start.ToString().Equals("Układ 1992"))
@@ -305,7 +311,8 @@ namespace WindowsFormsApp1
                         else
                         {
                             MessageBox.Show("Nie określono południka osiowego.");
-                        }
+                        this.TransformerBW.CancelAsync();
+                    }
                     }
                 else if (this.start.ToString().Equals("XYZ GRS80"))
                 {
@@ -319,11 +326,13 @@ namespace WindowsFormsApp1
                 else
                 {
                     MessageBox.Show("Jak mam to niby zrobić???");
+                    this.TransformerBW.CancelAsync();
                 }
             }
             else
             {
                 MessageBox.Show("Nie wybrano zbioru punktów.");
+                this.TransformerBW.CancelAsync();
             }
         }
         
@@ -347,23 +356,26 @@ namespace WindowsFormsApp1
 
         private void CountUp_Click(object sender, EventArgs e)
         {
-            this.tabControl1.Enabled = false;
-            Application.UseWaitCursor = true;
-            this.FileName.Clear();
-            this.Points3D.Clear();
-            this.Points.Clear();
-            this.PointsBLH.Clear();
-            this.FileOpenerButton.Visible = false; this.FileOpenerButton.Text = "";
-            this.MonitorRichTextBox.Clear(); this.MonitorRichTextBox.Text = "MONITOR: \n";
-            if (!filePath.Text.Equals(""))
+            if (!this.TransformerBW.IsBusy)
             {
-                TransformerBW.RunWorkerAsync();
-
+                this.FileName.Clear();
+                clearPointsLists();
+                this.FileOpenerButton.Visible = false; this.FileOpenerButton.Text = "";
+                this.MonitorRichTextBox.Clear(); this.MonitorRichTextBox.Text = "MONITOR: \n";
+                if (!filePath.Text.Equals(""))
+                {
+                    StopButton.Visible = true;
+                    //this.groupBox1.Enabled = false;
+                    Application.UseWaitCursor = true;
+                    TransformerBW.RunWorkerAsync();
+                }
+                else
+                {
+                    MessageBox.Show("Nie wybrano zbioru punktów.");
+                    this.TransformerBW.CancelAsync();
+                }
             }
-            else
-            {
-                MessageBox.Show("Nie wybrano zbioru punktów.");
-            }           
+           
             //koniecPsot:
             //this.longitude = 0; this.canIStartCounting = false; this.resLongitude = 0;
         }
@@ -587,11 +599,13 @@ namespace WindowsFormsApp1
             XY42LongitudeGB.Visible = true;
             clearRadioButtonsCheck(longitudeK18, longitudeK24);
             longitudeK18.Visible = false; longitudeK24.Visible = false;
+            this.StripesSize = true;
         }
         private void Xy42width6_CheckedChanged(object sender, EventArgs e)
         {
             XY42LongitudeGB.Visible = true;
             longitudeK18.Visible = true; longitudeK24.Visible = true;
+            this.StripesSize = false;
         }
         //WCZYTYWANIE PLIKU WEJŚCIOWEGO
         [STAThread]
@@ -793,22 +807,11 @@ namespace WindowsFormsApp1
             });
             return result;
         } //działa
-        //BLH2XYZ oraz XYZ2BLH przygotowano tak, aby mogł działać zarówno dla elipsoidy Krasowskiego jak i GRS80.
         public List<Point3D> BLH2XYZ(List<PointBLH> PointsBLH)
         {
             double a, e2;
-            bool starting = this.startETRF.ToString().Equals("ETRF89") || this.startETRF.ToString().Equals("ETRF2000");
-            bool ending = this.endETRF.ToString().Equals("ETRF89") || this.endETRF.ToString().Equals("ETRF2000");
-            if (starting || ending)
-            {
                 a = 6378137;
                 e2 = 0.006694380022903;
-            }
-            else
-            {
-                a = 6378425; double b = 6356863.019;
-                e2 = (Math.Pow(a, 2) - Math.Pow(b, 2)) / Math.Pow(a, 2);
-            }
             List<Point3D> result = new List<Point3D>();
             PointsBLH.ForEach(x =>
             {
@@ -825,10 +828,8 @@ namespace WindowsFormsApp1
         } //działa
         public List<PointBLH> XYZ2BLH(List<Point3D> Points3D, double precision)
         {
-            double bKrasowski = 6356863.019;
-            bool check = this.startETRF.ToString().Equals("Krasowski") || this.endETRF.ToString().Equals("Krasowski");
-            double a = check ? 6378425 : 6378137;
-            double e2 = check ? ((Math.Pow(a, 2) - Math.Pow(bKrasowski, 2)) / Math.Pow(a, 2)) : 0.006694380022903;
+            double a =6378137;
+            double e2 =0.006694380022903;
             List<PointBLH> result = new List<PointBLH>();
             Points3D.ForEach(point =>
             {
@@ -1222,7 +1223,52 @@ namespace WindowsFormsApp1
             result = XY65ToKrasowski(Points, x0, y0, R0, longitude, xGK0, precision);
             return result;
         }
-
+        public  List<Point3D> Krasowski2XYZ(List<PointBLH> Points)
+        {
+            List<Point3D> result = new List<Point3D>();
+            double a = 6378425; double b = 6356863.019;
+            double e2 = (Math.Pow(a, 2) - Math.Pow(b, 2)) / Math.Pow(a, 2);
+            Points.ForEach(x =>
+            {
+                if (!x.Format()) { x.convertToDegrees(); }
+                string name = x.Name();
+                double N = a / (Math.Sqrt(1 - e2 * Math.Pow(Math.Sin(x.fi() * Math.PI / 180), 2)));
+                //MessageBox.Show("N: " + N);
+                double X = (N + x.height()) * Math.Cos(x.fi() * Math.PI / 180) * Math.Cos(x.lambda() * Math.PI / 180);
+                double Y = (N + x.height()) * Math.Cos(x.fi() * Math.PI / 180) * Math.Sin(x.lambda() * Math.PI / 180);
+                double Z = (N + x.height()) * Math.Sin(x.fi() * Math.PI / 180) - e2 * N * Math.Sin(x.fi() * Math.PI / 180);
+                result.Add(new Point3D(name, X, Y, Z));
+            });
+            return result;
+        }
+        public List<PointBLH> XYZ2Krasowski(List<Point3D> Points, double precision)
+        {
+            List<PointBLH> result = new List<PointBLH>();
+            double a = 6378425; double b = 6356863.019;
+            double e2 = (Math.Pow(a, 2) - Math.Pow(b, 2)) / Math.Pow(a, 2);
+            Points.ForEach(point =>
+            {
+                int iterator = 1;
+                double B = 0; double H = 0;
+                double L = Math.Atan(point.y() / point.x()) * 180 / Math.PI;
+                double dif = 1;
+                double tangensB = point.z() / Math.Sqrt(point.x() * point.x() + point.y() * point.y()) * (1 / (1 - e2));
+                while (dif > precision)
+                {
+                    B = Math.Atan(tangensB);
+                    double N = a / Math.Sqrt(1 - e2 * Math.Sin(B) * Math.Sin(B));
+                    H = (Math.Sqrt(Math.Pow(point.x(), 2) + Math.Pow(point.y(), 2)) / Math.Cos(B)) - N;
+                    double tangensB1 = point.z() / Math.Sqrt(Math.Pow(point.x(), 2) + Math.Pow(point.y(), 2)) * 1 / (1 - e2 * (N / (N + H)));
+                    double B1 = Math.Atan(tangensB1);
+                    dif = Math.Abs(B1 - B);
+                    tangensB = tangensB1; iterator++;
+                    B = B1;
+                }
+                //MessageBox.Show(iterator.ToString());
+                result.Add(new PointBLH(point.Name(), B * 180 / Math.PI, L, H));
+            });
+            return result;
+        }
         //SCENARIUSZE TRANSFORMACYJNE: 20 GŁÓWNYCH PERMUTACJI
         //PRECISION ZAWSZE ODNOSI SIĘ DO DOKŁADNOŚCI KĄTOWEJ. DOKŁADNOŚĆ LINIOWA DOTYCZY WYŁĄCZNIE KOŃCOWYCH WYNIKÓW.
         //Wszystkie wartości longitude odnoszą się do południka osiowego układu 2000 lub południka osiowego UTM.
@@ -1958,9 +2004,604 @@ namespace WindowsFormsApp1
         public List<Point> U2000ToU65(List<Point> Points, byte longitude, double precision, double longitude65)
         {
             List<Point> result = new List<Point>();
-            
+            List<PointBLH> helper = XYGK2BLH(U2000ToGK(Points, longitude), longitude, precision);
+            if (this.startETRF.ToString().Equals("ETRF89"))
+            {
+                List<PointBLH> bottom = XYZ2Krasowski(GRS2KrasowskiXYZ(BLH2XYZ(helper)),precision);
+                result = Krasowski2XY65(bottom, this.resx0, this.resy0, this.resR0, longitude65, this.resXGK0);
+            }
+            else if (this.startETRF.ToString().Equals("ETRF2000"))
+            {
+                if (this.transformateOption)
+                {
+                    List<PointBLH> bottom = XYZ2Krasowski(GRS2KrasowskiXYZ(ETRF2000TO89(BLH2XYZ(helper))), precision);
+                    result = Krasowski2XY65(bottom, this.resx0, this.resy0, this.resR0, longitude65, this.resXGK0);
+                }
+                else if(!this.transformateOption)
+                {
+                    List<PointBLH> bottom = XYZ2Krasowski(GRS2KrasowskiXYZ(BLH2XYZ(setGridDeltasNchangeETRF(helper,true))),precision);
+                    result = Krasowski2XY65(bottom, this.resx0, this.resy0, this.resR0, longitude65, this.resXGK0);
+                }
+            }
             return result;
         }
+        public List<Point> U1992ToU65(List<Point> Points, double precision, double longitude65)
+        {
+            List<Point> result = new List<Point>();
+            List<PointBLH> helper = XYGK2BLH(U1992ToGK(Points), 19, precision);
+            if (this.startETRF.ToString().Equals("ETRF89"))
+            {
+                List<PointBLH> bottom = XYZ2Krasowski(GRS2KrasowskiXYZ(BLH2XYZ(helper)), precision);
+                result = Krasowski2XY65(bottom, this.resx0, this.resy0, this.resR0, longitude65, this.resXGK0);
+            }
+            else if (this.startETRF.ToString().Equals("ETRF2000"))
+            {
+                if (this.transformateOption)
+                {
+                    List<PointBLH> bottom = XYZ2Krasowski(GRS2KrasowskiXYZ(ETRF2000TO89(BLH2XYZ(helper))), precision);
+                    result = Krasowski2XY65(bottom, this.resx0, this.resy0, this.resR0, longitude65, this.resXGK0);
+                }
+                else if (!this.transformateOption)
+                {
+                    List<PointBLH> bottom = XYZ2Krasowski(GRS2KrasowskiXYZ(BLH2XYZ(setGridDeltasNchangeETRF(helper, true))), precision);
+                    result = Krasowski2XY65(bottom, this.resx0, this.resy0, this.resR0, longitude65, this.resXGK0);
+                }
+            }
+            return result;
+        }
+        public List<Point> UTM2U65(List<Point> Points, byte longitude, double precision, double longitude65)
+        {
+            List<Point> result = new List<Point>();
+            List<PointBLH> helper = UTM2BLH(Points, longitude, precision);
+            if (this.startETRF.ToString().Equals("ETRF89"))
+            {
+                List<PointBLH> bottom = XYZ2Krasowski(GRS2KrasowskiXYZ(BLH2XYZ(helper)), precision);
+                result = Krasowski2XY65(bottom, this.resx0, this.resy0, this.resR0, longitude65, this.resXGK0);
+            }
+            else if (this.startETRF.ToString().Equals("ETRF2000"))
+            {
+                if (this.transformateOption)
+                {
+                    List<PointBLH> bottom = XYZ2Krasowski(GRS2KrasowskiXYZ(ETRF2000TO89(BLH2XYZ(helper))), precision);
+                    result = Krasowski2XY65(bottom, this.resx0, this.resy0, this.resR0, longitude65, this.resXGK0);
+                }
+                else if (!this.transformateOption)
+                {
+                    List<PointBLH> bottom = XYZ2Krasowski(GRS2KrasowskiXYZ(BLH2XYZ(setGridDeltasNchangeETRF(helper, true))), precision);
+                    result = Krasowski2XY65(bottom, this.resx0, this.resy0, this.resR0, longitude65, this.resXGK0);
+                }
+            }
+            return result;
+        }
+        public List<Point> XYZ2U65(List<Point3D> Points, double precision, double longitude65)
+        {
+            List<Point> result = new List<Point>();
+            List<Point3D> helper = Points;
+            if (this.startETRF.ToString().Equals("ETRF89"))
+            {
+                List<PointBLH> bottom = XYZ2Krasowski(GRS2KrasowskiXYZ(helper), precision);
+                result = Krasowski2XY65(bottom, this.resx0, this.resy0, this.resR0, longitude65, this.resXGK0);
+            }
+            else if (this.startETRF.ToString().Equals("ETRF2000"))
+            {
+                if (this.transformateOption)
+                {
+                    List<PointBLH> bottom = XYZ2Krasowski(GRS2KrasowskiXYZ(ETRF2000TO89(helper)), precision);
+                    result = Krasowski2XY65(bottom, this.resx0, this.resy0, this.resR0, longitude65, this.resXGK0);
+                }
+                else if (!this.transformateOption)
+                {
+                    List<PointBLH> bottom = XYZ2Krasowski(GRS2KrasowskiXYZ(BLH2XYZ(setGridDeltasNchangeETRF(XYZ2BLH(helper,precision), true))), precision);
+                    result = Krasowski2XY65(bottom, this.resx0, this.resy0, this.resR0, longitude65, this.resXGK0);
+                }
+            }
+            return result;
+        }
+        public List<Point> BLH2U65(List<PointBLH> Points, double precision, double longitude65)
+        {
+            List<Point> result = new List<Point>();
+            List<PointBLH> helper = Points;
+            if (this.startETRF.ToString().Equals("ETRF89"))
+            {
+                List<PointBLH> bottom = XYZ2Krasowski(GRS2KrasowskiXYZ(BLH2XYZ(helper)), precision);
+                result = Krasowski2XY65(bottom, this.resx0, this.resy0, this.resR0, longitude65, this.resXGK0);
+            }
+            else if (this.startETRF.ToString().Equals("ETRF2000"))
+            {
+                if (this.transformateOption)
+                {
+                    List<PointBLH> bottom = XYZ2Krasowski(GRS2KrasowskiXYZ(ETRF2000TO89(BLH2XYZ(helper))), precision);
+                    result = Krasowski2XY65(bottom, this.resx0, this.resy0, this.resR0, longitude65, this.resXGK0);
+                }
+                else if (!this.transformateOption)
+                {
+                    List<PointBLH> bottom = XYZ2Krasowski(GRS2KrasowskiXYZ(BLH2XYZ(setGridDeltasNchangeETRF(helper, true))), precision);
+                    result = Krasowski2XY65(bottom, this.resx0, this.resy0, this.resR0, longitude65, this.resXGK0);
+                }
+            }
+            return result;
+        }
+        public List<Point> U2000ToU42(List<Point> Points, byte longitude, double precision, byte longitude42)
+        {
+            List<Point> result = new List<Point>();
+            List<PointBLH> helper = XYGK2BLH(U2000ToGK(Points, longitude), longitude, precision);
+            if (this.startETRF.ToString().Equals("ETRF89"))
+            {
+                List<PointBLH> bottom = XYZ2Krasowski(GRS2KrasowskiXYZ(BLH2XYZ(helper)), precision);
+                result = Krasowski2XY42(bottom, longitude42, this.StripesSize);
+            }
+            else if (this.startETRF.ToString().Equals("ETRF2000"))
+            {
+                if (this.transformateOption)
+                {
+                    List<PointBLH> bottom = XYZ2Krasowski(GRS2KrasowskiXYZ(ETRF2000TO89(BLH2XYZ(helper))), precision);
+                    result = Krasowski2XY42(bottom, longitude42, this.StripesSize);
+                }
+                else if (!this.transformateOption)
+                {
+                    List<PointBLH> bottom = XYZ2Krasowski(GRS2KrasowskiXYZ(BLH2XYZ(setGridDeltasNchangeETRF(helper, true))), precision);
+                    result = Krasowski2XY42(bottom, longitude42, this.StripesSize);
+                }
+            }
+            return result;
+        }
+        public List<Point> U1992ToU42(List<Point> Points, double precision, byte longitude42)
+        {
+            List<Point> result = new List<Point>();
+            List<PointBLH> helper = XYGK2BLH(U1992ToGK(Points), 19, precision);
+            if (this.startETRF.ToString().Equals("ETRF89"))
+            {
+                List<PointBLH> bottom = XYZ2Krasowski(GRS2KrasowskiXYZ(BLH2XYZ(helper)), precision);
+                result = Krasowski2XY42(bottom, longitude42, this.StripesSize);
+            }
+            else if (this.startETRF.ToString().Equals("ETRF2000"))
+            {
+                if (this.transformateOption)
+                {
+                    List<PointBLH> bottom = XYZ2Krasowski(GRS2KrasowskiXYZ(ETRF2000TO89(BLH2XYZ(helper))), precision);
+                    result = Krasowski2XY42(bottom, longitude42, this.StripesSize);
+                }
+                else if (!this.transformateOption)
+                {
+                    List<PointBLH> bottom = XYZ2Krasowski(GRS2KrasowskiXYZ(BLH2XYZ(setGridDeltasNchangeETRF(helper, true))), precision);
+                    result = Krasowski2XY42(bottom, longitude42, this.StripesSize);
+                }
+            }
+            return result;
+        }
+        public List<Point> UTM2U42(List<Point> Points,byte longitude, double precision, byte longitude42)
+        {
+            List<Point> result = new List<Point>();
+            List<PointBLH> helper = UTM2BLH(Points, longitude, precision);
+            if (this.startETRF.ToString().Equals("ETRF89"))
+            {
+                List<PointBLH> bottom = XYZ2Krasowski(GRS2KrasowskiXYZ(BLH2XYZ(helper)), precision);
+                result = Krasowski2XY42(bottom, longitude42, this.StripesSize);
+            }
+            else if (this.startETRF.ToString().Equals("ETRF2000"))
+            {
+                if (this.transformateOption)
+                {
+                    List<PointBLH> bottom = XYZ2Krasowski(GRS2KrasowskiXYZ(ETRF2000TO89(BLH2XYZ(helper))), precision);
+                    result = Krasowski2XY42(bottom, longitude42, this.StripesSize);
+                }
+                else if (!this.transformateOption)
+                {
+                    List<PointBLH> bottom = XYZ2Krasowski(GRS2KrasowskiXYZ(BLH2XYZ(setGridDeltasNchangeETRF(helper, true))), precision);
+                    result = Krasowski2XY42(bottom, longitude42, this.StripesSize);
+                }
+            }
+            return result;
+        }
+        public List<Point> XYZ2U42(List<Point3D> Points, double precision, byte longitude42)
+        {
+            List<Point> result = new List<Point>();
+            List<Point3D> helper = Points;
+            if (this.startETRF.ToString().Equals("ETRF89"))
+            {
+                List<PointBLH> bottom = XYZ2Krasowski(GRS2KrasowskiXYZ(helper), precision);
+                result = Krasowski2XY42(bottom, longitude42, this.StripesSize);
+            }
+            else if (this.startETRF.ToString().Equals("ETRF2000"))
+            {
+                if (this.transformateOption)
+                {
+                    List<PointBLH> bottom = XYZ2Krasowski(GRS2KrasowskiXYZ(ETRF2000TO89(helper)), precision);
+                    result = Krasowski2XY42(bottom, longitude42, this.StripesSize);
+                }
+                else if (!this.transformateOption)
+                {
+                    List<PointBLH> bottom = XYZ2Krasowski(GRS2KrasowskiXYZ(BLH2XYZ(setGridDeltasNchangeETRF(XYZ2BLH(helper, precision), true))), precision);
+                    result = Krasowski2XY42(bottom, longitude42, this.StripesSize);
+                }
+            }
+            return result;
+        }
+        public List<Point> BLH2U42(List<PointBLH> Points, double precision, byte longitude42)
+        {
+            List<Point> result = new List<Point>();
+            List<PointBLH> helper = Points;
+            if (this.startETRF.ToString().Equals("ETRF89"))
+            {
+                List<PointBLH> bottom = XYZ2Krasowski(GRS2KrasowskiXYZ(BLH2XYZ(helper)), precision);
+                result = Krasowski2XY42(bottom, longitude42, this.StripesSize);
+            }
+            else if (this.startETRF.ToString().Equals("ETRF2000"))
+            {
+                if (this.transformateOption)
+                {
+                    List<PointBLH> bottom = XYZ2Krasowski(GRS2KrasowskiXYZ(ETRF2000TO89(BLH2XYZ(helper))), precision);
+                    result = Krasowski2XY42(bottom, longitude42, this.StripesSize);
+                }
+                else if (!this.transformateOption)
+                {
+                    List<PointBLH> bottom = XYZ2Krasowski(GRS2KrasowskiXYZ(BLH2XYZ(setGridDeltasNchangeETRF(helper, true))), precision);
+                    result = Krasowski2XY42(bottom, longitude42, this.StripesSize);
+                }
+            }
+            return result;
+        }
+        public List<Point> U2000ToGUGIK80(List<Point>Points, byte longitude, double precision)
+        {
+            List<Point> result = new List<Point>();
+            List<PointBLH> helper = XYGK2BLH(U2000ToGK(Points, longitude), longitude, precision);
+            if (this.startETRF.ToString().Equals("ETRF89"))
+            {
+                List<PointBLH> bottom = XYZ2Krasowski(GRS2KrasowskiXYZ(BLH2XYZ(helper)), precision);
+                result = Krasowski2GUGIK80(bottom);
+            }
+            else if (this.startETRF.ToString().Equals("ETRF2000"))
+            {
+                if (this.transformateOption)
+                {
+                    List<PointBLH> bottom = XYZ2Krasowski(GRS2KrasowskiXYZ(ETRF2000TO89(BLH2XYZ(helper))), precision);
+                    result = Krasowski2GUGIK80(bottom);
+                }
+                else if (!this.transformateOption)
+                {
+                    List<PointBLH> bottom = XYZ2Krasowski(GRS2KrasowskiXYZ(BLH2XYZ(setGridDeltasNchangeETRF(helper, true))), precision);
+                    result = Krasowski2GUGIK80(bottom);
+                }
+            }
+            return result;
+        }
+        public List<Point> U1992ToGUGIK80(List<Point>Points, double precision)
+        {
+            List<Point> result = new List<Point>();
+            List<PointBLH> helper = XYGK2BLH(U1992ToGK(Points), 19, precision);
+            if (this.startETRF.ToString().Equals("ETRF89"))
+            {
+                List<PointBLH> bottom = XYZ2Krasowski(GRS2KrasowskiXYZ(BLH2XYZ(helper)), precision);
+                result = Krasowski2GUGIK80(bottom);
+            }
+            else if (this.startETRF.ToString().Equals("ETRF2000"))
+            {
+                if (this.transformateOption)
+                {
+                    List<PointBLH> bottom = XYZ2Krasowski(GRS2KrasowskiXYZ(ETRF2000TO89(BLH2XYZ(helper))), precision);
+                    result = Krasowski2GUGIK80(bottom);
+                }
+                else if (!this.transformateOption)
+                {
+                    List<PointBLH> bottom = XYZ2Krasowski(GRS2KrasowskiXYZ(BLH2XYZ(setGridDeltasNchangeETRF(helper, true))), precision);
+                    result = Krasowski2GUGIK80(bottom);
+                }
+            }
+            return result;
+        }
+        public List<Point> UTM2GUGIK80(List<Point>Points,byte longitude, double precision)
+        {
+            List<Point> result = new List<Point>();
+            List<PointBLH> helper = UTM2BLH(Points, longitude, precision);
+            if (this.startETRF.ToString().Equals("ETRF89"))
+            {
+                List<PointBLH> bottom = XYZ2Krasowski(GRS2KrasowskiXYZ(BLH2XYZ(helper)), precision);
+                result = Krasowski2GUGIK80(bottom);
+            }
+            else if (this.startETRF.ToString().Equals("ETRF2000"))
+            {
+                if (this.transformateOption)
+                {
+                    List<PointBLH> bottom = XYZ2Krasowski(GRS2KrasowskiXYZ(ETRF2000TO89(BLH2XYZ(helper))), precision);
+                    result = Krasowski2GUGIK80(bottom);
+                }
+                else if (!this.transformateOption)
+                {
+                    List<PointBLH> bottom = XYZ2Krasowski(GRS2KrasowskiXYZ(BLH2XYZ(setGridDeltasNchangeETRF(helper, true))), precision);
+                    result = Krasowski2GUGIK80(bottom);
+                }
+            }
+            return result;
+        }
+        public List<Point> XYZ2GUGIK80(List<Point3D>Points, double precision)
+        {
+            List<Point> result = new List<Point>();
+            List<Point3D> helper = Points;
+            if (this.startETRF.ToString().Equals("ETRF89"))
+            {
+                List<PointBLH> bottom = XYZ2Krasowski(GRS2KrasowskiXYZ(helper), precision);
+                result = Krasowski2GUGIK80(bottom);
+            }
+            else if (this.startETRF.ToString().Equals("ETRF2000"))
+            {
+                if (this.transformateOption)
+                {
+                    List<PointBLH> bottom = XYZ2Krasowski(GRS2KrasowskiXYZ(ETRF2000TO89(helper)), precision);
+                    result = Krasowski2GUGIK80(bottom);
+                }
+                else if (!this.transformateOption)
+                {
+                    List<PointBLH> bottom = XYZ2Krasowski(GRS2KrasowskiXYZ(BLH2XYZ(setGridDeltasNchangeETRF(XYZ2BLH(helper,precision), true))), precision);
+                    result = Krasowski2GUGIK80(bottom);
+                }
+            }
+            return result;
+        }
+        public List<Point> XYZ2GUGIK80(List<PointBLH>Points, double precision) {
+            List<Point> result = new List<Point>();
+            List<Point3D> helper = BLH2XYZ(Points);
+            if (this.startETRF.ToString().Equals("ETRF89"))
+            {
+                List<PointBLH> bottom = XYZ2Krasowski(GRS2KrasowskiXYZ(helper), precision);
+                result = Krasowski2GUGIK80(bottom);
+            }
+            else if (this.startETRF.ToString().Equals("ETRF2000"))
+            {
+                if (this.transformateOption)
+                {
+                    List<PointBLH> bottom = XYZ2Krasowski(GRS2KrasowskiXYZ(ETRF2000TO89(helper)), precision);
+                    result = Krasowski2GUGIK80(bottom);
+                }
+                else if (!this.transformateOption)
+                {
+                    List<PointBLH> bottom = XYZ2Krasowski(GRS2KrasowskiXYZ(BLH2XYZ(setGridDeltasNchangeETRF(XYZ2BLH(helper, precision), true))), precision);
+                    result = Krasowski2GUGIK80(bottom);
+                }
+            }
+            return result;
+        }
+        public List<PointBLH> U2000ToKrasowskiBLH(List<Point>Points,byte longitude,double precision)
+        {
+            List<PointBLH> result = new List<PointBLH>();
+            List<PointBLH> helper = XYGK2BLH(U2000ToGK(Points, longitude), longitude, precision);
+            if (this.startETRF.ToString().Equals("ETRF89"))
+            {
+                List<PointBLH> bottom = XYZ2Krasowski(GRS2KrasowskiXYZ(BLH2XYZ(helper)), precision);
+                result = bottom;
+            }
+            else if (this.startETRF.ToString().Equals("ETRF2000"))
+            {
+                if (this.transformateOption)
+                {
+                    List<PointBLH> bottom = XYZ2Krasowski(GRS2KrasowskiXYZ(ETRF2000TO89(BLH2XYZ(helper))), precision);
+                    result = bottom;
+                }
+                else if (!this.transformateOption)
+                {
+                    List<PointBLH> bottom = XYZ2Krasowski(GRS2KrasowskiXYZ(BLH2XYZ(setGridDeltasNchangeETRF(helper, true))), precision);
+                    result = bottom;
+                }
+            }
+            return result;
+        }
+        public List<PointBLH> U1992ToKrasowskiBLH(List<Point>Points, double precision)
+        {
+            List<PointBLH> result = new List<PointBLH>();
+            List<PointBLH> helper = XYGK2BLH(U1992ToGK(Points), 19, precision);
+            if (this.startETRF.ToString().Equals("ETRF89"))
+            {
+                List<PointBLH> bottom = XYZ2Krasowski(GRS2KrasowskiXYZ(BLH2XYZ(helper)), precision);
+                result = bottom;
+            }
+            else if (this.startETRF.ToString().Equals("ETRF2000"))
+            {
+                if (this.transformateOption)
+                {
+                    List<PointBLH> bottom = XYZ2Krasowski(GRS2KrasowskiXYZ(ETRF2000TO89(BLH2XYZ(helper))), precision);
+                    result = bottom;
+                }
+                else if (!this.transformateOption)
+                {
+                    List<PointBLH> bottom = XYZ2Krasowski(GRS2KrasowskiXYZ(BLH2XYZ(setGridDeltasNchangeETRF(helper, true))), precision);
+                    result = bottom;
+                }
+            }
+            return result;
+        }
+        public List<PointBLH> UTM2KrasowskiBLH(List<Point>Points, byte longitude, double precision)
+        {
+            List<PointBLH> result = new List<PointBLH>();
+            List<PointBLH> helper = UTM2BLH(Points, longitude, precision);
+            if (this.startETRF.ToString().Equals("ETRF89"))
+            {
+                List<PointBLH> bottom = XYZ2Krasowski(GRS2KrasowskiXYZ(BLH2XYZ(helper)), precision);
+                result = bottom;
+            }
+            else if (this.startETRF.ToString().Equals("ETRF2000"))
+            {
+                if (this.transformateOption)
+                {
+                    List<PointBLH> bottom = XYZ2Krasowski(GRS2KrasowskiXYZ(ETRF2000TO89(BLH2XYZ(helper))), precision);
+                    result = bottom;
+                }
+                else if (!this.transformateOption)
+                {
+                    List<PointBLH> bottom = XYZ2Krasowski(GRS2KrasowskiXYZ(BLH2XYZ(setGridDeltasNchangeETRF(helper, true))), precision);
+                    result = bottom;
+                }
+            }
+            return result;
+        }
+        public List<PointBLH> XYZ2KrasowskiBLH(List<Point3D>Points, double precision)
+        {
+            List<PointBLH> result = new List<PointBLH>();
+            List<Point3D> helper = Points;
+            if (this.startETRF.ToString().Equals("ETRF89"))
+            {
+                List<PointBLH> bottom = XYZ2Krasowski(GRS2KrasowskiXYZ(helper), precision);
+                result = bottom;
+            }
+            else if (this.startETRF.ToString().Equals("ETRF2000"))
+            {
+                if (this.transformateOption)
+                {
+                    List<PointBLH> bottom = XYZ2Krasowski(GRS2KrasowskiXYZ(ETRF2000TO89(helper)), precision);
+                    result = bottom;
+                }
+                else if (!this.transformateOption)
+                {
+                    List<PointBLH> bottom = XYZ2Krasowski(GRS2KrasowskiXYZ(BLH2XYZ(setGridDeltasNchangeETRF(XYZ2BLH(helper,precision), true))), precision);
+                    result = bottom;
+                }
+            }
+            return result;
+        }
+        public List<PointBLH> BLH2KrasowskiBLH(List<PointBLH>Points,double precision)
+        {
+            List<PointBLH> result = new List<PointBLH>();
+            List<PointBLH> helper = Points;
+            if (this.startETRF.ToString().Equals("ETRF89"))
+            {
+                List<PointBLH> bottom = XYZ2Krasowski(GRS2KrasowskiXYZ(BLH2XYZ(helper)), precision);
+                result = bottom;
+            }
+            else if (this.startETRF.ToString().Equals("ETRF2000"))
+            {
+                if (this.transformateOption)
+                {
+                    List<PointBLH> bottom = XYZ2Krasowski(GRS2KrasowskiXYZ(ETRF2000TO89(BLH2XYZ(helper))), precision);
+                    result = bottom;
+                }
+                else if (!this.transformateOption)
+                {
+                    List<PointBLH> bottom = XYZ2Krasowski(GRS2KrasowskiXYZ(BLH2XYZ(setGridDeltasNchangeETRF(helper, true))), precision);
+                    result = bottom;
+                }
+            }
+            return result;
+        }
+        public List<Point3D> U2000ToKrasowskiXYZ(List<Point>Points, byte longitude, double precision)
+        {
+            List<Point3D> result = new List<Point3D>();
+            List<PointBLH> helper = XYGK2BLH(U2000ToGK(Points, longitude), longitude, precision);
+            if (this.startETRF.ToString().Equals("ETRF89"))
+            {
+                List<Point3D> bottom = GRS2KrasowskiXYZ(BLH2XYZ(helper));
+                result = bottom;
+            }
+            else if (this.startETRF.ToString().Equals("ETRF2000"))
+            {
+                if (this.transformateOption)
+                {
+                    List<Point3D> bottom = GRS2KrasowskiXYZ(ETRF2000TO89(BLH2XYZ(helper)));
+                    result = bottom;
+                }
+                else if (!this.transformateOption)
+                {
+                    List<Point3D> bottom = GRS2KrasowskiXYZ(BLH2XYZ(setGridDeltasNchangeETRF(helper, true)));
+                    result = bottom;
+                }
+            }
+            return result;
+        }
+        public List<Point3D> U1992ToKrasowskiXYZ(List<Point>Points, double precision)
+        {
+            List<Point3D> result = new List<Point3D>();
+            List<PointBLH> helper = XYGK2BLH(U1992ToGK(Points), 19, precision);
+            if (this.startETRF.ToString().Equals("ETRF89"))
+            {
+                List<Point3D> bottom = GRS2KrasowskiXYZ(BLH2XYZ(helper));
+                result = bottom;
+            }
+            else if (this.startETRF.ToString().Equals("ETRF2000"))
+            {
+                if (this.transformateOption)
+                {
+                    List<Point3D> bottom = GRS2KrasowskiXYZ(ETRF2000TO89(BLH2XYZ(helper)));
+                    result = bottom;
+                }
+                else if (!this.transformateOption)
+                {
+                    List<Point3D> bottom = GRS2KrasowskiXYZ(BLH2XYZ(setGridDeltasNchangeETRF(helper, true)));
+                    result = bottom;
+                }
+            }
+            return result;
+        }
+        public List<Point3D> UTM2KrasowskiXYZ(List<Point>Points, byte longitude,double precision)
+        {
+            List<Point3D> result = new List<Point3D>();
+            List<PointBLH> helper = UTM2BLH(Points, longitude, precision);
+            if (this.startETRF.ToString().Equals("ETRF89"))
+            {
+                List<Point3D> bottom = GRS2KrasowskiXYZ(BLH2XYZ(helper));
+                result = bottom;
+            }
+            else if (this.startETRF.ToString().Equals("ETRF2000"))
+            {
+                if (this.transformateOption)
+                {
+                    List<Point3D> bottom = GRS2KrasowskiXYZ(ETRF2000TO89(BLH2XYZ(helper)));
+                    result = bottom;
+                }
+                else if (!this.transformateOption)
+                {
+                    List<Point3D> bottom = GRS2KrasowskiXYZ(BLH2XYZ(setGridDeltasNchangeETRF(helper, true)));
+                    result = bottom;
+                }
+            }
+            return result;
+        }
+        public List<Point3D> XYZ2KrasowskiXYZ(List<Point3D>Points, double precision)
+        {
+            List<Point3D> result = new List<Point3D>();
+            List<Point3D> helper = Points;
+            if (this.startETRF.ToString().Equals("ETRF89"))
+            {
+                List<Point3D> bottom = GRS2KrasowskiXYZ(BLH2XYZ(XYZ2BLH(helper,precision)));
+                result = bottom;
+            }
+            else if (this.startETRF.ToString().Equals("ETRF2000"))
+            {
+                if (this.transformateOption)
+                {
+                    List<Point3D> bottom = GRS2KrasowskiXYZ(ETRF2000TO89(BLH2XYZ(XYZ2BLH(helper,precision))));
+                    result = bottom;
+                }
+                else if (!this.transformateOption)
+                {
+                    List<Point3D> bottom = GRS2KrasowskiXYZ(BLH2XYZ(setGridDeltasNchangeETRF(XYZ2BLH(helper, precision), true)));
+                    result = bottom;
+                }
+            }
+            return result;
+        }
+        public List<Point3D> BLH2KrasowskiXYZ(List<PointBLH>Points, double precision)
+        {
+            List<Point3D> result = new List<Point3D>();
+            List<PointBLH> helper = Points;
+            if (this.startETRF.ToString().Equals("ETRF89"))
+            {
+                List<Point3D> bottom = GRS2KrasowskiXYZ(BLH2XYZ(helper));
+                result = bottom;
+            }
+            else if (this.startETRF.ToString().Equals("ETRF2000"))
+            {
+                if (this.transformateOption)
+                {
+                    List<Point3D> bottom = GRS2KrasowskiXYZ(ETRF2000TO89(BLH2XYZ(helper)));
+                    result = bottom;
+                }
+                else if (!this.transformateOption)
+                {
+                    List<Point3D> bottom = GRS2KrasowskiXYZ(BLH2XYZ(setGridDeltasNchangeETRF(helper, true)));
+                    result = bottom;
+                }
+            }
+            return result;
+        }
+        //i odwrotnie.....
+
         //SCENARIUSZE TRANSFORMUJĄCE DO TEGO SAMEGO UKŁADU WSPÓŁRZĘDNYCH:
         public List<Point> U2000ToU2000(byte longitudeS, byte longitudeE, double precision, List<Point> Points)
         {
@@ -2299,8 +2940,8 @@ namespace WindowsFormsApp1
             });
             return result; 
         }
-        //TRANSFORMACJA POMIĘDZY ELIPSOIDĄ KRASOWSKIEGO A GRS80
-        public List<Point3D> Krasowki2GRS(List<Point3D> Points)
+        //TRANSFORMACJA POMIĘDZY ELIPXOIDĄ KRASOWSKIEGO A GRS80
+        public List<Point3D> KrasowkiXYZ2GRS(List<Point3D> Points)
         {
             List<Point3D> result = new List<Point3D>();
             double d11 = 1 - 0.840780 * 0.000001; double d12 = -4.089600 * 0.000001; double d13 = -0.256146 * 0.000001;
@@ -2316,7 +2957,7 @@ namespace WindowsFormsApp1
             });
             return result;
         }
-        public List<Point3D> GRS2Krasowski(List<Point3D> Points)
+        public List<Point3D> GRS2KrasowskiXYZ(List<Point3D> Points)
         {
             List<Point3D> result = new List<Point3D>();
             double c11 = 1 + 0.840764 * 0.000001; double c12 = 4.089607 * 0.000001; double c13 = 0.256139 * 0.000001;
@@ -2569,7 +3210,7 @@ namespace WindowsFormsApp1
                 }
                 else if (end.ToString().Equals("BLH GRS80"))
                 {
-                    List<PointBLH> result = UTM2BLH(this.Points, this.longitude, anglePrecision);
+                    List<PointBLH> result = UTMtoBLH(this.longitude, anglePrecision, this.Points);
                     TransformerBW.ReportProgress(40);
                     //FileOpenerButton.Visible = true; FileOpenerButton.Text = "BLH";
                     this.FileName.Append("BLH.txt");
@@ -2711,34 +3352,37 @@ namespace WindowsFormsApp1
         }
         private void TransformerBW_DoWork(object sender, DoWorkEventArgs e)
         {
-            
-            try { getPointsData();
-                if (this.canIStartCounting)
-                {            
-                    if (!end.ToString().Equals(""))
+            if (!end.ToString().Equals(""))
+            {
+                try
+                {
+
+                    getPointsData();
+                    if (this.canIStartCounting)
                     {
                         GottaTransformThemAll();
                         Thread.Sleep(100);
                         TransformerBW.ReportProgress(99);
+                        this.canIStartCounting = false;
                     }
-                    else
-                    {
-                        MessageBox.Show("Nie wybrano układu wyjściowego.");
-                    }
-                    this.canIStartCounting = false;
                 }
-               
+                catch (ThreadAbortException)
+                {
+                    Thread.ResetAbort();
+                }
             }
-            catch (ThreadAbortException)
+            else
             {
-                Thread.ResetAbort();
+                MessageBox.Show("Nie wybrano układu wyjściowego.");
             }
+           
         }
 
         private void TransformerBW_ProgressChanged(object sender, ProgressChangedEventArgs e)
         {
             switch (e.ProgressPercentage)
             {
+               
                 case 0:
                     this.MonitorRichTextBox.Text += this.errorCatcher; break;
                 case 1:
@@ -2764,11 +3408,18 @@ namespace WindowsFormsApp1
 
         private void TransformerBW_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
-            this.tabControl1.Enabled = true;
+            StopButton.Visible = false;
             Application.UseWaitCursor = false;
         }
 
- 
+        private void StopButton_Click(object sender, EventArgs e)
+        {
+            if (this.TransformerBW.IsBusy)
+            {
+                this.TransformerBW.CancelAsync();
+            }
+            clearPointsLists(); this.FileName.Clear();
+        }
     }
 
 

@@ -132,6 +132,7 @@
             this.tabPage2 = new System.Windows.Forms.TabPage();
             this.tabPage3 = new System.Windows.Forms.TabPage();
             this.TransformerBW = new System.ComponentModel.BackgroundWorker();
+            this.StopButton = new System.Windows.Forms.Button();
             this.ChoiceOne.SuspendLayout();
             this.KrasowskiGB.SuspendLayout();
             this.ChoiceTwo.SuspendLayout();
@@ -868,6 +869,7 @@
             // tabPage1
             // 
             this.tabPage1.BackColor = System.Drawing.Color.DarkGray;
+            this.tabPage1.Controls.Add(this.StopButton);
             this.tabPage1.Controls.Add(this.resXY65StrefaGB);
             this.tabPage1.Controls.Add(this.resXY42GB);
             this.tabPage1.Controls.Add(this.XY65StrefaGB);
@@ -1475,6 +1477,17 @@
             this.TransformerBW.ProgressChanged += new System.ComponentModel.ProgressChangedEventHandler(this.TransformerBW_ProgressChanged);
             this.TransformerBW.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.TransformerBW_RunWorkerCompleted);
             // 
+            // StopButton
+            // 
+            this.StopButton.Location = new System.Drawing.Point(515, 3);
+            this.StopButton.Name = "StopButton";
+            this.StopButton.Size = new System.Drawing.Size(110, 23);
+            this.StopButton.TabIndex = 26;
+            this.StopButton.Text = "STOP";
+            this.StopButton.UseVisualStyleBackColor = true;
+            this.StopButton.Visible = false;
+            this.StopButton.Click += new System.EventHandler(this.StopButton_Click);
+            // 
             // Transform
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -1642,6 +1655,7 @@
         private System.Windows.Forms.RadioButton resxy65s3;
         private System.Windows.Forms.RadioButton resxy65s2;
         private System.Windows.Forms.RadioButton resxy65s1;
+        private System.Windows.Forms.Button StopButton;
     }
 }
 
