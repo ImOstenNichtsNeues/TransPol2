@@ -322,7 +322,43 @@ namespace WindowsFormsApp1
                 {
                     loadPointsBLH(); this.Points3D.Clear(); this.Points.Clear();
                 }
-                
+                else if (this.start.ToString().Equals("Układ 1965"))
+                {                   
+                    if (this.longitude65 != 0)
+                    {
+                        loadPoints2D(); this.Points3D.Clear(); this.PointsBLH.Clear();
+                    }
+                    else
+                    {
+                        MessageBox.Show("Nie określono południka osiowego.");
+                        this.TransformerBW.CancelAsync();
+                    }
+                }
+                else if (this.start.ToString().Equals("Układ 1942"))
+                {
+                    this.longitude = setLongitude(longitudeK15, longitudeK18, longitudeK21, longitudeK24);
+                    if (this.longitude != 0)
+                    {
+                        loadPoints2D(); this.Points3D.Clear(); this.PointsBLH.Clear();
+                    }
+                    else
+                    {
+                        MessageBox.Show("Nie określono południka osiowego.");
+                        this.TransformerBW.CancelAsync();
+                    }
+                }
+                else if (this.start.ToString().Equals("Układ 1965"))
+                {
+                        loadPoints2D(); this.Points3D.Clear(); this.PointsBLH.Clear();
+                }
+                else if (this.start.ToString().Equals("XYZ Krasowski"))
+                {
+                    loadPoints3D(); this.Points.Clear(); this.PointsBLH.Clear();
+                }
+                else if (this.start.ToString().Equals("BLH Krasowski"))
+                {
+                    loadPointsBLH(); this.Points.Clear(); this.PointsBLH.Clear();
+                }
                 else
                 {
                     MessageBox.Show("Jak mam to niby zrobić???");
@@ -544,7 +580,7 @@ namespace WindowsFormsApp1
             setFalseGroupBoxVisibility(XY65StrefaGB, XY42GB);
             clearRadioButtonsCheck(longitudeK15, longitudeK18, longitudeK21, longitudeK24, xy42width3, xy42width6);
             clearRadioButtonsCheck(xy65s1, xy65s2, xy65s3, xy65s4, xy65s5);
-            this.start.Clear(); this.start.Append("Układ 1942"); loadFile.Enabled = true;
+            this.start.Clear(); this.start.Append("GUGIK80"); loadFile.Enabled = true;
         }
         private void BLHKrasowskiRB_CheckedChanged(object sender, EventArgs e)
         {
@@ -577,7 +613,7 @@ namespace WindowsFormsApp1
             setFalseGroupBoxVisibility(resXY65StrefaGB, resXY42GB);
             clearRadioButtonsCheck(reslongitudeK15, reslongitudeK18, reslongitudeK21, reslongitudeK24, resxy42width3, resxy42width6);
             clearRadioButtonsCheck(resxy65s1, resxy65s2, resxy65s3, resxy65s4, resxy65s5);
-            this.end.Clear(); this.end.Append("Układ 1942"); 
+            this.end.Clear(); this.end.Append("GUGIK80"); 
         }
         private void ResBLHKrasowskiRB_CheckedChanged(object sender, EventArgs e)
         {
@@ -2350,7 +2386,7 @@ namespace WindowsFormsApp1
             }
             return result;
         }
-        public List<Point> XYZ2GUGIK80(List<PointBLH>Points, double precision) {
+        public List<Point> BLH2GUGIK80(List<PointBLH>Points, double precision) {
             List<Point> result = new List<Point>();
             List<Point3D> helper = BLH2XYZ(Points);
             if (this.startETRF.ToString().Equals("ETRF89"))
@@ -3292,7 +3328,7 @@ namespace WindowsFormsApp1
             result = Krasowski2XY42(bottom, longitude42, this.resStripesSize);
             return result;
         }
-        public List<Point> KrasowskiXYZ2U65(List<Point3D> Points, double precision)
+        public List<Point> KrasowskiXYZ2GUGIK(List<Point3D> Points, double precision)
         {
             List<Point> result = new List<Point>();
             List<PointBLH> bottom = XYZ2Krasowski(Points, precision);
@@ -3831,7 +3867,7 @@ namespace WindowsFormsApp1
                     TransformerBW.ReportProgress(40);
                     //FileOpenerButton.Visible = true; FileOpenerButton.Text = "BLH";
                     this.FileName.Append("BLH.txt");
-                    PrintFile(result, this.FileName.ToString(), printPrecisionA,printPrecisionL,this.resultDegreeForm, "Układ 2000 do BLH");
+                    PrintFile(result, this.FileName.ToString(), printPrecisionA,printPrecisionL,this.resultDegreeForm, "Układ 2000 do BLH GRS80");
                 }
                 else if(end.ToString().Equals("XYZ GRS80"))
                 {
@@ -3839,7 +3875,64 @@ namespace WindowsFormsApp1
                     TransformerBW.ReportProgress(50);
                     //FileOpenerButton.Visible = true; FileOpenerButton.Text = "XYZ";
                     this.FileName.Append("XYZ.txt");
-                    PrintFile(result, this.FileName.ToString(), printPrecisionL, "Układ 2000 do XYZ");
+                    PrintFile(result, this.FileName.ToString(), printPrecisionL, "Układ 2000 do XYZ GRS80");
+                }
+                else if(end.ToString().Equals("Układ 1965"))
+                {
+                    if (this.resLongitude65 != 0)
+                    {
+                        List<Point> result = U2000ToU65(this.Points, this.longitude, anglePrecision, this.resLongitude65);
+                        TransformerBW.ReportProgress(60);
+                        //FileOpenerButton.Visible = true; FileOpenerButton.Text = "U2000";
+                        this.FileName.Append("U1965.txt");
+                        PrintFile(result, this.FileName.ToString(), printPrecisionL, ("Układ 2000 do Układu 1965."));
+                    }
+                    else
+                    {
+                        MessageBox.Show("Nie wybrano strefy dla funkcji wyjściowej.");
+                        goto koniecPsot;
+                    }
+                }
+                else if(end.ToString().Equals("Układ 1942")){
+                    this.resLongitude = 0;
+                    this.resLongitude = setLongitude(reslongitudeK15,reslongitudeK18,reslongitudeK21,reslongitudeK24);
+                    if (this.resLongitude != 0)
+                    {
+                        List<Point> result = U2000ToU42(this.Points, this.longitude, anglePrecision, this.resLongitude);
+                        TransformerBW.ReportProgress(65);
+                        //FileOpenerButton.Visible = true; FileOpenerButton.Text = "U2000";
+                        this.FileName.Append("U1942.txt");
+                        PrintFile(result, this.FileName.ToString(), printPrecisionL, ("Układ 2000 do Układu 1942, L0=" + resLongitude.ToString()));
+                    }
+                    else
+                    {
+                        MessageBox.Show("Nie wybrano południka osiowego funkcji wyjściowej.");
+                        goto koniecPsot;
+                    }
+                }
+                else if (end.ToString().Equals("GUGIK80"))
+                {
+                    List<Point> result = U2000ToGUGIK80(this.Points, this.longitude, anglePrecision);
+                    TransformerBW.ReportProgress(70);
+                    //FileOpenerButton.Visible = true; FileOpenerButton.Text = "U1992";
+                    this.FileName.Append("GUGIK80.txt");
+                    PrintFile(result, this.FileName.ToString(), printPrecisionL, ("Układ 2000 do Układu GUGIK80"));
+                }
+                else if(end.ToString().Equals("XYZ Krasowski"))
+                {
+                    List<Point3D> result = U2000ToKrasowskiXYZ(this.Points, this.longitude, anglePrecision);
+                        TransformerBW.ReportProgress(75);
+                        //FileOpenerButton.Visible = true; FileOpenerButton.Text = "U2000";
+                        this.FileName.Append("XYZ Krasowski.txt");
+                        PrintFile(result, this.FileName.ToString(), printPrecisionL, ("Układ 2000 do XYZ Krasowski"));
+                }
+                else if(end.ToString().Equals("BLH Krasowski"))
+                {
+                    List<PointBLH> result = U2000ToKrasowskiBLH(this.Points, this.longitude, anglePrecision);
+                        TransformerBW.ReportProgress(80);
+                        //FileOpenerButton.Visible = true; FileOpenerButton.Text = "U2000";
+                        this.FileName.Append("BLH Krasowski.txt");
+                        PrintFile(result, this.FileName.ToString(), printPrecisionA, printPrecisionL, this.resultDegreeForm, ("Układ 2000 do BLH Krasowski"));
                 }
             }
             else if(start.ToString().Equals("Układ 1992"))
@@ -3892,7 +3985,7 @@ namespace WindowsFormsApp1
                     TransformerBW.ReportProgress(40);
                     //FileOpenerButton.Visible = true; FileOpenerButton.Text = "BLH";
                     this.FileName.Append("BLH.txt");
-                    PrintFile(result, this.FileName.ToString(), printPrecisionA, printPrecisionL, this.resultDegreeForm, "Układ 1992 do BLH");
+                    PrintFile(result, this.FileName.ToString(), printPrecisionA, printPrecisionL, this.resultDegreeForm, "Układ 1992 do BLH GRS80");
                 }
                 else if (end.ToString().Equals("XYZ GRS80"))
                 {
@@ -3900,7 +3993,64 @@ namespace WindowsFormsApp1
                     TransformerBW.ReportProgress(50);
                     //FileOpenerButton.Visible = true; FileOpenerButton.Text = "XYZ";
                     this.FileName.Append("XYZ.txt");
-                    PrintFile(result, this.FileName.ToString(), printPrecisionL, "Układ 1992 do XYZ");
+                    PrintFile(result, this.FileName.ToString(), printPrecisionL, "Układ 1992 do XYZ GRS80");
+                }
+                else if(end.ToString().Equals("Układ 1965"))
+                {
+                    if (this.resLongitude65 != 0)
+                    {
+                        List<Point> result = U1992ToU65(this.Points, anglePrecision, this.resLongitude65);
+                        TransformerBW.ReportProgress(60);
+                        //FileOpenerButton.Visible = true; FileOpenerButton.Text = "U2000";
+                        this.FileName.Append("U1965.txt");
+                        PrintFile(result, this.FileName.ToString(), printPrecisionL, ("Układ 1992 do Układu 1965"));
+                    }
+                    else
+                    {
+                        MessageBox.Show("Nie wybrano strefy dla funkcji wyjściowej.");
+                        goto koniecPsot;
+                    }
+                }
+                else if(end.ToString().Equals("Układ 1942"))
+                {
+                    this.resLongitude = setLongitude(reslongitudeK15,reslongitudeK18,reslongitudeK21,reslongitudeK24);
+                    if (this.resLongitude != 0)
+                    {
+                        List<Point> result = U1992ToU42(this.Points, anglePrecision, this.resLongitude);
+                        TransformerBW.ReportProgress(65);
+                        //FileOpenerButton.Visible = true; FileOpenerButton.Text = "U2000";
+                        this.FileName.Append("U1942.txt");
+                        PrintFile(result, this.FileName.ToString(), printPrecisionL, ("Układ 1992 do Układu 1942, L0=" + resLongitude.ToString()));
+                    }
+                    else
+                    {
+                        MessageBox.Show("Nie wybrano południka osiowego funkcji wyjściowej.");
+                        goto koniecPsot;
+                    }
+                }
+                else if (end.ToString().Equals("GUGIK80"))
+                {
+                    List<Point> result = U1992ToGUGIK80(this.Points, anglePrecision);
+                    TransformerBW.ReportProgress(70);
+                    //FileOpenerButton.Visible = true; FileOpenerButton.Text = "U1992";
+                    this.FileName.Append("GUGIK80.txt");
+                    PrintFile(result, this.FileName.ToString(), printPrecisionL, ("Układ 1992 do Układu GUGIK80"));
+                }
+                else if(end.ToString().Equals("XYZ Krasowski"))
+                {
+                    List<Point3D> result = U1992ToKrasowskiXYZ(this.Points, anglePrecision);
+                    TransformerBW.ReportProgress(75);
+                    //FileOpenerButton.Visible = true; FileOpenerButton.Text = "U2000";
+                    this.FileName.Append("XYZ Krasowski.txt");
+                    PrintFile(result, this.FileName.ToString(), printPrecisionL, ("Układ 1992 do XYZ Krasowski"));
+                }
+                else if (end.ToString().Equals("BLH Krasowski"))
+                {
+                    List<PointBLH> result = U1992ToKrasowskiBLH(this.Points, anglePrecision);
+                    TransformerBW.ReportProgress(80);
+                    //FileOpenerButton.Visible = true; FileOpenerButton.Text = "U2000";
+                    this.FileName.Append("BLH Krasowski.txt");
+                    PrintFile(result, this.FileName.ToString(), printPrecisionA, printPrecisionL, this.resultDegreeForm, (this.start.ToString() + " do " + this.end.ToString())) ;
                 }
             }
             else if (start.ToString().Equals("UTM"))
@@ -3953,7 +4103,7 @@ namespace WindowsFormsApp1
                     TransformerBW.ReportProgress(40);
                     //FileOpenerButton.Visible = true; FileOpenerButton.Text = "BLH";
                     this.FileName.Append("BLH.txt");
-                    PrintFile(result, this.FileName.ToString(), printPrecisionA, printPrecisionL, this.resultDegreeForm, "Układ UTM do BLH");
+                    PrintFile(result, this.FileName.ToString(), printPrecisionA, printPrecisionL, this.resultDegreeForm, "Układ UTM do BLH GRS80");
                 }
                 else if (end.ToString().Equals("XYZ GRS80"))
                 {
@@ -3961,7 +4111,64 @@ namespace WindowsFormsApp1
                     TransformerBW.ReportProgress(50);
                     //FileOpenerButton.Visible = true; FileOpenerButton.Text = "XYZ";
                     this.FileName.Append("XYZ.txt");
-                    PrintFile(result, this.FileName.ToString(), printPrecisionL, "Układ UTM do XYZ");
+                    PrintFile(result, this.FileName.ToString(), printPrecisionL, "Układ UTM do XYZ GRS80");
+                }
+                else if (end.ToString().Equals("Układ 1965"))
+                {
+                    if (this.resLongitude65 != 0)
+                    {
+                        List<Point> result = UTM2U65(this.Points, this.longitude, anglePrecision, this.resLongitude65);
+                        TransformerBW.ReportProgress(60);
+                        //FileOpenerButton.Visible = true; FileOpenerButton.Text = "U2000";
+                        this.FileName.Append("U1965.txt");
+                        PrintFile(result, this.FileName.ToString(), printPrecisionL, ("Układ UTM do Układu 1965"));
+                    }
+                    else
+                    {
+                        MessageBox.Show("Nie wybrano strefy dla funkcji wyjściowej.");
+                        goto koniecPsot;
+                    }
+                }
+                else if (end.ToString().Equals("Układ 1942"))
+                {
+                    this.resLongitude = setLongitude(reslongitudeK15, reslongitudeK18, reslongitudeK21, reslongitudeK24);
+                    if (this.resLongitude != 0)
+                    {
+                        List<Point> result = UTM2U42(this.Points, this.longitude, anglePrecision, this.resLongitude);
+                        TransformerBW.ReportProgress(65);
+                        //FileOpenerButton.Visible = true; FileOpenerButton.Text = "U2000";
+                        this.FileName.Append("U1942.txt");
+                        PrintFile(result, this.FileName.ToString(), printPrecisionL, ("Układ UTM do Układu 1942, L0=" + resLongitude.ToString()));
+                    }
+                    else
+                    {
+                        MessageBox.Show("Nie wybrano południka osiowego funkcji wyjściowej.");
+                        goto koniecPsot;
+                    }
+                }
+                else if (end.ToString().Equals("GUGIK80"))
+                {
+                    List<Point> result = UTM2GUGIK80(this.Points, this.longitude, anglePrecision);
+                    TransformerBW.ReportProgress(70);
+                    //FileOpenerButton.Visible = true; FileOpenerButton.Text = "U1992";
+                    this.FileName.Append("GUGIK80.txt");
+                    PrintFile(result, this.FileName.ToString(), printPrecisionL, ("Układ UTM do Układu GUGIK80"));
+                }
+                else if (end.ToString().Equals("XYZ Krasowski"))
+                {
+                    List<Point3D> result = UTM2KrasowskiXYZ(this.Points, this.longitude, anglePrecision);
+                    TransformerBW.ReportProgress(75);
+                    //FileOpenerButton.Visible = true; FileOpenerButton.Text = "U2000";
+                    this.FileName.Append("XYZ Krasowski.txt");
+                    PrintFile(result, this.FileName.ToString(), printPrecisionL, ("Układ UTM do XYZ Krasowski"));
+                }
+                else if (end.ToString().Equals("BLH Krasowski"))
+                {
+                    List<PointBLH> result = UTM2KrasowskiBLH(this.Points, this.longitude, anglePrecision);
+                    TransformerBW.ReportProgress(80);
+                    //FileOpenerButton.Visible = true; FileOpenerButton.Text = "U2000";
+                    this.FileName.Append("BLH Krasowski.txt");
+                    PrintFile(result, this.FileName.ToString(), printPrecisionA, printPrecisionL, this.resultDegreeForm, (this.start.ToString() + " do " + this.end.ToString()));
                 }
             }
             else if (start.ToString().Equals("BLH GRS80"))
@@ -4014,7 +4221,7 @@ namespace WindowsFormsApp1
                     TransformerBW.ReportProgress(40);
                     //FileOpenerButton.Visible = true; FileOpenerButton.Text = "BLH";
                     this.FileName.Append("BLH.txt");
-                    PrintFile(result, this.FileName.ToString(), printPrecisionA, printPrecisionL, this.resultDegreeForm, "BLH do BLH.");
+                    PrintFile(result, this.FileName.ToString(), printPrecisionA, printPrecisionL, this.resultDegreeForm, "BLH GRS80 do BLH GRS80");
                 }
                 else if(end.ToString().Equals("XYZ GRS80"))
                 {
@@ -4022,8 +4229,66 @@ namespace WindowsFormsApp1
                     TransformerBW.ReportProgress(50);
                     //FileOpenerButton.Visible = true; FileOpenerButton.Text = "XYZ";
                     this.FileName.Append("XYZ.txt");
-                    PrintFile(result, this.FileName.ToString(), printPrecisionL, "BLH do XYZ.");
+                    PrintFile(result, this.FileName.ToString(), printPrecisionL, "BLH GRS80 do XYZ GRS80");
                 }
+                else if (end.ToString().Equals("Układ 1965"))
+                {
+                    if (this.resLongitude65 != 0)
+                    {
+                        List<Point> result = BLH2U65(this.PointsBLH, anglePrecision, this.resLongitude65);
+                        TransformerBW.ReportProgress(60);
+                        //FileOpenerButton.Visible = true; FileOpenerButton.Text = "U2000";
+                        this.FileName.Append("U1965.txt");
+                        PrintFile(result, this.FileName.ToString(), printPrecisionL, ("BLH GRS80 do Układu 1965"));
+                    }
+                    else
+                    {
+                        MessageBox.Show("Nie wybrano strefy dla funkcji wyjściowej.");
+                        goto koniecPsot;
+                    }
+                }
+                else if (end.ToString().Equals("Układ 1942"))
+                {
+                    this.resLongitude = setLongitude(reslongitudeK15, reslongitudeK18, reslongitudeK21, reslongitudeK24);
+                    if (this.resLongitude != 0)
+                    {
+                        List<Point> result = BLH2U42(this.PointsBLH, anglePrecision, this.resLongitude);
+                        TransformerBW.ReportProgress(65);
+                        //FileOpenerButton.Visible = true; FileOpenerButton.Text = "U2000";
+                        this.FileName.Append("U1942.txt");
+                        PrintFile(result, this.FileName.ToString(), printPrecisionL, ("BLH GRS80 do Układu 1942, L0=" + resLongitude.ToString()));
+                    }
+                    else
+                    {
+                        MessageBox.Show("Nie wybrano południka osiowego funkcji wyjściowej.");
+                        goto koniecPsot;
+                    }
+                }
+                else if (end.ToString().Equals("GUGIK80"))
+                {
+                    List<Point> result = BLH2GUGIK80(this.PointsBLH, anglePrecision);
+                    TransformerBW.ReportProgress(70);
+                    //FileOpenerButton.Visible = true; FileOpenerButton.Text = "U1992";
+                    this.FileName.Append("GUGIK80.txt");
+                    PrintFile(result, this.FileName.ToString(), printPrecisionL, ("BLH GRS80 do Układu GUGIK80"));
+                }
+                else if (end.ToString().Equals("XYZ Krasowski"))
+                {
+                    List<Point3D> result = BLH2KrasowskiXYZ(this.PointsBLH, anglePrecision);
+                    TransformerBW.ReportProgress(75);
+                    //FileOpenerButton.Visible = true; FileOpenerButton.Text = "U2000";
+                    this.FileName.Append("XYZ Krasowski.txt");
+                    PrintFile(result, this.FileName.ToString(), printPrecisionL, ("BLH GRS80 do XYZ Krasowski"));
+                }
+                else if (end.ToString().Equals("BLH Krasowski"))
+                {
+                    List<PointBLH> result = BLH2KrasowskiBLH(this.PointsBLH, anglePrecision);
+                    TransformerBW.ReportProgress(80);
+                    //FileOpenerButton.Visible = true; FileOpenerButton.Text = "U2000";
+                    this.FileName.Append("BLH Krasowski.txt");
+                    PrintFile(result, this.FileName.ToString(), printPrecisionA, printPrecisionL, this.resultDegreeForm, ("BLH GRS80 do BLH Krasowski"));
+                }
+
             }
             else if (start.ToString().Equals("XYZ GRS80"))
             {
@@ -4075,7 +4340,7 @@ namespace WindowsFormsApp1
                     TransformerBW.ReportProgress(40);
                     //FileOpenerButton.Visible = true; FileOpenerButton.Text = "BLH";
                     this.FileName.Append("BLH.txt");
-                    PrintFile(result, this.FileName.ToString(), printPrecisionA, printPrecisionL, this.resultDegreeForm, "XYZ do BLH");
+                    PrintFile(result, this.FileName.ToString(), printPrecisionA, printPrecisionL, this.resultDegreeForm, "XYZ GRS80 do BLH GRS80");
                 }
                 else if (end.ToString().Equals("XYZ GRS80"))
                 {
@@ -4083,7 +4348,654 @@ namespace WindowsFormsApp1
                     TransformerBW.ReportProgress(50);
                     //FileOpenerButton.Visible = true; FileOpenerButton.Text = "XYZ";
                     this.FileName.Append("XYZ.txt");
-                    PrintFile(result, this.FileName.ToString(), printPrecisionL, "XYZ do XYZ.");
+                    PrintFile(result, this.FileName.ToString(), printPrecisionL, "XYZ GRS80 do XYZ GRS80");
+                }
+                else if (end.ToString().Equals("Układ 1965"))
+                {
+                    if (this.resLongitude65 != 0)
+                    {
+                        List<Point> result = XYZ2U65(this.Points3D, anglePrecision, this.resLongitude65);
+                        TransformerBW.ReportProgress(60);
+                        //FileOpenerButton.Visible = true; FileOpenerButton.Text = "U2000";
+                        this.FileName.Append("U1965.txt");
+                        PrintFile(result, this.FileName.ToString(), printPrecisionL, ("XYZ GRS80 do Układu 1965"));
+                    }
+                    else
+                    {
+                        MessageBox.Show("Nie wybrano strefy dla funkcji wyjściowej.");
+                        goto koniecPsot;
+                    }
+                }
+                else if (end.ToString().Equals("Układ 1942"))
+                {
+                    this.resLongitude = setLongitude(reslongitudeK15, reslongitudeK18, reslongitudeK21, reslongitudeK24);
+                    if (this.resLongitude != 0)
+                    {
+                        List<Point> result = XYZ2U42(this.Points3D, anglePrecision, this.resLongitude);
+                        TransformerBW.ReportProgress(65);
+                        //FileOpenerButton.Visible = true; FileOpenerButton.Text = "U2000";
+                        this.FileName.Append("U1942.txt");
+                        PrintFile(result, this.FileName.ToString(), printPrecisionL, ("XYZ GRS80 do Układu 1942, L0=" + resLongitude.ToString()));
+                    }
+                    else
+                    {
+                        MessageBox.Show("Nie wybrano południka osiowego funkcji wyjściowej.");
+                        goto koniecPsot;
+                    }
+                }
+                else if (end.ToString().Equals("GUGIK80"))
+                {
+                    List<Point> result = XYZ2GUGIK80(this.Points3D, anglePrecision);
+                    TransformerBW.ReportProgress(70);
+                    //FileOpenerButton.Visible = true; FileOpenerButton.Text = "U1992";
+                    this.FileName.Append("GUGIK80.txt");
+                    PrintFile(result, this.FileName.ToString(), printPrecisionL, ("XYZ GRS80 do Układu GUGIK80"));
+                }
+                else if (end.ToString().Equals("XYZ Krasowski"))
+                {
+                    List<Point3D> result = XYZ2KrasowskiXYZ(this.Points3D, anglePrecision);
+                    TransformerBW.ReportProgress(75);
+                    //FileOpenerButton.Visible = true; FileOpenerButton.Text = "U2000";
+                    this.FileName.Append("XYZ Krasowski.txt");
+                    PrintFile(result, this.FileName.ToString(), printPrecisionL, ("XYZ GRS80 do XYZ Krasowski"));
+                }
+                else if (end.ToString().Equals("BLH Krasowski"))
+                {
+                    List<PointBLH> result = XYZ2KrasowskiBLH(this.Points3D, anglePrecision);
+                    TransformerBW.ReportProgress(80);
+                    //FileOpenerButton.Visible = true; FileOpenerButton.Text = "U2000";
+                    this.FileName.Append("BLH Krasowski.txt");
+                    PrintFile(result, this.FileName.ToString(), printPrecisionA, printPrecisionL, this.resultDegreeForm, ("XYZ GRS80 do BLH Krasowski"));
+                }
+            }
+            else if (start.ToString().Equals("Układ 1965"))
+            {
+                if (end.ToString().Equals("Układ 2000"))
+                {
+                    this.resLongitude = setLongitude(resultLongitude15, resultLongitude18, resultLongitude21, resultLongitude24);
+                    if (this.resLongitude != 0)
+                    {
+                        List<Point> result = U65ToU2000(this.Points, this.longitude65, anglePrecision, this.resLongitude);
+                        TransformerBW.ReportProgress(10);
+                        //FileOpenerButton.Visible = true; FileOpenerButton.Text = "U2000";
+                        this.FileName.Append("U2000.txt");
+                        PrintFile(result, this.FileName.ToString(), printPrecisionL, ("Układ 1965 do Układu 2000, L0=" + resLongitude.ToString()));
+                    }
+                    else
+                    {
+                        MessageBox.Show("Nie wybrano południka osiowego funkcji wyjściowej.");
+                        goto koniecPsot;
+                    }
+                }
+                else if (end.ToString().Equals("Układ 1992"))
+                {
+                    List<Point> result = U65ToU2000(this.Points, this.longitude65, anglePrecision, this.resLongitude);
+                    TransformerBW.ReportProgress(20);
+                    //FileOpenerButton.Visible = true; FileOpenerButton.Text = "U1992";
+                    this.FileName.Append("U1992.txt");
+                    PrintFile(result, this.FileName.ToString(), printPrecisionL, ("Układ 1965 do Układu 1992, L0=" + resLongitude.ToString()));
+                }
+                else if (end.ToString().Equals("UTM"))
+                {
+                    this.resLongitude = setLongitude(resultLongitudeUTM15, resultLongitudeUTM21);
+                    if (this.resLongitude != 0)
+                    {
+                        List<Point> result = U65ToUTM(this.Points, this.longitude65, anglePrecision, this.resLongitude);
+                        TransformerBW.ReportProgress(30);
+                        //FileOpenerButton.Visible = true; FileOpenerButton.Text = "UTM";
+                        this.FileName.Append("UTM.txt");
+                        PrintFile(result, this.FileName.ToString(), printPrecisionL, ("Układ 1965 do Układu UTM, L0=" + resLongitude.ToString()));
+                    }
+                    else
+                    {
+                        MessageBox.Show("Nie wybrano południka osiowego funkcji wyjściowej.");
+                        goto koniecPsot;
+                    }
+                }
+                else if (end.ToString().Equals("BLH GRS80"))
+                {
+                    List<PointBLH> result = U65ToBLHGRS(this.Points, this.longitude65, anglePrecision);
+                    TransformerBW.ReportProgress(40);
+                    //FileOpenerButton.Visible = true; FileOpenerButton.Text = "BLH";
+                    this.FileName.Append("BLH.txt");
+                    PrintFile(result, this.FileName.ToString(), printPrecisionA, printPrecisionL, this.resultDegreeForm, "Układ 1965 do BLH");
+                }
+                else if (end.ToString().Equals("XYZ GRS80"))
+                {
+                    List<Point3D> result = U65ToXYZGRS(this.Points, this.longitude65, anglePrecision);
+                    TransformerBW.ReportProgress(50);
+                    //FileOpenerButton.Visible = true; FileOpenerButton.Text = "XYZ";
+                    this.FileName.Append("XYZ.txt");
+                    PrintFile(result, this.FileName.ToString(), printPrecisionL, "Układ 1965 do XYZ GRS80.");
+                }
+                else if (end.ToString().Equals("Układ 1965"))
+                {
+                    if (this.resLongitude65 != 0)
+                    {
+                        List<Point> result = U65ToU65(this.Points, this.longitude65, this.resLongitude65, anglePrecision);
+                        TransformerBW.ReportProgress(60);
+                        //FileOpenerButton.Visible = true; FileOpenerButton.Text = "U2000";
+                        this.FileName.Append("U1965.txt");
+                        PrintFile(result, this.FileName.ToString(), printPrecisionL, ("Układ 1965 do Układu 1965"));
+                    }
+                    else
+                    {
+                        MessageBox.Show("Nie wybrano strefy dla funkcji wyjściowej.");
+                        goto koniecPsot;
+                    }
+                }
+                else if (end.ToString().Equals("Układ 1942"))
+                {
+                    this.resLongitude = setLongitude(reslongitudeK15, reslongitudeK18, reslongitudeK21, reslongitudeK24);
+                    if (this.resLongitude != 0)
+                    {
+                        List<Point> result = U65ToU42(this.Points, this.longitude65, this.resLongitude, anglePrecision);
+                        TransformerBW.ReportProgress(65);
+                        //FileOpenerButton.Visible = true; FileOpenerButton.Text = "U2000";
+                        this.FileName.Append("U1942.txt");
+                        PrintFile(result, this.FileName.ToString(), printPrecisionL, ("Układ 1965 do Układu 1942, L0=" + resLongitude.ToString()));
+                    }
+                    else
+                    {
+                        MessageBox.Show("Nie wybrano południka osiowego funkcji wyjściowej.");
+                        goto koniecPsot;
+                    }
+                }
+                else if (end.ToString().Equals("GUGIK80"))
+                {
+                    List<Point> result = U65ToGUGIK80(this.Points, this.longitude65, anglePrecision);
+                    TransformerBW.ReportProgress(70);
+                    //FileOpenerButton.Visible = true; FileOpenerButton.Text = "U1992";
+                    this.FileName.Append("GUGIK80.txt");
+                    PrintFile(result, this.FileName.ToString(), printPrecisionL, ("Układ 1965 do Układu GUGIK80"));
+                }
+                else if (end.ToString().Equals("XYZ Krasowski"))
+                {
+                    List<Point3D> result = U65ToXYZ(this.Points, this.longitude65, anglePrecision);                    
+                    TransformerBW.ReportProgress(75);
+                    //FileOpenerButton.Visible = true; FileOpenerButton.Text = "U2000";
+                    this.FileName.Append("XYZ Krasowski.txt");
+                    PrintFile(result, this.FileName.ToString(), printPrecisionL, ("Układ 1965 do XYZ Krasowski"));
+                }
+                else if (end.ToString().Equals("BLH Krasowski"))
+                {
+                    List<PointBLH> result = XY65ToKrasowski(this.Points, this.x0, this.y0, this.R0, this.longitude65, this.xGK0, anglePrecision);
+                    TransformerBW.ReportProgress(80);
+                    //FileOpenerButton.Visible = true; FileOpenerButton.Text = "U2000";
+                    this.FileName.Append("BLH Krasowski.txt");
+                    PrintFile(result, this.FileName.ToString(), printPrecisionA, printPrecisionL, this.resultDegreeForm, ("Układ 1965 do BLH Krasowski"));
+                }
+            }
+            else if(start.ToString().Equals("Układ 1942"))
+            {
+                if (end.ToString().Equals("Układ 2000"))
+                {
+                    this.resLongitude = setLongitude(resultLongitude15, resultLongitude18, resultLongitude21, resultLongitude24);
+                    if (this.resLongitude != 0)
+                    {
+                        List<Point> result = U42ToU2000(this.Points, this.longitude, anglePrecision, this.resLongitude);
+                        TransformerBW.ReportProgress(10);
+                        //FileOpenerButton.Visible = true; FileOpenerButton.Text = "U2000";
+                        this.FileName.Append("U2000.txt");
+                        PrintFile(result, this.FileName.ToString(), printPrecisionL, ("Układ 1942 do Układu 2000, L0=" + resLongitude.ToString()));
+                    }
+                    else
+                    {
+                        MessageBox.Show("Nie wybrano południka osiowego funkcji wyjściowej.");
+                        goto koniecPsot;
+                    }
+                }
+                else if (end.ToString().Equals("Układ 1992"))
+                {
+                    List<Point> result = U42ToU1992(this.Points, this.longitude, anglePrecision);
+                    TransformerBW.ReportProgress(20);
+                    //FileOpenerButton.Visible = true; FileOpenerButton.Text = "U1992";
+                    this.FileName.Append("U1992.txt");
+                    PrintFile(result, this.FileName.ToString(), printPrecisionL, ("Układ 1942 do Układu 1992, L0=" + resLongitude.ToString()));
+                }
+                else if (end.ToString().Equals("UTM"))
+                {
+                    this.resLongitude = setLongitude(resultLongitudeUTM15, resultLongitudeUTM21);
+                    if (this.resLongitude != 0)
+                    {
+                        List<Point> result = U42ToUTM(this.Points, this.longitude, anglePrecision, this.resLongitude);
+                        TransformerBW.ReportProgress(30);
+                        //FileOpenerButton.Visible = true; FileOpenerButton.Text = "UTM";
+                        this.FileName.Append("UTM.txt");
+                        PrintFile(result, this.FileName.ToString(), printPrecisionL, ("Układ 1942 do Układu UTM, L0=" + resLongitude.ToString()));
+                    }
+                    else
+                    {
+                        MessageBox.Show("Nie wybrano południka osiowego funkcji wyjściowej.");
+                        goto koniecPsot;
+                    }
+                }
+                else if (end.ToString().Equals("BLH GRS80"))
+                {
+                    List<PointBLH> result = U42ToBLHGRS(this.Points, this.longitude, anglePrecision);
+                    TransformerBW.ReportProgress(40);
+                    //FileOpenerButton.Visible = true; FileOpenerButton.Text = "BLH";
+                    this.FileName.Append("BLH.txt");
+                    PrintFile(result, this.FileName.ToString(), printPrecisionA, printPrecisionL, this.resultDegreeForm, "Układ 1942 do BLH");
+                }
+                else if (end.ToString().Equals("XYZ GRS80"))
+                {
+                    List<Point3D> result = U42ToXYZGRS(this.Points, this.longitude, anglePrecision);
+                    TransformerBW.ReportProgress(50);
+                    //FileOpenerButton.Visible = true; FileOpenerButton.Text = "XYZ";
+                    this.FileName.Append("XYZ.txt");
+                    PrintFile(result, this.FileName.ToString(), printPrecisionL, "Układ 1942 do XYZ GRS80.");
+                }
+                else if (end.ToString().Equals("Układ 1965"))
+                {
+                    if (this.resLongitude65 != 0)
+                    {
+                        List<Point> result = U42ToU65(this.Points, this.longitude, this.resLongitude65, anglePrecision);
+                        TransformerBW.ReportProgress(60);
+                        //FileOpenerButton.Visible = true; FileOpenerButton.Text = "U2000";
+                        this.FileName.Append("U1965.txt");
+                        PrintFile(result, this.FileName.ToString(), printPrecisionL, ("Układ 1942 do Układu 1965"));
+                    }
+                    else
+                    {
+                        MessageBox.Show("Nie wybrano strefy dla funkcji wyjściowej.");
+                        goto koniecPsot;
+                    }
+                }
+                else if (end.ToString().Equals("Układ 1942"))
+                {
+                    this.resLongitude = setLongitude(reslongitudeK15, reslongitudeK18, reslongitudeK21, reslongitudeK24);
+                    if (this.resLongitude != 0)
+                    {
+                        List<Point> result = U42ToU42(this.Points, this.longitude, this.resLongitude, anglePrecision);
+                        TransformerBW.ReportProgress(65);
+                        //FileOpenerButton.Visible = true; FileOpenerButton.Text = "U2000";
+                        this.FileName.Append("U1942.txt");
+                        PrintFile(result, this.FileName.ToString(), printPrecisionL, ("Układ 1942 do Układu 1942, L0=" + resLongitude.ToString()));
+                    }
+                    else
+                    {
+                        MessageBox.Show("Nie wybrano południka osiowego funkcji wyjściowej.");
+                        goto koniecPsot;
+                    }
+                }
+                else if (end.ToString().Equals("GUGIK80"))
+                {
+                    List<Point> result = U42ToGUGIK80(this.Points, this.longitude, anglePrecision);
+                    TransformerBW.ReportProgress(70);
+                    //FileOpenerButton.Visible = true; FileOpenerButton.Text = "U1992";
+                    this.FileName.Append("GUGIK80.txt");
+                    PrintFile(result, this.FileName.ToString(), printPrecisionL, ("Układ 1942 do Układu GUGIK80"));
+                }
+                else if (end.ToString().Equals("XYZ Krasowski"))
+                {
+                    List<Point3D> result = U42ToXYZ(this.Points, this.longitude, anglePrecision);
+                    TransformerBW.ReportProgress(75);
+                    //FileOpenerButton.Visible = true; FileOpenerButton.Text = "U2000";
+                    this.FileName.Append("XYZ Krasowski.txt");
+                    PrintFile(result, this.FileName.ToString(), printPrecisionL, ("Układ 1965 do XYZ Krasowski"));
+                }
+                else if (end.ToString().Equals("BLH Krasowski"))
+                {
+                    List<PointBLH> result = XY42ToKrasowski(this.Points, this.longitude, anglePrecision, this.StripesSize);
+                    TransformerBW.ReportProgress(80);
+                    //FileOpenerButton.Visible = true; FileOpenerButton.Text = "U2000";
+                    this.FileName.Append("BLH Krasowski.txt");
+                    PrintFile(result, this.FileName.ToString(), printPrecisionA, printPrecisionL, this.resultDegreeForm, ("Układ 1942 do BLH Krasowski"));
+                }
+            }
+            else if (start.ToString().Equals("GUGIK80"))
+            {
+                if (end.ToString().Equals("Układ 2000"))
+                {
+                    this.resLongitude = setLongitude(resultLongitude15, resultLongitude18, resultLongitude21, resultLongitude24);
+                    if (this.resLongitude != 0)
+                    {
+                        List<Point> result = GUGIK80ToU2000(this.Points, anglePrecision, this.resLongitude);
+                        TransformerBW.ReportProgress(10);
+                        //FileOpenerButton.Visible = true; FileOpenerButton.Text = "U2000";
+                        this.FileName.Append("U2000.txt");
+                        PrintFile(result, this.FileName.ToString(), printPrecisionL, ("Układ GUGIK80 do Układu 2000, L0=" + resLongitude.ToString()));
+                    }
+                    else
+                    {
+                        MessageBox.Show("Nie wybrano południka osiowego funkcji wyjściowej.");
+                        goto koniecPsot;
+                    }
+                }
+                else if (end.ToString().Equals("Układ 1992"))
+                {
+                    List<Point> result = GUGIK80ToU1992(this.Points, anglePrecision);
+                    TransformerBW.ReportProgress(20);
+                    //FileOpenerButton.Visible = true; FileOpenerButton.Text = "U1992";
+                    this.FileName.Append("U1992.txt");
+                    PrintFile(result, this.FileName.ToString(), printPrecisionL, ("Układ GUGIK80 do Układu 1992, L0=" + resLongitude.ToString()));
+                }
+                else if (end.ToString().Equals("UTM"))
+                {
+                    this.resLongitude = setLongitude(resultLongitudeUTM15, resultLongitudeUTM21);
+                    if (this.resLongitude != 0)
+                    {
+                        List<Point> result = GUGIK80ToUTM(this.Points, anglePrecision, this.resLongitude);
+                        TransformerBW.ReportProgress(30);
+                        //FileOpenerButton.Visible = true; FileOpenerButton.Text = "UTM";
+                        this.FileName.Append("UTM.txt");
+                        PrintFile(result, this.FileName.ToString(), printPrecisionL, ("Układ GUGIK80 do Układu UTM, L0=" + resLongitude.ToString()));
+                    }
+                    else
+                    {
+                        MessageBox.Show("Nie wybrano południka osiowego funkcji wyjściowej.");
+                        goto koniecPsot;
+                    }
+                }
+                else if (end.ToString().Equals("BLH GRS80"))
+                {
+                    List<PointBLH> result = GUGIK80ToBLHGRS(this.Points, anglePrecision);
+                    TransformerBW.ReportProgress(40);
+                    //FileOpenerButton.Visible = true; FileOpenerButton.Text = "BLH";
+                    this.FileName.Append("BLH.txt");
+                    PrintFile(result, this.FileName.ToString(), printPrecisionA, printPrecisionL, this.resultDegreeForm, "Układ GUGIK80 do BLH GRS80");
+                }
+                else if (end.ToString().Equals("XYZ GRS80"))
+                {
+                    List<Point3D> result = GUGIK80ToXYZGRS(this.Points, anglePrecision);
+                    TransformerBW.ReportProgress(50);
+                    //FileOpenerButton.Visible = true; FileOpenerButton.Text = "XYZ";
+                    this.FileName.Append("XYZ.txt");
+                    PrintFile(result, this.FileName.ToString(), printPrecisionL, "Układ GUGIK80 do XYZ GRS80.");
+                }
+                else if (end.ToString().Equals("Układ 1965"))
+                {
+                    if (this.resLongitude65 != 0)
+                    {
+                        List<Point> result = GUGIK2U65(this.Points, this.resLongitude65, anglePrecision);
+                        TransformerBW.ReportProgress(60);
+                        //FileOpenerButton.Visible = true; FileOpenerButton.Text = "U2000";
+                        this.FileName.Append("U1965.txt");
+                        PrintFile(result, this.FileName.ToString(), printPrecisionL, ("Układ GUGIK80 do Układu 1965"));
+                    }
+                    else
+                    {
+                        MessageBox.Show("Nie wybrano strefy dla funkcji wyjściowej.");
+                        goto koniecPsot;
+                    }
+                }
+                else if (end.ToString().Equals("Układ 1942"))
+                {
+                    this.resLongitude = setLongitude(reslongitudeK15, reslongitudeK18, reslongitudeK21, reslongitudeK24);
+                    if (this.resLongitude != 0)
+                    {
+                        List<Point> result = GUGIK2U42(this.Points, this.resLongitude, anglePrecision);
+                        TransformerBW.ReportProgress(65);
+                        //FileOpenerButton.Visible = true; FileOpenerButton.Text = "U2000";
+                        this.FileName.Append("U1942.txt");
+                        PrintFile(result, this.FileName.ToString(), printPrecisionL, ("Układ 1942 do Układu 1942, L0=" + resLongitude.ToString()));
+                    }
+                    else
+                    {
+                        MessageBox.Show("Nie wybrano południka osiowego funkcji wyjściowej.");
+                        goto koniecPsot;
+                    }
+                }
+                else if (end.ToString().Equals("GUGIK80"))
+                {
+                    List<Point> result = GUGIK2GUGIK(this.Points);
+                    TransformerBW.ReportProgress(70);
+                    //FileOpenerButton.Visible = true; FileOpenerButton.Text = "U1992";
+                    this.FileName.Append("GUGIK80.txt");
+                    PrintFile(result, this.FileName.ToString(), printPrecisionL, ("Układ GUGIK80 do Układu GUGIK80"));
+                }
+                else if (end.ToString().Equals("XYZ Krasowski"))
+                {
+                    List<Point3D> result = GUGIK2XYZ(this.Points, anglePrecision);
+                    TransformerBW.ReportProgress(75);
+                    //FileOpenerButton.Visible = true; FileOpenerButton.Text = "U2000";
+                    this.FileName.Append("XYZ Krasowski.txt");
+                    PrintFile(result, this.FileName.ToString(), printPrecisionL, ("Układ GUGIK80 do XYZ Krasowski"));
+                }
+                else if (end.ToString().Equals("BLH Krasowski"))
+                {
+                    List<PointBLH> result = GUGIK80ToKrasowski(this.Points, anglePrecision);
+                    TransformerBW.ReportProgress(80);
+                    //FileOpenerButton.Visible = true; FileOpenerButton.Text = "U2000";
+                    this.FileName.Append("BLH Krasowski.txt");
+                    PrintFile(result, this.FileName.ToString(), printPrecisionA, printPrecisionL, this.resultDegreeForm, ("Układ GUGIK80 do BLH Krasowski"));
+                }
+            }
+            else if(start.ToString().Equals("XYZ Krasowski"))
+            {
+                if (end.ToString().Equals("Układ 2000"))
+                {
+                    this.resLongitude = setLongitude(resultLongitude15, resultLongitude18, resultLongitude21, resultLongitude24);
+                    if (this.resLongitude != 0)
+                    {
+                        List<Point> result = KrasowskiXYZ2U2000(this.Points3D, anglePrecision, this.resLongitude);
+                        TransformerBW.ReportProgress(10);
+                        //FileOpenerButton.Visible = true; FileOpenerButton.Text = "U2000";
+                        this.FileName.Append("U2000.txt");
+                        PrintFile(result, this.FileName.ToString(), printPrecisionL, ("XYZ Krasowski do Układu 2000, L0=" + resLongitude.ToString()));
+                    }
+                    else
+                    {
+                        MessageBox.Show("Nie wybrano południka osiowego funkcji wyjściowej.");
+                        goto koniecPsot;
+                    }
+                }
+                else if (end.ToString().Equals("Układ 1992"))
+                {
+                    List<Point> result = KrasowskiXYZ2U1992(this.Points3D, anglePrecision);
+                    TransformerBW.ReportProgress(20);
+                    //FileOpenerButton.Visible = true; FileOpenerButton.Text = "U1992";
+                    this.FileName.Append("U1992.txt");
+                    PrintFile(result, this.FileName.ToString(), printPrecisionL, ("XYZ Krasowski do Układu 1992, L0=" + resLongitude.ToString()));
+                }
+                else if (end.ToString().Equals("UTM"))
+                {
+                    this.resLongitude = setLongitude(resultLongitudeUTM15, resultLongitudeUTM21);
+                    if (this.resLongitude != 0)
+                    {
+                        List<Point> result = KrasowskiXYZ2UTM(this.Points3D, anglePrecision, this.resLongitude);
+                        TransformerBW.ReportProgress(30);
+                        //FileOpenerButton.Visible = true; FileOpenerButton.Text = "UTM";
+                        this.FileName.Append("UTM.txt");
+                        PrintFile(result, this.FileName.ToString(), printPrecisionL, ("XYZ Krasowski do Układu UTM, L0=" + resLongitude.ToString()));
+                    }
+                    else
+                    {
+                        MessageBox.Show("Nie wybrano południka osiowego funkcji wyjściowej.");
+                        goto koniecPsot;
+                    }
+                }
+                else if (end.ToString().Equals("BLH GRS80"))
+                {
+                    List<PointBLH> result = KrasowskiXYZ2BLHGRS(this.Points3D, anglePrecision);
+                    TransformerBW.ReportProgress(40);
+                    //FileOpenerButton.Visible = true; FileOpenerButton.Text = "BLH";
+                    this.FileName.Append("BLH.txt");
+                    PrintFile(result, this.FileName.ToString(), printPrecisionA, printPrecisionL, this.resultDegreeForm, "XYZ Krasowski do BLH GRS80");
+                }
+                else if (end.ToString().Equals("XYZ GRS80"))
+                {
+                    List<Point3D> result = KrasowskiXYZ2XYZGRS(this.Points3D, anglePrecision);
+                    TransformerBW.ReportProgress(50);
+                    //FileOpenerButton.Visible = true; FileOpenerButton.Text = "XYZ";
+                    this.FileName.Append("XYZ.txt");
+                    PrintFile(result, this.FileName.ToString(), printPrecisionL, "XYZ Krasowski do XYZ BLH80");
+                }
+                else if (end.ToString().Equals("Układ 1965"))
+                {
+                    if (this.resLongitude65 != 0)
+                    {
+                        List<Point> result = KrasowskiXYZ2U65(this.Points3D, this.resLongitude65, anglePrecision);
+                        TransformerBW.ReportProgress(60);
+                        //FileOpenerButton.Visible = true; FileOpenerButton.Text = "U2000";
+                        this.FileName.Append("U1965.txt");
+                        PrintFile(result, this.FileName.ToString(), printPrecisionL, ("XYZ Krasowski do Układu 1965"));
+                    }
+                    else
+                    {
+                        MessageBox.Show("Nie wybrano strefy dla funkcji wyjściowej.");
+                        goto koniecPsot;
+                    }
+                }
+                else if (end.ToString().Equals("Układ 1942"))
+                {
+                    this.resLongitude = setLongitude(reslongitudeK15, reslongitudeK18, reslongitudeK21, reslongitudeK24);
+                    if (this.resLongitude != 0)
+                    {
+                        List<Point> result = KrasowskiXYZ2U42(this.Points3D, this.resLongitude, anglePrecision);
+                        TransformerBW.ReportProgress(65);
+                        //FileOpenerButton.Visible = true; FileOpenerButton.Text = "U2000";
+                        this.FileName.Append("U1942.txt");
+                        PrintFile(result, this.FileName.ToString(), printPrecisionL, ("XYZ Krasowski do Układu 1942, L0=" + resLongitude.ToString()));
+                    }
+                    else
+                    {
+                        MessageBox.Show("Nie wybrano południka osiowego funkcji wyjściowej.");
+                        goto koniecPsot;
+                    }
+                }
+                else if (end.ToString().Equals("GUGIK80"))
+                {
+                    List<Point> result = KrasowskiXYZ2GUGIK(this.Points3D, anglePrecision);
+                    TransformerBW.ReportProgress(70);
+                    //FileOpenerButton.Visible = true; FileOpenerButton.Text = "U1992";
+                    this.FileName.Append("GUGIK80.txt");
+                    PrintFile(result, this.FileName.ToString(), printPrecisionL, ("XYZ Krasowski do Układu GUGIK80"));
+                }
+                else if (end.ToString().Equals("XYZ Krasowski"))
+                {
+                    List<Point3D> result = KXYZ2KXYZ(this.Points3D);
+                    TransformerBW.ReportProgress(75);
+                    //FileOpenerButton.Visible = true; FileOpenerButton.Text = "U2000";
+                    this.FileName.Append("XYZ Krasowski.txt");
+                    PrintFile(result, this.FileName.ToString(), printPrecisionL, ("XYZ Krasowski do XYZ Krasowski"));
+                }
+                else if (end.ToString().Equals("BLH Krasowski"))
+                {
+                    List<PointBLH> result = XYZ2Krasowski(this.Points3D, anglePrecision);
+                    TransformerBW.ReportProgress(80);
+                    //FileOpenerButton.Visible = true; FileOpenerButton.Text = "U2000";
+                    this.FileName.Append("BLH Krasowski.txt");
+                    PrintFile(result, this.FileName.ToString(), printPrecisionA, printPrecisionL, this.resultDegreeForm, ("XYZ Krasowski do BLH Krasowski"));
+                }
+            }
+            else if(start.ToString().Equals("BLH Krasowski"))
+            {
+                if (end.ToString().Equals("Układ 2000"))
+                {
+                    this.resLongitude = setLongitude(resultLongitude15, resultLongitude18, resultLongitude21, resultLongitude24);
+                    if (this.resLongitude != 0)
+                    {
+                        List<Point> result = KrasowskiBH2U2000(this.PointsBLH, anglePrecision, this.resLongitude);
+                        TransformerBW.ReportProgress(10);
+                        //FileOpenerButton.Visible = true; FileOpenerButton.Text = "U2000";
+                        this.FileName.Append("U2000.txt");
+                        PrintFile(result, this.FileName.ToString(), printPrecisionL, ("BLH Krasowski do Układu 2000, L0=" + resLongitude.ToString()));
+                    }
+                    else
+                    {
+                        MessageBox.Show("Nie wybrano południka osiowego funkcji wyjściowej.");
+                        goto koniecPsot;
+                    }
+                }
+                else if (end.ToString().Equals("Układ 1992"))
+                {
+                    List<Point> result = KrasowskiBLH2U1992(this.PointsBLH, anglePrecision);
+                    TransformerBW.ReportProgress(20);
+                    //FileOpenerButton.Visible = true; FileOpenerButton.Text = "U1992";
+                    this.FileName.Append("U1992.txt");
+                    PrintFile(result, this.FileName.ToString(), printPrecisionL, ("BLH Krasowski do Układu 1992, L0=" + resLongitude.ToString()));
+                }
+                else if (end.ToString().Equals("UTM"))
+                {
+                    this.resLongitude = setLongitude(resultLongitudeUTM15, resultLongitudeUTM21);
+                    if (this.resLongitude != 0)
+                    {
+                        List<Point> result = KrasowskiBLH2UTM(this.Points3D, anglePrecision, this.resLongitude);
+                        TransformerBW.ReportProgress(30);
+                        //FileOpenerButton.Visible = true; FileOpenerButton.Text = "UTM";
+                        this.FileName.Append("UTM.txt");
+                        PrintFile(result, this.FileName.ToString(), printPrecisionL, ("BLH Krasowski do Układu UTM, L0=" + resLongitude.ToString()));
+                    }
+                    else
+                    {
+                        MessageBox.Show("Nie wybrano południka osiowego funkcji wyjściowej.");
+                        goto koniecPsot;
+                    }
+                }
+                else if (end.ToString().Equals("BLH GRS80"))
+                {
+                    List<PointBLH> result = KrasowskiBLH2BLHGRS(this.PointsBLH, anglePrecision);
+                    TransformerBW.ReportProgress(40);
+                    //FileOpenerButton.Visible = true; FileOpenerButton.Text = "BLH";
+                    this.FileName.Append("BLH.txt");
+                    PrintFile(result, this.FileName.ToString(), printPrecisionA, printPrecisionL, this.resultDegreeForm, "BLH Krasowski do BLH GRS80");
+                }
+                else if (end.ToString().Equals("XYZ GRS80"))
+                {
+                    List<Point3D> result = KrasowskiBLH2XYZGRS(this.Points3D, anglePrecision);
+                    TransformerBW.ReportProgress(50);
+                    //FileOpenerButton.Visible = true; FileOpenerButton.Text = "XYZ";
+                    this.FileName.Append("XYZ.txt");
+                    PrintFile(result, this.FileName.ToString(), printPrecisionL, "BLH Krasowski do XYZ BLH80");
+                }
+                else if (end.ToString().Equals("Układ 1965"))
+                {
+                    if (this.resLongitude65 != 0)
+                    {
+                        List<Point> result = Krasowski2XY65(this.PointsBLH, this.resx0, this.resy0, this.resR0, this.resLongitude65, this.resXGK0);
+                        TransformerBW.ReportProgress(60);
+                        //FileOpenerButton.Visible = true; FileOpenerButton.Text = "U2000";
+                        this.FileName.Append("U1965.txt");
+                        PrintFile(result, this.FileName.ToString(), printPrecisionL, ("BLH Krasowski do Układu 1965"));
+                    }
+                    else
+                    {
+                        MessageBox.Show("Nie wybrano strefy dla funkcji wyjściowej.");
+                        goto koniecPsot;
+                    }
+                }
+                else if (end.ToString().Equals("Układ 1942"))
+                {
+                    this.resLongitude = setLongitude(reslongitudeK15, reslongitudeK18, reslongitudeK21, reslongitudeK24);
+                    if (this.resLongitude != 0)
+                    {
+                        List<Point> result = Krasowski2XY42(this.PointsBLH, this.resLongitude, this.resStripesSize);
+                        TransformerBW.ReportProgress(65);
+                        //FileOpenerButton.Visible = true; FileOpenerButton.Text = "U2000";
+                        this.FileName.Append("U1942.txt");
+                        PrintFile(result, this.FileName.ToString(), printPrecisionL, ("BLH Krasowski do Układu 1942, L0=" + resLongitude.ToString()));
+                    }
+                    else
+                    {
+                        MessageBox.Show("Nie wybrano południka osiowego funkcji wyjściowej.");
+                        goto koniecPsot;
+                    }
+                }
+                else if (end.ToString().Equals("GUGIK80"))
+                {
+                    List<Point> result = Krasowski2GUGIK80(this.PointsBLH);
+                    TransformerBW.ReportProgress(70);
+                    //FileOpenerButton.Visible = true; FileOpenerButton.Text = "U1992";
+                    this.FileName.Append("GUGIK80.txt");
+                    PrintFile(result, this.FileName.ToString(), printPrecisionL, ("BLH Krasowski do Układu GUGIK80"));
+                }
+                else if (end.ToString().Equals("XYZ Krasowski"))
+                {
+                    List<Point3D> result = Krasowski2XYZ(this.PointsBLH);
+                    TransformerBW.ReportProgress(75);
+                    //FileOpenerButton.Visible = true; FileOpenerButton.Text = "U2000";
+                    this.FileName.Append("XYZ Krasowski.txt");
+                    PrintFile(result, this.FileName.ToString(), printPrecisionL, ("BLH Krasowski do XYZ Krasowski"));
+                }
+                else if (end.ToString().Equals("BLH Krasowski"))
+                {
+                    List<PointBLH> result = KBLH2KBLH(this.PointsBLH);
+                    TransformerBW.ReportProgress(80);
+                    //FileOpenerButton.Visible = true; FileOpenerButton.Text = "U2000";
+                    this.FileName.Append("BLH Krasowski.txt");
+                    PrintFile(result, this.FileName.ToString(), printPrecisionA, printPrecisionL, this.resultDegreeForm, ("BLH Krasowski do BLH Krasowski"));
                 }
             }
             koniecPsot:
@@ -4137,8 +5049,13 @@ namespace WindowsFormsApp1
                 case 30:
                     FileOpenerButton.Visible = true; FileOpenerButton.Text = "UTM"; break;
                 case 40:
-                    FileOpenerButton.Visible = true; FileOpenerButton.Text = "BLH"; break;
-                case 50: FileOpenerButton.Visible = true; FileOpenerButton.Text = "XYZ"; break;
+                    FileOpenerButton.Visible = true; FileOpenerButton.Text = "BLH GRS"; break;
+                case 50: FileOpenerButton.Visible = true; FileOpenerButton.Text = "XYZ GRS"; break;
+                case 60: FileOpenerButton.Visible = true; FileOpenerButton.Text = "U1965"; break;
+                case 65: FileOpenerButton.Visible = true; FileOpenerButton.Text = "U1942"; break;
+                case 70: FileOpenerButton.Visible = true; FileOpenerButton.Text = "GUGIK80"; break;
+                case 75: FileOpenerButton.Visible = true; FileOpenerButton.Text = "XYZ Krasowski"; break;
+                case 80: FileOpenerButton.Visible = true; FileOpenerButton.Text = "BLH Krasowski"; break;
                 case 99: this.MonitorRichTextBox.Text += "Koniec obliczeń.";
                     this.comunicator.Clear();  break;
                 default: break;
