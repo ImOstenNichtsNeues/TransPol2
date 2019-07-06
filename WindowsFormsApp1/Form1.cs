@@ -3214,6 +3214,91 @@ namespace WindowsFormsApp1
             }
             return result;
         }
+        //SCENARIUSZE NA OBSZARZE JEDNEJ ELIPSOIDY:
+        public List<Point> U65ToU42(List<Point>Points,double longitude65, byte longitude42, double precision)
+        {
+            List<Point> result = new List<Point>();
+            List<PointBLH> bottom = XY65ToKrasowski(Points, this.x0, this.y0, this.R0, longitude65, this.xGK0, precision);
+            result = Krasowski2XY42(bottom, longitude42, this.resStripesSize);
+            return result;
+        } 
+        public List<Point> U65ToGUGIK80(List<Point>Points, double longitude65,double precision)
+        {
+            List<Point> result = new List<Point>();
+            List<PointBLH> bottom = XY65ToKrasowski(Points, this.x0, this.y0, this.R0, longitude65, this.xGK0, precision);
+            result = Krasowski2GUGIK80(bottom);
+            return result;
+        }
+        public List<Point3D> U65ToXYZ(List<Point>Points, double longitude65, double precision)
+        {
+            List<Point3D> result = new List<Point3D>();
+            List<PointBLH> bottom = XY65ToKrasowski(Points, this.x0, this.y0, this.R0, longitude65, this.xGK0, precision);
+            result = Krasowski2XYZ(bottom);
+            return result;
+        }
+        public List<Point> U42ToU65(List<Point>Points,byte longitude42, double longitude65,double precision)
+        {
+            List<Point> result = new List<Point>();
+            List<PointBLH> bottom = XY42ToKrasowski(Points, longitude42, precision, this.StripesSize);
+            result = Krasowski2XY65(bottom, this.resx0, this.resy0, this.resR0, longitude65, this.resXGK0);
+            return result;
+        }
+        public List<Point> U42ToGUGIK80(List<Point> Points, byte longitude42, double precision)
+        {
+            List<Point> result = new List<Point>();
+            List<PointBLH> bottom = XY42ToKrasowski(Points, longitude42, precision, this.StripesSize);
+            result = Krasowski2GUGIK80(bottom);
+            return result;
+        }
+        public List<Point3D> U42ToXYZ(List<Point> Points, byte longitude42, double precision)
+        {
+            List<Point3D> result = new List<Point3D>();
+            List<PointBLH> bottom = XY42ToKrasowski(Points, longitude42, precision, this.StripesSize);
+            result = Krasowski2XYZ(bottom);
+            return result;
+        }
+        public List<Point> GUGIK2U65(List<Point>Points, double longitude65, double precision)
+        {
+            List<Point> result = new List<Point>();
+            List<PointBLH> bottom = GUGIK80ToKrasowski(Points, precision);
+            result = Krasowski2XY65(bottom, this.resx0, this.resy0, this.resR0, longitude65, this.resXGK0);
+            return result;
+        }
+        public List<Point> GUGIK2U42(List<Point> Points, byte longitude42, double precision)
+        {
+            List<Point> result = new List<Point>();
+            List<PointBLH> bottom = GUGIK80ToKrasowski(Points, precision);
+            result = Krasowski2XY42(bottom, longitude42, this.resStripesSize);
+            return result;
+        }
+        public List<Point3D> GUGIK2XYZ(List<Point> Points, double precision)
+        {
+            List<Point3D> result = new List<Point3D>();
+            List<PointBLH> bottom = GUGIK80ToKrasowski(Points, precision);
+            result = Krasowski2XYZ(bottom);
+            return result;
+        }
+        public List<Point> KrasowskiXYZ2U65(List<Point3D> Points, double longitude65, double precision)
+        {
+            List<Point> result = new List<Point>();
+            List<PointBLH> bottom = XYZ2Krasowski(Points, precision);
+            result = Krasowski2XY65(bottom, this.resx0, this.resy0, this.resR0, longitude65, this.resXGK0);
+            return result;
+        }
+        public List<Point> KrasowskiXYZ2U42(List<Point3D> Points, byte longitude42, double precision)
+        {
+            List<Point> result = new List<Point>();
+            List<PointBLH> bottom = XYZ2Krasowski(Points, precision);
+            result = Krasowski2XY42(bottom, longitude42, this.resStripesSize);
+            return result;
+        }
+        public List<Point> KrasowskiXYZ2U65(List<Point3D> Points, double precision)
+        {
+            List<Point> result = new List<Point>();
+            List<PointBLH> bottom = XYZ2Krasowski(Points, precision);
+            result = Krasowski2GUGIK80(bottom);
+            return result;
+        }
         //SCENARIUSZE TRANSFORMUJĄCE DO TEGO SAMEGO UKŁADU WSPÓŁRZĘDNYCH:
         public List<Point> U2000ToU2000(byte longitudeS, byte longitudeE, double precision, List<Point> Points)
         {
@@ -3411,6 +3496,48 @@ namespace WindowsFormsApp1
                 }
             }
             return result;
+        }
+        public List<Point> U65ToU65(List<Point> Points, double longitude65, double reslongitude65, double precision)
+        {
+            List<Point> result = new List<Point>();
+            if (longitude65.Equals(reslongitude65))
+            {
+                return Points;
+            }
+            else
+            {
+                List<PointBLH> bottom = XY65ToKrasowski(Points, this.x0, this.y0, this.R0, longitude65, this.xGK0, precision);
+                result = Krasowski2XY65(bottom, this.resx0, this.resy0, this.resR0, reslongitude65, this.resXGK0);
+                return result;
+            }
+        }
+        public List<Point> U42ToU42(List<Point>Points, byte longitude42, byte reslongitude42,double precision)
+        {
+            List<Point> result = new List<Point>();
+            if(longitude42.Equals(reslongitude42) && this.StripesSize.Equals(this.resStripesSize))
+            {
+                return Points;
+            }
+            else
+            {
+                List<PointBLH> bottom = XY42ToKrasowski(Points, longitude42, precision, this.StripesSize);
+                result = Krasowski2XY42(bottom, reslongitude42, this.resStripesSize);
+                return result;
+            }
+        }
+        public List<Point> GUGIK2GUGIK(List<Point> Points)
+        {
+            List<Point> result = Points;
+            return result;
+        }
+        public List<Point3D> KXYZ2KXYZ(List<Point3D> Points)
+        {
+            List<Point3D> result = Points;
+            return result;
+        }
+        public List<PointBLH> KBLH2KBLH(List<PointBLH> Points)
+        {
+            return Points;
         }
         private void TabPage1_Click(object sender, EventArgs e)
         {
